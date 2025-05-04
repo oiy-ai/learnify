@@ -1,0 +1,16 @@
+query getUser($email: String!) {
+  user(email: $email) {
+    __typename
+    ... on UserType {
+      id
+      name
+      avatarUrl
+      email
+      hasPassword
+    }
+    ... on LimitedUserType {
+      email
+      hasPassword
+    }
+  }
+}

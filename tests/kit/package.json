@@ -1,0 +1,27 @@
+{
+  "name": "@affine-test/kit",
+  "private": true,
+  "type": "module",
+  "version": "0.21.0",
+  "exports": {
+    "./electron": "./src/electron.ts",
+    "./mobile": "./src/mobile.ts",
+    "./playwright": "./src/playwright.ts",
+    "./utils/*": "./src/utils/*.ts",
+    "./bs/*": "./src/bs/*.ts"
+  },
+  "devDependencies": {
+    "@affine-tools/utils": "workspace:*",
+    "@blocksuite/affine": "workspace:*",
+    "@node-rs/argon2": "^2.0.2",
+    "@playwright/test": "=1.52.0",
+    "@toeverything/infra": "workspace:*",
+    "express": "^5.0.0",
+    "http-proxy-middleware": "^3.0.3"
+  },
+  "peerDependencies": {
+    "@playwright/test": "*",
+    "express": "*",
+    "http-proxy-middleware": "*"
+  }
+}

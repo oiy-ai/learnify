@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`parseUniversalId > should parse universal id > @peer(@name);@type(userspace);@id(@id); 1`] = `
+{
+  "id": "@id",
+  "peer": "@name",
+  "type": "userspace",
+}
+`;
+
+exports[`parseUniversalId > should parse universal id > @peer(@peer(name);@type(userspace);@id(@id); 1`] = `
+{
+  "id": "@id",
+  "peer": "@peer(name",
+  "type": "userspace",
+}
+`;
+
+exports[`parseUniversalId > should parse universal id > @peer(123);@type(userspace);@id(456); 1`] = `
+{
+  "id": "456",
+  "peer": "123",
+  "type": "userspace",
+}
+`;
+
+exports[`parseUniversalId > should parse universal id > @peer(123);@type(workspace);@id(456); 1`] = `
+{
+  "id": "456",
+  "peer": "123",
+  "type": "workspace",
+}
+`;
+
+exports[`parseUniversalId > should parse universal id > @peer(https://app.affine.pro);@type(userspace);@id(hello:world); 1`] = `
+{
+  "id": "hello:world",
+  "peer": "https://app.affine.pro",
+  "type": "userspace",
+}
+`;

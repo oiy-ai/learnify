@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/base:bookworm
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    network_mode: service:db
+    environment:
+      DATABASE_URL: postgresql://affine:affine@db:5432/affine
+      REDIS_SERVER_HOST: redis
+
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: affine
+      POSTGRES_USER: affine
+      POSTGRES_DB: affine
+  redis:
+    image: redis
+
+volumes:
+  postgres-data:

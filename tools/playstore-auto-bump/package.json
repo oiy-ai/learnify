@@ -1,0 +1,20 @@
+{
+  "name": "@affine/playstore-auto-bump",
+  "version": "0.21.0",
+  "private": true,
+  "type": "module",
+  "description": "Automatically bump the versionCode and versionName of an Android app from the Google Play Store versions",
+  "main": "index.ts",
+  "scripts": {
+    "bump": "r ./index.ts"
+  },
+  "dependencies": {
+    "@affine-tools/cli": "workspace:*",
+    "@affine-tools/utils": "workspace:*",
+    "@googleapis/androidpublisher": "^26.0.0",
+    "typescript": "^5.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0"
+  }
+}

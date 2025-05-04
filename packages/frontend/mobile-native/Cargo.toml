@@ -1,0 +1,32 @@
+[package]
+edition = "2021"
+name    = "affine_mobile_native"
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[[bin]]
+# This can be whatever name makes sense for your project, but the rest of this tutorial assumes uniffi-bindgen.
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
+
+[dependencies]
+affine_common  = { workspace = true }
+affine_nbstore = { workspace = true, features = ["use-as-lib"] }
+anyhow         = { workspace = true }
+base64-simd    = { workspace = true }
+chrono         = { workspace = true }
+sqlx           = { workspace = true }
+thiserror      = { workspace = true }
+uniffi         = { workspace = true, features = ["cli", "tokio"] }
+
+[target.'cfg(any(target_os = "ios", target_os = "macos"))'.dependencies]
+objc2            = { workspace = true }
+objc2-foundation = { workspace = true, features = ["NSArray", "NSFileManager", "NSPathUtilities", "NSString", "NSURL"] }
+
+[target.'cfg(not(any(target_os = "ios", target_os = "macos")))'.dependencies]
+homedir = { workspace = true }
+
+[build-dependencies]
+uniffi = { workspace = true, features = ["build"] }

@@ -1,0 +1,37 @@
+{
+  "name": "@blocksuite/sync",
+  "description": "BlockSuite data synchronization engine abstraction and implementation.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "sideEffects": false,
+  "keywords": [],
+  "author": "toeverything",
+  "license": "MIT",
+  "dependencies": {
+    "@blocksuite/global": "workspace:*",
+    "@types/lodash-es": "^4.17.12",
+    "idb": "^8.0.0",
+    "idb-keyval": "^6.2.1",
+    "lodash-es": "^4.17.21",
+    "rxjs": "^7.8.1",
+    "y-protocols": "^1.0.6"
+  },
+  "devDependencies": {
+    "vitest": "3.1.2"
+  },
+  "peerDependencies": {
+    "yjs": "*"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "dist",
+    "!src/__tests__",
+    "!dist/__tests__"
+  ],
+  "version": "0.21.0"
+}

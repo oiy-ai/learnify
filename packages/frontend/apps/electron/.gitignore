@@ -1,0 +1,17 @@
+*.autogen.*
+dist
+e2e-dist-*
+
+resources/web-static
+
+# yarn (3)
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+dev.json
+
+zip-out

@@ -1,0 +1,23 @@
+{
+  "extends": "../../../tsconfig.web.json",
+  "include": [
+    "./src/**/*",
+    "./src/**/*.json",
+    "./src/type.d.ts",
+    "./.storybook"
+  ],
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./dist",
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
+  },
+  "references": [
+    { "path": "../../common/debug" },
+    { "path": "../electron-api" },
+    { "path": "../../common/error" },
+    { "path": "../../common/graphql" },
+    { "path": "../i18n" },
+    { "path": "../../../tools/utils" },
+    { "path": "../../../blocksuite/affine/all" }
+  ]
+}

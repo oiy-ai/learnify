@@ -1,0 +1,6 @@
+query getUserFeatures {
+  currentUser {
+    id
+    features
+  }
+}

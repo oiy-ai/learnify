@@ -1,0 +1,10 @@
+query prices {
+  prices {
+    type
+    plan
+    currency
+    amount
+    yearlyAmount
+    lifetimeAmount
+  }
+}

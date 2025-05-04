@@ -1,0 +1,33 @@
+name: 'Prepare Server Test Environment'
+description: 'Prepare Server Test Environment'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Initialize database
+      shell: bash
+      run: |
+        psql -h localhost -U postgres -c "CREATE DATABASE affine;"
+        psql -h localhost -U postgres -c "CREATE USER affine WITH PASSWORD 'affine';"
+        psql -h localhost -U postgres -c "ALTER USER affine WITH SUPERUSER;"
+      env:
+        PGPASSWORD: affine
+
+    - name: Run init-db script
+      shell: bash
+      env:
+        NODE_ENV: test
+      run: |
+        yarn affine @affine/server prisma generate
+        yarn affine @affine/server prisma migrate deploy
+        yarn affine @affine/server data-migration run
+    - name: Import config
+      shell: bash
+      run: |
+        printf '{"copilot":{"enabled":true,"providers.fal":{"apiKey":"%s"},"providers.gemini":{"apiKey":"%s"},"providers.openai":{"apiKey":"%s"},"providers.perplexity":{"apiKey":"%s"},"providers.anthropic":{"apiKey":"%s"},"exa":{"key":"%s"}}}' \
+        "$COPILOT_FAL_API_KEY" \
+        "$COPILOT_GOOGLE_API_KEY" \
+        "$COPILOT_OPENAI_API_KEY" \
+        "$COPILOT_PERPLEXITY_API_KEY" \
+        "$COPILOT_ANTHROPIC_API_KEY" \
+        "$COPILOT_EXA_API_KEY" > ./packages/backend/server/config.json

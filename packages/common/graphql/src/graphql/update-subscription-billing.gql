@@ -1,0 +1,16 @@
+mutation updateSubscription(
+  $plan: SubscriptionPlan = Pro
+  $recurring: SubscriptionRecurring!
+  $workspaceId: String
+) {
+  updateSubscriptionRecurring(
+    plan: $plan
+    recurring: $recurring
+    workspaceId: $workspaceId
+  ) {
+    id
+    plan
+    recurring
+    nextBillAt
+  }
+}

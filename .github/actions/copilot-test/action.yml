@@ -1,0 +1,25 @@
+name: 'Run Copilot E2E Test'
+description: 'Run Copilot E2E Test'
+inputs:
+  script:
+    description: 'Script to run'
+    default: 'yarn affine @affine-test/affine-cloud-copilot e2e --forbid-only'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Server Copilot E2E Test
+      shell: bash
+      run: ${{ inputs.script }}
+      env:
+        COPILOT: true
+        DEV_SERVER_URL: http://localhost:8080
+
+    - name: Upload test results
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-e2e-server-copilot
+        path: ./test-results
+        if-no-files-found: ignore

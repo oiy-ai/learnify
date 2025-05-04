@@ -1,0 +1,68 @@
+{
+  "name": "@blocksuite/global",
+  "types": "./index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./utils": "./src/utils/index.ts",
+    "./env": "./src/env/index.ts",
+    "./exceptions": "./src/exceptions/index.ts",
+    "./di": "./src/di/index.ts",
+    "./types": "./src/types/index.ts",
+    "./gfx": "./src/gfx/index.ts",
+    "./disposable": "./src/disposable/index.ts",
+    "./lit": "./src/lit/index.ts"
+  },
+  "typesVersions": {
+    "*": {
+      "utils": [
+        "dist/utils/index.d.ts"
+      ],
+      "env": [
+        "dist/env/index.d.ts"
+      ],
+      "exceptions": [
+        "dist/exceptions/index.d.ts"
+      ],
+      "di": [
+        "dist/di/index.d.ts"
+      ],
+      "types": [
+        "dist/types/index.d.ts"
+      ],
+      "gfx": [
+        "dist/gfx/index.d.ts"
+      ],
+      "disposable": [
+        "dist/disposable/index.d.ts"
+      ],
+      "lit": [
+        "dist/lit/index.d.ts"
+      ]
+    }
+  },
+  "author": "toeverything",
+  "license": "MIT",
+  "files": [
+    "src",
+    "dist",
+    "index.d.ts",
+    "!src/__tests__",
+    "!dist/__tests__"
+  ],
+  "dependencies": {
+    "@preact/signals-core": "^1.8.0",
+    "lib0": "^0.2.97",
+    "lit": "^3.2.0",
+    "rxjs": "^7.8.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "vitest": "3.1.2"
+  },
+  "version": "0.21.0"
+}

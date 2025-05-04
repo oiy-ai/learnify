@@ -1,0 +1,212 @@
+name: 'AFFiNE Node.js Setup'
+description: 'Node.js setup for CI, including cache configuration'
+inputs:
+  extra-flags:
+    description: 'Extra flags to pass to the yarn install.'
+    required: false
+    default: '--immutable --inline-builds'
+  package-install:
+    description: 'Run the install step.'
+    required: false
+    default: 'true'
+  playwright-install:
+    description: 'Run the install step for Playwright.'
+    required: false
+    default: 'false'
+  playwright-platform:
+    description: 'The platform to install Playwright for.'
+    required: false
+    default: 'chromium,webkit'
+  electron-install:
+    description: 'Download the Electron binary'
+    required: false
+    default: 'true'
+  corepack-install:
+    description: 'Install CorePack'
+    required: false
+    default: 'false'
+  hard-link-nm:
+    description: 'set nmMode to hardlinks-local in .yarnrc.yml'
+    required: false
+    default: 'true'
+  nmHoistingLimits:
+    description: 'Set nmHoistingLimits in .yarnrc.yml'
+    required: false
+  enableScripts:
+    description: 'Set enableScripts in .yarnrc.yml'
+    required: false
+    default: 'true'
+  full-cache:
+    description: 'Full installation cache'
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    - name: Output workspace path
+      id: workspace-path
+      shell: bash
+      run: |
+        if [ -n "${{ env.DEV_DRIVE_WORKSPACE }}" ]; then
+          echo "workspace_path=${{ env.DEV_DRIVE_WORKSPACE }}" >> $GITHUB_OUTPUT
+        else
+          echo "workspace_path=${{ github.workspace }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        registry-url: https://npm.pkg.github.com
+        scope: '@toeverything'
+
+    - uses: kenchan0130/actions-system-info@master
+      id: system-info
+
+    - name: Init CorePack
+      if: ${{ inputs.corepack-install == 'true' }}
+      shell: bash
+      working-directory: ${{ steps.workspace-path.outputs.workspace_path }}
+      run: corepack enable
+
+    - name: Set nmMode
+      if: ${{ inputs.hard-link-nm == 'false' }}
+      shell: bash
+      working-directory: ${{ steps.workspace-path.outputs.workspace_path }}
+      run: yarn config set nmMode classic
+
+    - name: Set nmHoistingLimits
+      if: ${{ inputs.nmHoistingLimits }}
+      shell: bash
+      working-directory: ${{ steps.workspace-path.outputs.workspace_path }}
+      run: yarn config set nmHoistingLimits ${{ inputs.nmHoistingLimits }}
+
+    - name: Set enableScripts
+      if: ${{ inputs.enableScripts == 'false' }}
+      shell: bash
+      working-directory: ${{ steps.workspace-path.outputs.workspace_path }}
+      run: yarn config set enableScripts false
+
+    - name: Set yarn global cache path
+      shell: bash
+      id: yarn-cache
+      working-directory: ${{ steps.workspace-path.outputs.workspace_path }}
+      run: node -e "const p = $(yarn config cacheFolder --json).effective; console.log('yarn_global_cache=' + p)" >> $GITHUB_OUTPUT
+
+    - name: Cache non-full yarn cache on Linux
+      uses: actions/cache@v4
+      if: ${{ inputs.full-cache != 'true' && runner.os == 'Linux' }}
+      with:
+        path: |
+          ${{ steps.workspace-path.outputs.workspace_path }}/node_modules
+          ${{ steps.yarn-cache.outputs.yarn_global_cache }}
+        key: node_modules-cache-${{ github.job }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.system-info.outputs.name }}-${{ steps.system-info.outputs.release }}-${{ steps.system-info.outputs.version }}
+
+    # The network performance on macOS is very poor
+    # and the decompression performance on Windows is very terrible
+    # so we reduce the number of cached files on non-Linux systems by remove node_modules from cache path.
+    - name: Cache non-full yarn cache on non-Linux
+      uses: actions/cache@v4
+      if: ${{ inputs.full-cache != 'true' && runner.os != 'Linux' }}
+      with:
+        path: |
+          ${{ steps.yarn-cache.outputs.yarn_global_cache }}
+        key: node_modules-cache-${{ github.job }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.system-info.outputs.name }}-${{ steps.system-info.outputs.release }}-${{ steps.system-info.outputs.version }}
+
+    - name: Cache full yarn cache on Linux
+      uses: actions/cache@v4
+      if: ${{ inputs.full-cache == 'true' && runner.os == 'Linux' }}
+      with:
+        path: |
+          node_modules
+          ${{ steps.yarn-cache.outputs.yarn_global_cache }}
+        key: node_modules-cache-full-${{ runner.os }}-${{ runner.arch }}-${{ steps.system-info.outputs.name }}-${{ steps.system-info.outputs.release }}-${{ steps.system-info.outputs.version }}
+
+    - name: Cache full yarn cache on non-Linux
+      uses: actions/cache@v4
+      if: ${{ inputs.full-cache == 'true' && runner.os != 'Linux' }}
+      with:
+        path: |
+          ${{ steps.yarn-cache.outputs.yarn_global_cache }}
+        key: node_modules-cache-full-${{ runner.os }}-${{ runner.arch }}-${{ steps.system-info.outputs.name }}-${{ steps.system-info.outputs.release }}-${{ steps.system-info.outputs.version }}
+
+    - name: yarn install
+      if: ${{ inputs.package-install == 'true' }}
+      shell: bash
+      working-directory: ${{ steps.workspace-path.outputs.workspace_path }}
+      run: yarn ${{ inputs.extra-flags }}
+      env:
+        HUSKY: '0'
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+        SENTRYCLI_SKIP_DOWNLOAD: '1'
+        DEBUG: '*'
+
+    - name: Get installed Playwright version
+      id: playwright-version
+      if: ${{ inputs.playwright-install == 'true' }}
+      shell: bash
+      working-directory: ${{ steps.workspace-path.outputs.workspace_path }}
+      run: echo "version=$(yarn why --json @playwright/test | grep -h 'workspace:.' | jq --raw-output '.children[].locator' | sed -e 's/@playwright\/test@.*://' | head -n 1)" >> $GITHUB_OUTPUT
+
+      # Attempt to restore the correct Playwright browser binaries based on the
+      # currently installed version of Playwright (The browser binary versions
+      # may change with Playwright versions).
+      # Note: Playwright's cache directory is hard coded because that's what it
+      # says to do in the docs. There doesn't appear to be a command that prints
+      # it out for us.
+    - uses: actions/cache@v4
+      id: playwright-cache
+      if: ${{ inputs.playwright-install == 'true' }}
+      with:
+        path: ${{ steps.workspace-path.outputs.workspace_path }}/node_modules/.cache/ms-playwright
+        key: '${{ runner.os }}-${{ runner.arch }}-${{ steps.system-info.outputs.name }}-${{ steps.system-info.outputs.release }}-${{ steps.system-info.outputs.version }}-playwright-${{ steps.playwright-version.outputs.version }}'
+        # As a fallback, if the Playwright version has changed, try use the
+        # most recently cached version. There's a good chance that at least one
+        # of the browser binary versions haven't been updated, so Playwright can
+        # skip installing that in the next step.
+        # Note: When falling back to an old cache, `cache-hit` (used below)
+        # will be `false`. This allows us to restore the potentially out of
+        # date cache, but still let Playwright decide if it needs to download
+        # new binaries or not.
+        restore-keys: |
+          ${{ runner.os }}-${{ runner.arch }}-${{ steps.system-info.outputs.name }}-${{ steps.system-info.outputs.release }}-${{ steps.system-info.outputs.version }}-playwright-
+
+    # If the Playwright browser binaries weren't able to be restored, we tell
+    # playwright to install everything for us.
+    - name: Install Playwright's dependencies
+      shell: bash
+      if: inputs.playwright-install == 'true'
+      run: yarn playwright install --with-deps $(echo "${{ inputs.playwright-platform }}" | tr ',' ' ')
+      working-directory: ${{ steps.workspace-path.outputs.workspace_path }}
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: ${{ steps.workspace-path.outputs.workspace_path }}/node_modules/.cache/ms-playwright
+
+    - name: Get installed Electron version
+      id: electron-version
+      if: ${{ inputs.electron-install == 'true' }}
+      working-directory: ${{ steps.workspace-path.outputs.workspace_path }}
+      shell: bash
+      run: |
+        echo "version=$(yarn why --json electron | grep -h 'workspace:.' | jq --raw-output '.children[].locator' | sed -e 's/@playwright\/test@.*://' | head -n 1)" >> $GITHUB_OUTPUT
+
+    - uses: actions/cache@v4
+      id: electron-cache
+      if: ${{ inputs.electron-install == 'true' }}
+      with:
+        path: ${{ steps.workspace-path.outputs.workspace_path }}/node_modules/.cache/electron
+        key: '${{ runner.os }}-${{ runner.arch }}-${{ steps.system-info.outputs.name }}-${{ steps.system-info.outputs.release }}-${{ steps.system-info.outputs.version }}-electron-${{ steps.electron-version.outputs.version }}'
+        restore-keys: |
+          ${{ runner.os }}-${{ runner.arch }}-${{ steps.system-info.outputs.name }}-${{ steps.system-info.outputs.release }}-${{ steps.system-info.outputs.version }}-electron-
+
+    - name: Install Electron binary
+      shell: bash
+      if: inputs.electron-install == 'true'
+      run: node ./node_modules/electron/install.js
+      working-directory: ${{ steps.workspace-path.outputs.workspace_path }}
+      env:
+        electron_config_cache: ${{ steps.workspace-path.outputs.workspace_path }}/node_modules/.cache/electron
+
+    - name: Write PLAYWRIGHT_BROWSERS_PATH env
+      shell: bash
+      run: |
+        echo "PLAYWRIGHT_BROWSERS_PATH=${{ steps.workspace-path.outputs.workspace_path }}/node_modules/.cache/ms-playwright" >> $GITHUB_ENV

@@ -1,0 +1,12 @@
+mutation resumeSubscription(
+  $plan: SubscriptionPlan = Pro
+  $workspaceId: String
+) {
+  resumeSubscription(plan: $plan, workspaceId: $workspaceId) {
+    id
+    status
+    nextBillAt
+    start
+    end
+  }
+}

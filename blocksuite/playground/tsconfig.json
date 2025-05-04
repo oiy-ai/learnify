@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2024",
+    "rootDir": ".",
+    "outDir": "./dist",
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
+  },
+  "include": ["./apps", "./examples"],
+  "references": [
+    { "path": "../affine/all" },
+    { "path": "../affine/components" },
+    { "path": "../affine/model" },
+    { "path": "../affine/shared" },
+    { "path": "../affine/data-view" },
+    { "path": "../integration-test" }
+  ]
+}

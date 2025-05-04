@@ -1,0 +1,3 @@
+mutation revokeInviteLink($workspaceId: String!) {
+  revokeInviteLink(workspaceId: $workspaceId)
+}

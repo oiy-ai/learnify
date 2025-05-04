@@ -1,0 +1,31 @@
+name: affine_dev_services
+services:
+  postgres:
+    env_file:
+      - .env
+    image: pgvector/pgvector:pg${DB_VERSION:-16}
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_DATABASE_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - 1025:1025
+      - 8025:8025
+
+networks:
+  dev:
+
+volumes:
+  postgres_data:

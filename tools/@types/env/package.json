@@ -1,0 +1,11 @@
+{
+  "name": "@types/affine__env",
+  "private": true,
+  "types": "./__all.d.ts",
+  "type": "module",
+  "dependencies": {
+    "@affine/env": "workspace:*",
+    "@blocksuite/affine": "workspace:*"
+  },
+  "version": "0.21.0"
+}

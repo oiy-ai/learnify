@@ -1,0 +1,102 @@
+{
+  "type": "page",
+  "meta": {
+    "id": "gJEFfmo4QJ",
+    "title": "",
+    "createDate": 1726038448921,
+    "tags": []
+  },
+  "blocks": {
+    "type": "block",
+    "id": "orzKfiHevj",
+    "flavour": "affine:page",
+    "version": 2,
+    "props": {
+      "title": {
+        "$blocksuite:internal:text$": true,
+        "delta": []
+      }
+    },
+    "children": [
+      {
+        "type": "block",
+        "id": "-48EmppaxI",
+        "flavour": "affine:surface",
+        "version": 5,
+        "props": {
+          "elements": {
+            "m_PwyyI76y": {
+              "index": "a0",
+              "seed": 44330892,
+              "frontEndpointStyle": "None",
+              "labelOffset": {
+                "distance": 0.5,
+                "anchor": "center"
+              },
+              "labelStyle": {
+                "color": {
+                  "dark": "#ffffff",
+                  "light": "#000000"
+                },
+                "fontSize": 16,
+                "fontFamily": "blocksuite:surface:Inter",
+                "fontWeight": "400",
+                "fontStyle": "normal",
+                "textAlign": "center"
+              },
+              "labelXYWH": [235.6484375, 65.23828125, 200, 20],
+              "mode": 2,
+              "rearEndpointStyle": "Arrow",
+              "rough": false,
+              "roughness": 1.4,
+              "source": {
+                "position": [120.8515625, 146.44921875]
+              },
+              "stroke": "#929292",
+              "strokeStyle": "solid",
+              "strokeWidth": 2,
+              "target": {
+                "position": [387.4453125, 4.02734375]
+              },
+              "text": {
+                "affine:surface:text": true,
+                "delta": [
+                  {
+                    "insert": "label"
+                  }
+                ]
+              },
+              "type": "connector",
+              "id": "m_PwyyI76y"
+            }
+          }
+        },
+        "children": [
+          {
+            "type": "block",
+            "id": "-6UhNH7qhy",
+            "flavour": "affine:frame",
+            "version": 1,
+            "props": {
+              "title": {
+                "$blocksuite:internal:text$": true,
+                "delta": [
+                  {
+                    "insert": "Frame 1"
+                  }
+                ]
+              },
+              "background": "transparent",
+              "xywh": "[-12.04296875,-49.66796875,542.9765625,248.3984375]",
+              "index": "Zz",
+              "childElementIds": {
+                "m_PwyyI76y": true
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    ]
+  }
+}

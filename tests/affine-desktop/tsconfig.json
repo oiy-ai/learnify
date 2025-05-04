@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.web.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "./e2e",
+    "outDir": "./dist",
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
+  },
+  "include": ["e2e"],
+  "references": [
+    { "path": "../kit" },
+    { "path": "../../packages/frontend/electron-api" }
+  ]
+}

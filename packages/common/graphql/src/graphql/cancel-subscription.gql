@@ -1,0 +1,11 @@
+mutation cancelSubscription(
+  $plan: SubscriptionPlan = Pro
+  $workspaceId: String
+) {
+  cancelSubscription(plan: $plan, workspaceId: $workspaceId) {
+    id
+    status
+    nextBillAt
+    canceledAt
+  }
+}

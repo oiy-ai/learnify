@@ -1,0 +1,39 @@
+version: 0.18.0
+files:
+  - url: affine-0.18.0-stable-windows-x64.exe
+    sha512: cF47Wcu69PXyMVswSzrdNktNO2lqkjsyJ/HQr2qWjFPuIJfcad9QDTfOyCVsMCV6KGUSSeFiTHyObWgKd6z2DQ==
+    size: 182557416
+  - url: affine-0.18.0-stable-windows-x64.nsis.exe
+    sha512: ztugqKwPpxDDSK1OpzUPkGvL8wLXwg9rh985bs9ZvxydY037yKBAZOk96PPtow2qqRb5/9Xn8MuGrWgchqXkVg==
+    size: 133493672
+  - url: affine-0.18.0-stable-windows-arm64.exe
+    sha512: cF47Wcu69PXyMVswSzrdNktNO2lqkjsyJ/HQr2qWjFPuIJfcad9QDTfOyCVsMCV6KGUSSeFiTHyObWgKd6z2DQ==
+    size: 182557416
+  - url: affine-0.18.0-stable-windows-arm64.nsis.exe
+    sha512: ztugqKwPpxDDSK1OpzUPkGvL8wLXwg9rh985bs9ZvxydY037yKBAZOk96PPtow2qqRb5/9Xn8MuGrWgchqXkVg==
+    size: 133493672
+  - url: affine-0.18.0-stable-linux-x64.appimage
+    sha512: qspZkDlItrHu02vSItbjc3I+t4FcOiHOzGt0Ap6IeZEFKal+hoOh4WIcUN16dlS/OoFm+is8yPBHqN/70xhWKA==
+    size: 181990592
+  - url: affine-0.18.0-stable-linux-x64.deb
+    sha512: fom2iuMiPUlnHAGJhQdAnWJwMggK4rloNkiWqH8ZHF1Q09oturgSMGgkUEWZWXsZPpORt545eYNv5Zg9aff8yQ==
+    size: 180105256
+  - url: affine-0.18.0-stable-linux-x64.flatpak
+    sha512: fom2iuMiPUlnHAGJhQdAnWJwMggK4rloNkiWqH8ZHF1Q09oturgSMGgkUEWZWXsZPpORt545eYNv5Zg9aff8yQ==
+    size: 180105256
+  - url: affine-0.18.0-stable-linux-x64.zip
+    sha512: fom2iuMiPUlnHAGJhQdAnWJwMggK4rloNkiWqH8ZHF1Q09oturgSMGgkUEWZWXsZPpORt545eYNv5Zg9aff8yQ==
+    size: 180105256
+  - url: affine-0.18.0-stable-macos-arm64.dmg
+    sha512: Tdy7dgrCHP95PjsZBt1evxUk7DUkn+JpseBQj1Gz60MmcsFx+0NtJvofZbUcsLFiS0IC32JM/szHlHiNGEznrQ==
+    size: 170556866
+  - url: affine-0.18.0-stable-macos-arm64.zip
+    sha512: pmYD0B5Z9hrzgjcHmRCKnNawoPJiO5r1RjBBZi+THVL3TyKXzpJBr9HTNQkjYnQYgqHX4q2eoONsDNCIoqTeBA==
+    size: 170382513
+  - url: affine-0.18.0-stable-macos-x64.dmg
+    sha512: k4a4GUmy/6MmSc1xVGJNeNCCtYylWWSRcfDoZA+syUhZFY6x3xrOft972ONsiRrJukXWlKrFmVTwoW68Ywe49A==
+    size: 176815834
+  - url: affine-0.18.0-stable-macos-x64.zip
+    sha512: PL24krtjeiQY53F7OuS+hh8EZP3YpbLle0JboXiddSrulypxzBRquOCCinNW88Kg8ZJbOrfTkxaNOHpOAVfeaQ==
+    size: 176948223
+releaseDate: 2024-08-29T08:20:51.573Z

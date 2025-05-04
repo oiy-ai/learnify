@@ -1,0 +1,18 @@
+pluginManagement {
+    repositories {
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+include ':app'
+include ':service'
+include ':capacitor-cordova-android-plugins'
+apply from: 'capacitor.settings.gradle'

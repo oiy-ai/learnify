@@ -1,0 +1,11 @@
+mutation grantWorkspaceTeamMember(
+  $workspaceId: String!
+  $userId: String!
+  $permission: Permission!
+) {
+  grantMember(
+    workspaceId: $workspaceId
+    userId: $userId
+    permission: $permission
+  )
+}

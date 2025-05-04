@@ -1,0 +1,7 @@
+{
+  "name": "@types/build-config",
+  "private": true,
+  "types": "./__all.d.ts",
+  "type": "module",
+  "version": "0.21.0"
+}

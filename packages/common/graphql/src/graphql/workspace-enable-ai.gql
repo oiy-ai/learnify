@@ -1,0 +1,5 @@
+mutation setEnableAi($id: ID!, $enableAi: Boolean!) {
+  updateWorkspace(input: { id: $id, enableAi: $enableAi }) {
+    id
+  }
+}

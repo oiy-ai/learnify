@@ -1,0 +1,2 @@
+# required DATABASE_URL affects app start
+schema.prisma

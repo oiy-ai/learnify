@@ -1,0 +1,22 @@
+{
+  "extends": "../../../../tsconfig.web.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    // dist is kept for webpack output
+    "outDir": "./lib",
+    "tsBuildInfoFile": "./lib/tsconfig.tsbuildinfo"
+  },
+  "include": ["./src"],
+  "references": [
+    { "path": "../../component" },
+    { "path": "../../core" },
+    { "path": "../../../common/debug" },
+    { "path": "../../electron-api" },
+    { "path": "../../i18n" },
+    { "path": "../../../common/nbstore" },
+    { "path": "../../track" },
+    { "path": "../../../../blocksuite/affine/all" },
+    { "path": "../../../common/infra" },
+    { "path": "../../../../tools/utils" }
+  ]
+}

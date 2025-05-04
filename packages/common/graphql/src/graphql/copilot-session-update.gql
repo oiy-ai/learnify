@@ -1,0 +1,3 @@
+mutation updateCopilotSession($options: UpdateChatSessionInput!) {
+  updateCopilotSession(options: $options)
+}

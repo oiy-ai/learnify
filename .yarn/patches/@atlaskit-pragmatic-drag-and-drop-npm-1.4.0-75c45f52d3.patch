@@ -1,0 +1,19 @@
+diff --git a/dist/esm/adapter/external-adapter.js b/dist/esm/adapter/external-adapter.js
+index ef7a963d91f08c9e70c8ed9c6b41972bec349319..e682841ec10a4a8a9ce7a79642e58de5c9e664d5 100644
+--- a/dist/esm/adapter/external-adapter.js
++++ b/dist/esm/adapter/external-adapter.js
+@@ -54,9 +54,11 @@ var adapter = makeAdapter({
+       type: 'dragenter',
+       listener: function listener(event) {
+         // drag operation was started within the document, it won't be an "external" drag
+-        if (didDragStartLocally) {
+-          return;
+-        }
++
++        // we will handle all events actually
++        // if (didDragStartLocally) {
++        //   return;
++        // }
+ 
+         // Note: not checking if event was cancelled (`event.defaultPrevented`) as
+         // cancelling a "dragenter" accepts the drag operation (not prevent it)

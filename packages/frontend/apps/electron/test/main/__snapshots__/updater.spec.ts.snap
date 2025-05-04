@@ -1,0 +1,50 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`testing for client update > filter valid installer files > filter for platform [darwin] arch [arm64] 1`] = `
+[
+  "affine-0.18.0-stable-macos-arm64.dmg",
+  "affine-0.18.0-stable-macos-arm64.zip",
+  "affine-0.18.0-stable-macos-x64.dmg",
+  "affine-0.18.0-stable-macos-x64.zip",
+]
+`;
+
+exports[`testing for client update > filter valid installer files > filter for platform [darwin] arch [x64] 1`] = `
+[
+  "affine-0.18.0-stable-macos-x64.dmg",
+  "affine-0.18.0-stable-macos-x64.zip",
+]
+`;
+
+exports[`testing for client update > filter valid installer files > filter for platform [linux] arch [x64] 1`] = `
+[
+  "affine-0.18.0-stable-linux-x64.appimage",
+  "affine-0.18.0-stable-linux-x64.deb",
+  "affine-0.18.0-stable-linux-x64.flatpak",
+  "affine-0.18.0-stable-linux-x64.zip",
+]
+`;
+
+exports[`testing for client update > filter valid installer files > filter for platform [win32] arch [arm64] 1`] = `
+[
+  "affine-0.18.0-stable-windows-arm64.nsis.exe",
+]
+`;
+
+exports[`testing for client update > filter valid installer files > filter for platform [win32] arch [arm64] and is squirrel installer 1`] = `
+[
+  "affine-0.18.0-stable-windows-arm64.exe",
+]
+`;
+
+exports[`testing for client update > filter valid installer files > filter for platform [win32] arch [x64] 1`] = `
+[
+  "affine-0.18.0-stable-windows-x64.nsis.exe",
+]
+`;
+
+exports[`testing for client update > filter valid installer files > filter for platform [win32] arch [x64] and is squirrel installer 1`] = `
+[
+  "affine-0.18.0-stable-windows-x64.exe",
+]
+`;

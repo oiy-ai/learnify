@@ -1,0 +1,10 @@
+query getWorkspaces {
+  workspaces {
+    id
+    initialized
+    team
+    owner {
+      id
+    }
+  }
+}

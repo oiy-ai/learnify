@@ -1,0 +1,35 @@
+{
+  "name": "@affine/i18n",
+  "version": "0.21.0",
+  "description": "",
+  "type": "module",
+  "private": true,
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "r build.ts",
+    "dev": "r build.ts --dev"
+  },
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toeverything/AFFiNE.git"
+  },
+  "dependencies": {
+    "@affine/debug": "workspace:*",
+    "@magic-works/i18n-codegen": "^0.6.1",
+    "dayjs": "^1.11.13",
+    "i18next": "^25.0.0",
+    "react": "^19.0.0",
+    "react-i18next": "^15.2.0",
+    "undici": "^7.1.0"
+  },
+  "devDependencies": {
+    "@affine-tools/cli": "workspace:*",
+    "@affine-tools/utils": "workspace:*",
+    "glob": "^11.0.0",
+    "vitest": "3.1.2"
+  }
+}

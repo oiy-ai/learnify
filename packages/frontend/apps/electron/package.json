@@ -1,0 +1,99 @@
+{
+  "name": "@affine/electron",
+  "private": true,
+  "version": "0.21.0",
+  "main": "./dist/main.js",
+  "author": "toeverything",
+  "repository": {
+    "url": "https://github.com/toeverything/AFFiNE",
+    "type": "git"
+  },
+  "description": "AFFiNE Desktop App",
+  "homepage": "https://github.com/toeverything/AFFiNE",
+  "exports": {
+    "./helper/exposed": "./src/helper/exposed.ts",
+    "./main/exposed": "./src/main/exposed.ts",
+    "./preload/electron-api": "./src/preload/electron-api.ts",
+    "./preload/shared-storage": "./src/preload/shared-storage.ts",
+    "./main/shared-state-schema": "./src/main/shared-state-schema.ts",
+    "./main/updater/event": "./src/main/updater/event.ts",
+    "./main/windows-manager": "./src/main/windows-manager/index.ts"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "cross-env DEV_SERVER_URL=http://localhost:8080 node ./scripts/dev.ts",
+    "dev:prod": "node ./scripts/dev.ts",
+    "build": "cross-env NODE_ENV=production node ./scripts/build-layers.ts",
+    "build:dev": "node ./scripts/build-layers.ts",
+    "generate-assets": "node ./scripts/generate-assets.ts",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "make-squirrel": "node ./scripts/make-squirrel.ts",
+    "make-nsis": "node ./scripts/make-nsis.ts"
+  },
+  "devDependencies": {
+    "@affine-tools/utils": "workspace:*",
+    "@affine/native": "workspace:*",
+    "@affine/nbstore": "workspace:*",
+    "@electron-forge/cli": "^7.6.0",
+    "@electron-forge/core": "^7.6.0",
+    "@electron-forge/core-utils": "^7.6.0",
+    "@electron-forge/maker-deb": "^7.6.0",
+    "@electron-forge/maker-dmg": "^7.6.0",
+    "@electron-forge/maker-flatpak": "^7.6.0",
+    "@electron-forge/maker-squirrel": "^7.6.0",
+    "@electron-forge/maker-zip": "^7.6.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.6.0",
+    "@electron-forge/shared-types": "^7.6.0",
+    "@pengx17/electron-forge-maker-appimage": "^1.2.1",
+    "@sentry/electron": "^6.1.0",
+    "@sentry/esbuild-plugin": "^3.0.0",
+    "@sentry/react": "^9.2.0",
+    "@toeverything/infra": "workspace:*",
+    "@types/set-cookie-parser": "^2.4.10",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react-swc": "^3.7.2",
+    "app-builder-lib": "^26.0.0",
+    "builder-util-runtime": "^9.2.10",
+    "cross-env": "^7.0.3",
+    "debug": "^4.4.0",
+    "electron": "^36.0.0",
+    "electron-log": "^5.2.4",
+    "electron-squirrel-startup": "1.0.1",
+    "electron-window-state": "^5.0.3",
+    "esbuild": "^0.25.0",
+    "fs-extra": "^11.2.0",
+    "glob": "^11.0.0",
+    "lodash-es": "^4.17.21",
+    "msw": "^2.6.8",
+    "nanoid": "^5.0.9",
+    "rxjs": "^7.8.1",
+    "semver": "^7.6.3",
+    "tree-kill": "^1.2.2",
+    "ts-node": "^10.9.2",
+    "uuid": "^11.0.3",
+    "vitest": "3.1.2",
+    "zod": "^3.24.1"
+  },
+  "dependencies": {
+    "async-call-rpc": "^6.4.2",
+    "electron-updater": "^6.3.9",
+    "link-preview-js": "^3.0.12",
+    "next-themes": "^0.4.4",
+    "set-cookie-parser": "^2.7.1",
+    "yjs": "^13.6.21"
+  },
+  "build": {
+    "protocols": [
+      {
+        "name": "affine",
+        "schemes": [
+          "affine"
+        ]
+      }
+    ]
+  },
+  "peerDependencies": {
+    "ts-node": "*"
+  }
+}

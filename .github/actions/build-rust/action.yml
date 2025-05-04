@@ -1,0 +1,91 @@
+name: 'AFFiNE Rust build'
+description: 'Rust build setup, including cache configuration'
+inputs:
+  target:
+    description: 'Cargo target'
+    required: true
+  package:
+    description: 'Package to build'
+    required: true
+  no-build:
+    description: 'Whether to skip building'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Print rustup toolchain version
+      shell: bash
+      id: rustup-version
+      working-directory: ${{ env.DEV_DRIVE_WORKSPACE || github.workspace }}
+      run: |
+        export RUST_TOOLCHAIN_VERSION="$(grep 'channel' rust-toolchain.toml | head -1 | awk -F '"' '{print $2}')"
+        echo "Rust toolchain version: $RUST_TOOLCHAIN_VERSION"
+        echo "RUST_TOOLCHAIN_VERSION=$RUST_TOOLCHAIN_VERSION" >> "$GITHUB_OUTPUT"
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      if: ${{ runner.os != 'Windows' }}
+      with:
+        toolchain: '${{ steps.rustup-version.outputs.RUST_TOOLCHAIN_VERSION }}'
+        targets: ${{ inputs.target }}
+      env:
+        CARGO_INCREMENTAL: '1'
+
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      if: ${{ runner.os == 'Windows' }}
+      with:
+        toolchain: '${{ steps.rustup-version.outputs.RUST_TOOLCHAIN_VERSION }}'
+        targets: ${{ inputs.target }}
+      env:
+        CARGO_INCREMENTAL: '1'
+        CARGO_HOME: ${{ env.DEV_DRIVE }}/.cargo
+        RUSTUP_HOME: ${{ env.DEV_DRIVE }}/.rustup
+
+    - name: Set CC
+      if: ${{ contains(inputs.target, 'linux') && inputs.no-build != 'true' }}
+      working-directory: ${{ env.DEV_DRIVE_WORKSPACE || github.workspace }}
+      shell: bash
+      # https://github.com/tree-sitter/tree-sitter/issues/4186
+      # pass -D_BSD_SOURCE to clang to fix the tree-sitter build issue
+      run: |
+        echo "CC=clang -D_BSD_SOURCE" >> "$GITHUB_ENV"
+        echo "TARGET_CC=clang -D_BSD_SOURCE" >> "$GITHUB_ENV"
+
+    - name: Cache cargo
+      uses: Swatinem/rust-cache@v2
+      if: ${{ runner.os == 'Windows' }}
+      with:
+        workspaces: ${{ env.DEV_DRIVE_WORKSPACE }}
+        save-if: ${{ github.ref_name == 'canary' }}
+        shared-key: ${{ inputs.target }}-${{ inputs.package }}
+      env:
+        CARGO_HOME: ${{ env.DEV_DRIVE }}/.cargo
+        RUSTUP_HOME: ${{ env.DEV_DRIVE }}/.rustup
+
+    - name: Cache cargo
+      uses: Swatinem/rust-cache@v2
+      if: ${{ runner.os != 'Windows' }}
+      with:
+        save-if: ${{ github.ref_name == 'canary' }}
+        shared-key: ${{ inputs.target }}-${{ inputs.package }}
+
+    - name: Build
+      shell: bash
+      if: ${{ runner.os != 'Windows' && inputs.no-build != 'true' }}
+      run: |
+        yarn workspace ${{ inputs.package }} build --target ${{ inputs.target }} --use-napi-cross
+      env:
+        DEBUG: 'napi:*'
+
+    - name: Build
+      working-directory: ${{ env.DEV_DRIVE_WORKSPACE || github.workspace }}
+      shell: bash
+      if: ${{ runner.os == 'Windows' && inputs.no-build != 'true' }}
+      run: |
+        yarn workspace ${{ inputs.package }} build --target ${{ inputs.target }}
+      env:
+        DEBUG: 'napi:*'
+        CARGO_HOME: ${{ env.DEV_DRIVE }}/.cargo
+        RUSTUP_HOME: ${{ env.DEV_DRIVE }}/.rustup
