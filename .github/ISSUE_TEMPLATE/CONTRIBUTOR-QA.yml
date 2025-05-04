@@ -1,0 +1,18 @@
+name: Contributor QA
+description: Ask anything about development with Learnify
+title: '[Contributor QA]: '
+labels: ['dev']
+assignees: ['a1exsun']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ask anything about development with Learnify.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What's the problem you're facing?
+      placeholder: Please explain in details, better with screenshots.
+    validations:
+      required: true
