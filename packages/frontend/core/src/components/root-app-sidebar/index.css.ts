@@ -6,7 +6,13 @@ export const progressColorVar = createVar();
 export const mindMapWrapper = style({
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'space-between',
+  gap: 8,
+  marginTop: 8,
+});
+
+export const progressWrapper = style({
+  display: 'flex',
+  alignItems: 'center',
   gap: 8,
   marginTop: 8,
 });

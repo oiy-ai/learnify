@@ -37,10 +37,12 @@ import { memo, useCallback } from 'react';
 // } from '../../desktop/components/navigation-panel';
 import { WorkbenchService } from '../../modules/workbench';
 import { MindMapNavigator } from '../learnify/mind-map/navigator';
+import { ProgressNavigator } from '../learnify/progress/navigator';
 import { WorkspaceNavigator } from '../workspace-selector';
 import {
   bottomContainer,
   mindMapWrapper,
+  progressWrapper,
   quickSearch,
   quickSearchAndNewPage,
   workspaceAndUserWrapper,
@@ -160,6 +162,9 @@ export const RootAppSidebar = memo((): ReactElement => {
         </div>
         <div className={mindMapWrapper}>
           <MindMapNavigator />
+        </div>
+        <div className={progressWrapper}>
+          <ProgressNavigator />
         </div>
         <div className={quickSearchAndNewPage}>
           <QuickSearchInput
