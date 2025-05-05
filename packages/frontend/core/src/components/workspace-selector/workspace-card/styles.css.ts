@@ -15,7 +15,6 @@ export const container = style({
   gap: 8,
   padding: '0 6px',
   borderRadius: 4,
-  border: `1px solid ${cssVarV2('layer/insideBorder/border')}`,
   outline: 'none',
   width: '100%',
   maxWidth: 500,

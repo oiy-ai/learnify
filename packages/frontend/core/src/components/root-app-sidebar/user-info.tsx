@@ -61,10 +61,10 @@ const AuthorizedUserInfo = ({ account }: { account: AuthAccountInfo }) => {
         }}
       >
         <Avatar
-          size={37}
+          size={32}
           name={account.label}
           url={account.avatar}
-          style={{ marginLeft: '2px' }}
+          style={{ marginLeft: '5px' }}
         />
       </IconButton>
     </Menu>

@@ -88,7 +88,7 @@ function drawImageFit(
 export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
   (
     {
-      size = 37,
+      size = 32,
       style: propsStyles = {},
       url,
       image,
@@ -99,7 +99,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
       fallbackProps: { className: fallbackClassName, ...fallbackProps } = {},
       imageProps,
       avatarProps,
-      rounded = '4px',
+      rounded = '8px',
       onRemove,
       hoverWrapperProps: {
         className: hoverWrapperClassName,
