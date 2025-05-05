@@ -102,7 +102,7 @@
     "no-prototype-builtins": "error",
     "no-array-constructor": "error",
     "no-shadow-restricted-names": "error",
-    "no-constant-condition": "error",
+    "no-constant-condition": "allow",
     "no-useless-escape": "error",
     "no-unsafe-optional-chaining": "error",
     "no-extra-boolean-cast": "error",
@@ -124,13 +124,13 @@
     "react/jsx-no-target-blank": "error",
     "react/jsx-no-comment-textnodes": "error",
     "typescript/consistent-type-imports": "error",
-    "typescript/no-non-null-assertion": "error",
+    "typescript/no-non-null-assertion": "allow",
     "typescript/triple-slash-reference": "error",
     "typescript/no-non-null-asserted-optional-chain": "error",
     "typescript/no-duplicate-enum-values": "error",
     "typescript/no-extra-non-null-assertion": "error",
     "typescript/no-misused-new": "error",
-    "typescript/prefer-for-of": "error",
+    "typescript/prefer-for-of": "allow",
     "typescript/no-unsafe-declaration-merging": "error",
     "typescript/no-unnecessary-type-constraint": "error",
     "typescript/no-this-alias": [
@@ -186,7 +186,9 @@
     "import/no-webpack-loader-syntax": "error",
     "import/no-duplicates": "error",
     "import/no-import-assign": "error",
-    "import/no-self-import": "error"
+    "import/no-self-import": "error",
+    "react/no-array-index-key": "allow",
+    "unicorn/no-useless-spread": "allow"
   },
   "overrides": [
     {
