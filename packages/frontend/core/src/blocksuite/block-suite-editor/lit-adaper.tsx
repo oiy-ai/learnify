@@ -4,7 +4,7 @@ import {
   LitDocEditor,
   LitDocTitle,
   LitEdgelessEditor,
-  MindMapEditor,
+  type MindMapEditor,
   type PageEditor,
 } from '@affine/core/blocksuite/editors';
 import type { AffineEditorViewOptions } from '@affine/core/blocksuite/manager/editor-view';
@@ -306,23 +306,24 @@ export const BlocksuiteEdgelessEditor = forwardRef<
 export const BlocksuiteMindMapEditor = forwardRef<
   MindMapEditor,
   BlocksuiteEditorProps
->(function BlocksuiteEdgelessEditor({ page }, ref) {
-  const [specs, portals] = usePatchSpecs('edgeless');
+  // >(function BlocksuiteEdgelessEditor({ page }, ref) {
+>(function BlocksuiteEdgelessEditor() {
+  // const [specs, portals] = usePatchSpecs('edgeless');
   const editorRef = useRef<EdgelessEditor | null>(null);
 
-  const onDocRef = useCallback(
-    (el: EdgelessEditor) => {
-      editorRef.current = el;
-      if (ref) {
-        if (typeof ref === 'function') {
-          ref(el);
-        } else {
-          ref.current = el;
-        }
-      }
-    },
-    [ref]
-  );
+  // const onDocRef = useCallback(
+  //   (el: EdgelessEditor) => {
+  //     editorRef.current = el;
+  //     if (ref) {
+  //       if (typeof ref === 'function') {
+  //         ref(el);
+  //       } else {
+  //         ref.current = el;
+  //       }
+  //     }
+  //   },
+  //   [ref]
+  // );
 
   useEffect(() => {
     if (editorRef.current) {

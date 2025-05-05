@@ -11,6 +11,7 @@ import {
 export type ViewScope =
   | 'page' // Standard page view
   | 'edgeless' // Edgeless (whiteboard) view
+  | 'mind-map' // Mind map view
   | 'preview-page' // Page preview view
   | 'preview-edgeless' // Edgeless preview view
   | 'mobile-page' // Mobile page view

@@ -6,7 +6,7 @@ import { getViewManager } from '../../manager/migrating-view';
 
 export function enableEditorExtension(
   framework: FrameworkProvider,
-  mode: 'edgeless' | 'page',
+  mode: 'edgeless' | 'page' | 'mind-map',
   enableAI: boolean,
   options: AffineEditorViewOptions
 ): ExtensionType[] {
