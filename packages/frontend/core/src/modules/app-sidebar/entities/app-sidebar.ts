@@ -4,11 +4,14 @@ import { map } from 'rxjs';
 import type { AppSidebarState } from '../providers/storage';
 
 enum APP_SIDEBAR_STATE {
+  // eslint-disable-next-line no-unused-vars
   OPEN = 'open',
+  // eslint-disable-next-line no-unused-vars
   WIDTH = 'width',
 }
 
 export class AppSidebar extends Entity {
+  // eslint-disable-next-line no-unused-vars
   constructor(private readonly appSidebarState: AppSidebarState) {
     super();
   }
@@ -27,7 +30,7 @@ export class AppSidebar extends Entity {
   width$ = LiveData.from(
     this.appSidebarState
       .watch<number>(APP_SIDEBAR_STATE.WIDTH)
-      .pipe(map(value => value ?? 248)),
+      .pipe(map(value => value ?? 380)),
     248
   );
 
