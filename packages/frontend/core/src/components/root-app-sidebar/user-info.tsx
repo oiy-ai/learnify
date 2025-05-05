@@ -14,7 +14,12 @@ import {
 } from '@affine/core/modules/dialogs';
 import { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
-import { AccountIcon, AdminIcon, SignOutIcon } from '@blocksuite/icons/rc';
+import {
+  AccountIcon,
+  AdminIcon,
+  SettingsIcon,
+  SignOutIcon,
+} from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
 import { cssVar } from '@toeverything/theme';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
@@ -108,6 +113,13 @@ const AccountMenu = () => {
     window.open(`${serverService.server.baseUrl}/admin`, '_blank');
   }, [serverService.server.baseUrl]);
 
+  const onOpenSettingModal = useCallback(() => {
+    workspaceDialogService.open('setting', {
+      activeTab: 'appearance',
+    });
+    track.$.navigationPanel.$.openSettings();
+  }, [workspaceDialogService]);
+
   const t = useI18n();
 
   useEffect(() => {
@@ -132,6 +144,13 @@ const AccountMenu = () => {
           {t['com.affine.workspace.cloud.account.admin']()}
         </MenuItem>
       ) : null}
+      <MenuItem
+        prefixIcon={<SettingsIcon />}
+        data-testid="workspace-modal-account-settings-option"
+        onClick={onOpenSettingModal}
+      >
+        {t['com.affine.settingSidebar.title']()}
+      </MenuItem>
       <MenuItem
         prefixIcon={<SignOutIcon />}
         data-testid="workspace-modal-sign-out-option"
