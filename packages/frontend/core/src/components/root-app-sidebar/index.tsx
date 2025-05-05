@@ -1,7 +1,7 @@
 // Import is already correct, no changes needed
 import {
   AddPageButton,
-  AppDownloadButton,
+  // AppDownloadButton,
   AppSidebar,
   MenuItem,
   MenuLinkItem,
@@ -9,7 +9,7 @@ import {
   SidebarContainer,
   SidebarScrollableContainer,
 } from '@affine/core/modules/app-sidebar/views';
-import { ExternalMenuLinkItem } from '@affine/core/modules/app-sidebar/views/menu-item/external-menu-link-item';
+// import { ExternalMenuLinkItem } from '@affine/core/modules/app-sidebar/views/menu-item/external-menu-link-item';
 import { AuthService } from '@affine/core/modules/cloud';
 import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { CMDKQuickSearchService } from '@affine/core/modules/quicksearch/services/cmdk';
@@ -19,26 +19,28 @@ import { track } from '@affine/track';
 import type { Store } from '@blocksuite/affine/store';
 import {
   AllDocsIcon,
-  ImportIcon,
-  JournalIcon,
+  // ImportIcon,
+  // JournalIcon,
   SettingsIcon,
 } from '@blocksuite/icons/rc';
 import { useLiveData, useService, useServices } from '@toeverything/infra';
 import type { ReactElement } from 'react';
 import { memo, useCallback } from 'react';
 
-import {
-  CollapsibleSection,
-  NavigationPanelCollections,
-  NavigationPanelFavorites,
-  NavigationPanelMigrationFavorites,
-  NavigationPanelOrganize,
-  NavigationPanelTags,
-} from '../../desktop/components/navigation-panel';
+// import {
+//   CollapsibleSection,
+//   NavigationPanelCollections,
+//   NavigationPanelFavorites,
+//   NavigationPanelMigrationFavorites,
+//   NavigationPanelOrganize,
+//   NavigationPanelTags,
+// } from '../../desktop/components/navigation-panel';
 import { WorkbenchService } from '../../modules/workbench';
+import { MindMapNavigator } from '../learnify/mind-map/navigator';
 import { WorkspaceNavigator } from '../workspace-selector';
 import {
   bottomContainer,
+  mindMapWrapper,
   quickSearch,
   quickSearchAndNewPage,
   workspaceAndUserWrapper,
@@ -47,9 +49,9 @@ import {
 import { AppSidebarJournalButton } from './journal-button';
 import { NotificationButton } from './notification-button';
 import { SidebarAudioPlayer } from './sidebar-audio-player';
-import { TemplateDocEntrance } from './template-doc-entrance';
-import { TrashButton } from './trash-button';
-import { UpdaterButton } from './updater-button';
+// import { TemplateDocEntrance } from './template-doc-entrance';
+// import { TrashButton } from './trash-button';
+// import { UpdaterButton } from './updater-button';
 import { UserInfo } from './user-info';
 
 export type RootAppSidebarProps = {
@@ -57,12 +59,12 @@ export type RootAppSidebarProps = {
   onOpenQuickSearchModal: () => void;
   onOpenSettingModal: () => void;
   currentWorkspace: Workspace;
-  openPage: (pageId: string) => void;
+  // openPage: (pageId: string) => void;
   createPage: () => Store;
   paths: {
-    all: (workspaceId: string) => string;
-    trash: (workspaceId: string) => string;
-    shared: (workspaceId: string) => string;
+    // all: (workspaceId: string) => string;
+    // trash: (workspaceId: string) => string;
+    // shared: (workspaceId: string) => string;
   };
 };
 
@@ -91,18 +93,17 @@ const AllDocsButton = () => {
  *
  */
 export const RootAppSidebar = memo((): ReactElement => {
-  const { workbenchService, cMDKQuickSearchService, authService } = useServices(
-    {
-      WorkbenchService,
-      CMDKQuickSearchService,
-      AuthService,
-    }
-  );
+  // workbenchService
+  const { cMDKQuickSearchService, authService } = useServices({
+    WorkbenchService,
+    CMDKQuickSearchService,
+    AuthService,
+  });
 
   const sessionStatus = useLiveData(authService.session.status$);
   const t = useI18n();
   const workspaceDialogService = useService(WorkspaceDialogService);
-  const workbench = workbenchService.workbench;
+  // const workbench = workbenchService.workbench;
   const onOpenQuickSearchModal = useCallback(() => {
     cMDKQuickSearchService.toggle();
   }, [cMDKQuickSearchService]);
@@ -114,39 +115,39 @@ export const RootAppSidebar = memo((): ReactElement => {
     track.$.navigationPanel.$.openSettings();
   }, [workspaceDialogService]);
 
-  const handleOpenDocs = useCallback(
-    (result: {
-      docIds: string[];
-      entryId?: string;
-      isWorkspaceFile?: boolean;
-    }) => {
-      const { docIds, entryId, isWorkspaceFile } = result;
-      // If the imported file is a workspace file, open the entry page.
-      if (isWorkspaceFile && entryId) {
-        workbench.openDoc(entryId);
-      } else if (!docIds.length) {
-        return;
-      }
-      // Open all the docs when there are multiple docs imported.
-      if (docIds.length > 1) {
-        workbench.openAll();
-      } else {
-        // Otherwise, open the only doc.
-        workbench.openDoc(docIds[0]);
-      }
-    },
-    [workbench]
-  );
+  // const handleOpenDocs = useCallback(
+  //   (result: {
+  //     docIds: string[];
+  //     entryId?: string;
+  //     isWorkspaceFile?: boolean;
+  //   }) => {
+  //     const { docIds, entryId, isWorkspaceFile } = result;
+  //     // If the imported file is a workspace file, open the entry page.
+  //     if (isWorkspaceFile && entryId) {
+  //       workbench.openDoc(entryId);
+  //     } else if (!docIds.length) {
+  //       return;
+  //     }
+  //     // Open all the docs when there are multiple docs imported.
+  //     if (docIds.length > 1) {
+  //       workbench.openAll();
+  //     } else {
+  //       // Otherwise, open the only doc.
+  //       workbench.openDoc(docIds[0]);
+  //     }
+  //   },
+  //   [workbench]
+  // );
 
-  const onOpenImportModal = useCallback(() => {
-    track.$.navigationPanel.importModal.open();
-    workspaceDialogService.open('import', undefined, payload => {
-      if (!payload) {
-        return;
-      }
-      handleOpenDocs(payload);
-    });
-  }, [workspaceDialogService, handleOpenDocs]);
+  // const onOpenImportModal = useCallback(() => {
+  //   track.$.navigationPanel.importModal.open();
+  //   workspaceDialogService.open('import', undefined, payload => {
+  //     if (!payload) {
+  //       return;
+  //     }
+  //     handleOpenDocs(payload);
+  //   });
+  // }, [workspaceDialogService, handleOpenDocs]);
 
   return (
     <AppSidebar>
@@ -156,6 +157,9 @@ export const RootAppSidebar = memo((): ReactElement => {
             <WorkspaceNavigator showEnableCloudButton showSyncStatus />
           </div>
           <UserInfo />
+        </div>
+        <div className={mindMapWrapper}>
+          <MindMapNavigator />
         </div>
         <div className={quickSearchAndNewPage}>
           <QuickSearchInput
@@ -180,12 +184,12 @@ export const RootAppSidebar = memo((): ReactElement => {
         </MenuItem>
       </SidebarContainer>
       <SidebarScrollableContainer>
-        <NavigationPanelFavorites />
-        <NavigationPanelOrganize />
-        <NavigationPanelMigrationFavorites />
-        <NavigationPanelCollections />
-        <NavigationPanelTags />
-        <CollapsibleSection
+        {/* <NavigationPanelFavorites /> */}
+        {/* <NavigationPanelOrganize /> */}
+        {/* <NavigationPanelMigrationFavorites /> */}
+        {/* <NavigationPanelCollections /> */}
+        {/* <NavigationPanelTags /> */}
+        {/* <CollapsibleSection
           name="others"
           title={t['com.affine.rootAppSidebar.others']()}
           contentStyle={{ padding: '6px 8px 0 8px' }}
@@ -204,11 +208,11 @@ export const RootAppSidebar = memo((): ReactElement => {
             icon={<JournalIcon />}
             label={t['com.affine.app-sidebar.learn-more']()}
           />
-        </CollapsibleSection>
+        </CollapsibleSection> */}
       </SidebarScrollableContainer>
       <SidebarContainer className={bottomContainer}>
         <SidebarAudioPlayer />
-        {BUILD_CONFIG.isElectron ? <UpdaterButton /> : <AppDownloadButton />}
+        {/* {BUILD_CONFIG.isElectron ? <UpdaterButton /> : <AppDownloadButton />} */}
       </SidebarContainer>
     </AppSidebar>
   );

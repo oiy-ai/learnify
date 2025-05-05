@@ -3,6 +3,14 @@ import { createVar, globalStyle, style } from '@vanilla-extract/css';
 
 export const progressColorVar = createVar();
 
+export const mindMapWrapper = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 8,
+  marginTop: 8,
+});
+
 export const workspaceAndUserWrapper = style({
   display: 'flex',
   alignItems: 'center',

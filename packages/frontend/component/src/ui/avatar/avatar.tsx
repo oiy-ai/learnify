@@ -42,6 +42,7 @@ export type AvatarProps = {
   style?: CSSProperties;
   colorfulFallback?: boolean;
   hoverIcon?: ReactElement;
+  // eslint-disable-next-line no-unused-vars
   onRemove?: (e: MouseEvent<HTMLButtonElement>) => void;
   avatarTooltipOptions?: Omit<TooltipProps, 'children'>;
   removeTooltipOptions?: Omit<TooltipProps, 'children'>;
@@ -87,7 +88,7 @@ function drawImageFit(
 export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
   (
     {
-      size = 20,
+      size = 37,
       style: propsStyles = {},
       url,
       image,
@@ -98,7 +99,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
       fallbackProps: { className: fallbackClassName, ...fallbackProps } = {},
       imageProps,
       avatarProps,
-      rounded = '50%',
+      rounded = '4px',
       onRemove,
       hoverWrapperProps: {
         className: hoverWrapperClassName,

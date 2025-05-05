@@ -52,8 +52,20 @@ const menuContentOptions: MenuProps['contentOptions'] = {
 const AuthorizedUserInfo = ({ account }: { account: AuthAccountInfo }) => {
   return (
     <Menu items={<OperationMenu />} contentOptions={menuContentOptions}>
-      <IconButton data-testid="sidebar-user-avatar" variant="plain" size="24">
-        <Avatar size={24} name={account.label} url={account.avatar} />
+      <IconButton
+        data-testid="sidebar-user-avatar"
+        variant="plain"
+        size="42"
+        style={{
+          borderRadius: '4px',
+        }}
+      >
+        <Avatar
+          size={37}
+          name={account.label}
+          url={account.avatar}
+          style={{ marginLeft: '2px' }}
+        />
       </IconButton>
     </Menu>
   );
