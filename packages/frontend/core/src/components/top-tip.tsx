@@ -1,12 +1,12 @@
-import { BrowserWarning, LocalDemoTips } from '@affine/component/affine-banner';
+import { BrowserWarning } from '@affine/component/affine-banner'; // LocalDemoTips
 import { Trans, useI18n } from '@affine/i18n';
-import { useLiveData, useService } from '@toeverything/infra';
-import { useCallback, useState } from 'react';
+// import { useLiveData, useService } from '@toeverything/infra';
+import { useState } from 'react'; // useCallback
 
-import { useEnableCloud } from '../components/hooks/affine/use-enable-cloud';
-import { AuthService } from '../modules/cloud';
-import { GlobalDialogService } from '../modules/dialogs';
-import type { Workspace } from '../modules/workspace';
+// import { useEnableCloud } from '../components/hooks/affine/use-enable-cloud';
+// import { AuthService } from '../modules/cloud';
+// import { GlobalDialogService } from '../modules/dialogs';
+// import type { Workspace } from '../modules/workspace';
 
 const minimumChromeVersion = 106;
 
@@ -54,43 +54,48 @@ const OSWarningMessage = () => {
   return null;
 };
 
-export const TopTip = ({
-  pageId,
-  workspace,
-}: {
-  pageId?: string;
-  workspace: Workspace;
-}) => {
-  const loginStatus = useLiveData(useService(AuthService).session.status$);
-  const isLoggedIn = loginStatus === 'authenticated';
+// export const TopTip = (
+//   {
+//     pageId,
+//     workspace,
+//   }: {
+//     pageId?: string;
+//     workspace: Workspace;
+//   }
+// ) => {
+export const TopTip = () => {
+  // const loginStatus = useLiveData(useService(AuthService).session.status$);
+  // const isLoggedIn = loginStatus === 'authenticated';
 
   const [showWarning, setShowWarning] = useState(shouldShowWarning);
-  const [showLocalDemoTips, setShowLocalDemoTips] = useState(true);
-  const confirmEnableCloud = useEnableCloud();
+  // const [showLocalDemoTips, setShowLocalDemoTips] = useState(true);
+  // const [setShowLocalDemoTips] = useState(true);
+  // const confirmEnableCloud = useEnableCloud();
 
-  const globalDialogService = useService(GlobalDialogService);
-  const onLogin = useCallback(() => {
-    globalDialogService.open('sign-in', {});
-  }, [globalDialogService]);
+  // const globalDialogService = useService(GlobalDialogService);
+  // const onLogin = useCallback(() => {
+  //   globalDialogService.open('sign-in', {});
+  // }, [globalDialogService]);
 
-  if (
-    !BUILD_CONFIG.isElectron &&
-    showLocalDemoTips &&
-    workspace.flavour === 'local'
-  ) {
-    return (
-      <LocalDemoTips
-        isLoggedIn={isLoggedIn}
-        onLogin={onLogin}
-        onEnableCloud={() =>
-          confirmEnableCloud(workspace, { openPageId: pageId })
-        }
-        onClose={() => {
-          setShowLocalDemoTips(false);
-        }}
-      />
-    );
-  }
+  // hide local demo tips
+  // if (
+  //   !BUILD_CONFIG.isElectron &&
+  //   showLocalDemoTips &&
+  //   workspace.flavour === 'local'
+  // ) {
+  //   return (
+  //     <LocalDemoTips
+  //       isLoggedIn={isLoggedIn}
+  //       onLogin={onLogin}
+  //       onEnableCloud={() =>
+  //         confirmEnableCloud(workspace, { openPageId: pageId })
+  //       }
+  //       onClose={() => {
+  //         setShowLocalDemoTips(false);
+  //       }}
+  //     />
+  //   );
+  // }
 
   return (
     <BrowserWarning
