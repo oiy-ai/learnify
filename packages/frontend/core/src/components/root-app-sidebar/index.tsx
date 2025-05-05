@@ -3,27 +3,27 @@ import {
   AddPageButton,
   // AppDownloadButton,
   AppSidebar,
-  MenuItem,
-  MenuLinkItem,
+  // MenuItem,
+  // MenuLinkItem,
   QuickSearchInput,
   SidebarContainer,
   SidebarScrollableContainer,
 } from '@affine/core/modules/app-sidebar/views';
 // import { ExternalMenuLinkItem } from '@affine/core/modules/app-sidebar/views/menu-item/external-menu-link-item';
 import { AuthService } from '@affine/core/modules/cloud';
-import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
+// import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { CMDKQuickSearchService } from '@affine/core/modules/quicksearch/services/cmdk';
 import type { Workspace } from '@affine/core/modules/workspace';
-import { useI18n } from '@affine/i18n';
-import { track } from '@affine/track';
+// import { useI18n } from '@affine/i18n';
+// import { track } from '@affine/track';
 import type { Store } from '@blocksuite/affine/store';
-import {
-  AllDocsIcon,
-  // ImportIcon,
-  // JournalIcon,
-  SettingsIcon,
-} from '@blocksuite/icons/rc';
-import { useLiveData, useService, useServices } from '@toeverything/infra';
+// import {
+//   AllDocsIcon,
+//   // ImportIcon,
+//   // JournalIcon,
+//   SettingsIcon,
+// } from '@blocksuite/icons/rc';
+import { useServices } from '@toeverything/infra'; // useLiveData, useService,
 import type { ReactElement } from 'react';
 import { memo, useCallback } from 'react';
 
@@ -38,18 +38,20 @@ import { memo, useCallback } from 'react';
 import { WorkbenchService } from '../../modules/workbench';
 import { MindMapNavigator } from '../learnify/mind-map/navigator';
 import { ProgressNavigator } from '../learnify/progress/navigator';
+import { NavigationPanelSources } from '../learnify/sources/navigator';
 import { WorkspaceNavigator } from '../workspace-selector';
 import {
   bottomContainer,
   mindMapWrapper,
+  navigationWrapper,
   progressWrapper,
   quickSearch,
   quickSearchAndNewPage,
   workspaceAndUserWrapper,
   workspaceWrapper,
 } from './index.css';
-import { AppSidebarJournalButton } from './journal-button';
-import { NotificationButton } from './notification-button';
+// import { AppSidebarJournalButton } from './journal-button';
+// import { NotificationButton } from './notification-button';
 import { SidebarAudioPlayer } from './sidebar-audio-player';
 // import { TemplateDocEntrance } from './template-doc-entrance';
 // import { TrashButton } from './trash-button';
@@ -59,7 +61,6 @@ import { UserInfo } from './user-info';
 export type RootAppSidebarProps = {
   isPublicWorkspace: boolean;
   onOpenQuickSearchModal: () => void;
-  onOpenSettingModal: () => void;
   currentWorkspace: Workspace;
   // openPage: (pageId: string) => void;
   createPage: () => Store;
@@ -70,24 +71,24 @@ export type RootAppSidebarProps = {
   };
 };
 
-const AllDocsButton = () => {
-  const t = useI18n();
-  const { workbenchService } = useServices({
-    WorkbenchService,
-  });
-  const workbench = workbenchService.workbench;
-  const allPageActive = useLiveData(
-    workbench.location$.selector(location => location.pathname === '/all')
-  );
+// const AllDocsButton = () => {
+//   const t = useI18n();
+//   const { workbenchService } = useServices({
+//     WorkbenchService,
+//   });
+//   const workbench = workbenchService.workbench;
+//   const allPageActive = useLiveData(
+//     workbench.location$.selector(location => location.pathname === '/all')
+//   );
 
-  return (
-    <MenuLinkItem icon={<AllDocsIcon />} active={allPageActive} to={'/all'}>
-      <span data-testid="all-pages">
-        {t['com.affine.workspaceSubPath.all']()}
-      </span>
-    </MenuLinkItem>
-  );
-};
+//   return (
+//     <MenuLinkItem icon={<AllDocsIcon />} active={allPageActive} to={'/all'}>
+//       <span data-testid="all-pages">
+//         {t['com.affine.workspaceSubPath.all']()}
+//       </span>
+//     </MenuLinkItem>
+//   );
+// };
 
 /**
  * This is for the whole affine app sidebar.
@@ -95,27 +96,27 @@ const AllDocsButton = () => {
  *
  */
 export const RootAppSidebar = memo((): ReactElement => {
-  // workbenchService
-  const { cMDKQuickSearchService, authService } = useServices({
+  // workbenchService, authService
+  const { cMDKQuickSearchService } = useServices({
     WorkbenchService,
     CMDKQuickSearchService,
     AuthService,
   });
 
-  const sessionStatus = useLiveData(authService.session.status$);
-  const t = useI18n();
-  const workspaceDialogService = useService(WorkspaceDialogService);
+  // const sessionStatus = useLiveData(authService.session.status$);
+  // const t = useI18n();
+  // const workspaceDialogService = useService(WorkspaceDialogService);
   // const workbench = workbenchService.workbench;
   const onOpenQuickSearchModal = useCallback(() => {
     cMDKQuickSearchService.toggle();
   }, [cMDKQuickSearchService]);
 
-  const onOpenSettingModal = useCallback(() => {
-    workspaceDialogService.open('setting', {
-      activeTab: 'appearance',
-    });
-    track.$.navigationPanel.$.openSettings();
-  }, [workspaceDialogService]);
+  // const onOpenSettingModal = useCallback(() => {
+  //   workspaceDialogService.open('setting', {
+  //     activeTab: 'appearance',
+  //   });
+  //   track.$.navigationPanel.$.openSettings();
+  // }, [workspaceDialogService]);
 
   // const handleOpenDocs = useCallback(
   //   (result: {
@@ -175,10 +176,10 @@ export const RootAppSidebar = memo((): ReactElement => {
           />
           <AddPageButton />
         </div>
-        <AllDocsButton />
-        <AppSidebarJournalButton />
-        {sessionStatus === 'authenticated' && <NotificationButton />}
-        <MenuItem
+        {/* <AllDocsButton /> */}
+        {/* <AppSidebarJournalButton /> */}
+        {/* {sessionStatus === 'authenticated' && <NotificationButton />} */}
+        {/* <MenuItem
           data-testid="slider-bar-workspace-setting-button"
           icon={<SettingsIcon />}
           onClick={onOpenSettingModal}
@@ -186,9 +187,12 @@ export const RootAppSidebar = memo((): ReactElement => {
           <span data-testid="settings-modal-trigger">
             {t['com.affine.settingSidebar.title']()}
           </span>
-        </MenuItem>
+        </MenuItem> */}
       </SidebarContainer>
       <SidebarScrollableContainer>
+        <div className={navigationWrapper}>
+          <NavigationPanelSources />
+        </div>
         {/* <NavigationPanelFavorites /> */}
         {/* <NavigationPanelOrganize /> */}
         {/* <NavigationPanelMigrationFavorites /> */}
