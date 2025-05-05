@@ -1,8 +1,6 @@
- 
-// @ts-nocheck
-
+// @ts-expect-error it's just a external script
 Promise.withResolvers ??= function withResolvers() {
-  var a,
+  let a,
     b,
     c = new this(function (resolve, reject) {
       a = resolve;
