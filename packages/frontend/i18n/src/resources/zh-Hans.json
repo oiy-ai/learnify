@@ -525,6 +525,7 @@
   "com.affine.filterList.button.add": "添加筛选条件",
   "com.affine.header.mode-switch.page": "以页面模式查看",
   "com.affine.header.mode-switch.edgeless": "以无界画布查看",
+  "com.affine.header.mode-switch.mind-map": "以思维导图查看",
   "com.affine.header.option.add-tag": "添加标签",
   "com.affine.header.option.duplicate": "复制",
   "com.affine.header.option.open-in-desktop": "在客户端中打开",

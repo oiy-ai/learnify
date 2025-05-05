@@ -1,9 +1,9 @@
 import type { SerializedXYWH } from '@blocksuite/global/gfx';
 import { z } from 'zod';
 
-export type DocMode = 'edgeless' | 'page';
+export type DocMode = 'edgeless' | 'page' | 'mind-map';
 
-export const DocModes = ['edgeless', 'page'] as const;
+export const DocModes = ['edgeless', 'page', 'mind-map'] as const;
 
 export type FootNoteReferenceType = 'doc' | 'attachment' | 'url';
 

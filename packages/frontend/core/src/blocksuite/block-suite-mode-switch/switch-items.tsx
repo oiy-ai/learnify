@@ -57,6 +57,15 @@ const edgelessLottieOptions = {
   },
 };
 
+const mindMapLottieOptions = {
+  loop: false,
+  autoplay: false,
+  animationData: edgelessHover, // TODO: add mind map hover
+  rendererSettings: {
+    preserveAspectRatio: 'xMidYMid slice',
+  },
+};
+
 export const PageSwitchItem = (
   props: Omit<HoverAnimateControllerProps, 'children'>
 ) => {
@@ -86,6 +95,23 @@ export const EdgelessSwitchItem = (
     >
       <HoverAnimateController {...props}>
         <InternalLottie options={edgelessLottieOptions} />
+      </HoverAnimateController>
+    </Tooltip>
+  );
+};
+
+export const MindMapSwitchItem = (
+  props: Omit<HoverAnimateControllerProps, 'children'>
+) => {
+  const t = useI18n();
+  return (
+    <Tooltip
+      content={t['com.affine.header.mode-switch.mind-map']()}
+      shortcut={['$alt', 'S']}
+      side="bottom"
+    >
+      <HoverAnimateController {...props}>
+        <InternalLottie options={mindMapLottieOptions} />
       </HoverAnimateController>
     </Tooltip>
   );

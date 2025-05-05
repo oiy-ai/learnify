@@ -1,6 +1,7 @@
 import { EditorLoading } from '@affine/component/page-detail-skeleton';
 import type {
   EdgelessEditor,
+  MindMapEditor,
   PageEditor,
 } from '@affine/core/blocksuite/editors';
 import { ServerService } from '@affine/core/modules/cloud';
@@ -31,7 +32,11 @@ import type { CSSProperties, HTMLAttributes } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { DefaultOpenProperty } from '../../components/doc-properties';
-import { BlocksuiteDocEditor, BlocksuiteEdgelessEditor } from './lit-adaper';
+import {
+  BlocksuiteDocEditor,
+  BlocksuiteEdgelessEditor,
+  BlocksuiteMindMapEditor,
+} from './lit-adaper';
 import * as styles from './styles.css';
 
 export interface AffineEditorContainer extends HTMLElement {
@@ -71,6 +76,7 @@ const BlockSuiteEditorImpl = ({
   const docRef = useRef<PageEditor>(null);
   const docTitleRef = useRef<DocTitle>(null);
   const edgelessRef = useRef<EdgelessEditor>(null);
+  const mindMapRef = useRef<MindMapEditor>(null);
   const featureFlags = useService(FeatureFlagService).flags;
   const enableEditorRTL = useLiveData(featureFlags.enable_editor_rtl.$);
   const editorSetting = useService(EditorSettingService).editorSetting;
@@ -266,23 +272,40 @@ const BlockSuiteEditorImpl = ({
       data-affine-editor-container
       ref={rootRef}
     >
-      {mode === 'page' ? (
-        <BlocksuiteDocEditor
-          shared={shared}
-          page={page}
-          ref={docRef}
-          readonly={readonly}
-          titleRef={docTitleRef}
-          onClickBlank={handleClickPageModeBlank}
-          defaultOpenProperty={defaultOpenProperty}
-        />
-      ) : (
-        <BlocksuiteEdgelessEditor
-          shared={shared}
-          page={page}
-          ref={edgelessRef}
-        />
-      )}
+      {(() => {
+        switch (mode) {
+          case 'page':
+            return (
+              <BlocksuiteDocEditor
+                shared={shared}
+                page={page}
+                ref={docRef}
+                readonly={readonly}
+                titleRef={docTitleRef}
+                onClickBlank={handleClickPageModeBlank}
+                defaultOpenProperty={defaultOpenProperty}
+              />
+            );
+          case 'edgeless':
+            return (
+              <BlocksuiteEdgelessEditor
+                shared={shared}
+                page={page}
+                ref={edgelessRef}
+              />
+            );
+          case 'mind-map':
+            return (
+              <BlocksuiteMindMapEditor
+                shared={shared}
+                page={page}
+                ref={mindMapRef}
+              />
+            );
+          default:
+            return null;
+        }
+      })()}
     </div>
   );
 };

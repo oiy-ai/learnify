@@ -14,7 +14,11 @@ import {
 import { useCallback, useEffect, useMemo } from 'react';
 
 import { switchItem } from './style.css';
-import { EdgelessSwitchItem, PageSwitchItem } from './switch-items';
+import {
+  EdgelessSwitchItem,
+  MindMapSwitchItem,
+  PageSwitchItem,
+} from './switch-items';
 
 export interface EditorModeSwitchProps {
   pageId: string;
@@ -32,6 +36,12 @@ const PageRadioItem: RadioItem = {
   value: 'page',
   label: <PageSwitchItem />,
   testId: 'switch-page-mode-button',
+  className: switchItem,
+};
+const MindMapRadioItem: RadioItem = {
+  value: 'mind-map',
+  label: <MindMapSwitchItem />,
+  testId: 'switch-mind-map-mode-button',
   className: switchItem,
 };
 
@@ -60,11 +70,28 @@ export const EditorModeSwitch = () => {
     track.$.header.actions.switchPageMode({ mode: 'edgeless' });
   }, [currentMode, editor, isSharedMode, trash]);
 
+  const toggleMindMap = useCallback(() => {
+    if (currentMode === 'mind-map' || isSharedMode || trash) return;
+    editor.setMode('mind-map');
+    editor.setSelector(undefined);
+    track.$.header.actions.switchPageMode({ mode: 'mind-map' });
+  }, [currentMode, editor, isSharedMode, trash]);
+
   const onModeChange = useCallback(
     (mode: DocMode) => {
-      mode === 'page' ? togglePage() : toggleEdgeless();
+      switch (mode) {
+        case 'page':
+          togglePage();
+          break;
+        case 'edgeless':
+          toggleEdgeless();
+          break;
+        case 'mind-map':
+          toggleMindMap();
+          break;
+      }
     },
-    [toggleEdgeless, togglePage]
+    [toggleEdgeless, togglePage, toggleMindMap]
   );
 
   const shouldHide = useCallback(
@@ -118,6 +145,7 @@ export const PureEditorModeSwitch = ({
     () => [
       ...(hidePage ? [] : [PageRadioItem]),
       ...(hideEdgeless ? [] : [EdgelessRadioItem]),
+      ...[MindMapRadioItem],
     ],
     [hideEdgeless, hidePage]
   );
