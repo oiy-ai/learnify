@@ -30,6 +30,21 @@ export const WorkspaceModeFilterTab = ({
         case 'docs':
           workbenchService.workbench.openAll();
           break;
+        case 'notes':
+          workbenchService.workbench.openNotes();
+          break;
+        case 'mind-map':
+          workbenchService.workbench.openMindMap();
+          break;
+        case 'quiz-cards':
+          workbenchService.workbench.openQACards();
+          break;
+        case 'flashcards':
+          workbenchService.workbench.openFlashcards();
+          break;
+        case 'podcasts':
+          workbenchService.workbench.openPodcasts();
+          break;
       }
     },
     [workbenchService.workbench]
@@ -44,27 +59,57 @@ export const WorkspaceModeFilterTab = ({
 
   return (
     <RadioGroup
-      style={{ maxWidth: '100%', width: 273 }}
+      style={{ maxWidth: '100%', width: 380 }}
       value={value}
       onChange={handleValueChange}
       items={useMemo<RadioItem[]>(
         () => [
+          // {
+          //   value: 'docs',
+          //   label: t['com.affine.docs.header'](),
+          //   testId: 'workspace-docs-button',
+          //   className: styles.filterTab,
+          // },
+          // {
+          //   value: 'collections',
+          //   label: t['com.affine.collections.header'](),
+          //   testId: 'workspace-collections-button',
+          //   className: styles.filterTab,
+          // },
+          // {
+          //   value: 'tags',
+          //   label: t['Tags'](),
+          //   testId: 'workspace-tags-button',
+          //   className: styles.filterTab,
+          // },
           {
-            value: 'docs',
-            label: t['com.affine.docs.header'](),
-            testId: 'workspace-docs-button',
+            value: 'notes',
+            label: t['com.learnify.notes.header'](),
+            testId: 'workspace-notes-button',
             className: styles.filterTab,
           },
           {
-            value: 'collections',
-            label: t['com.affine.collections.header'](),
-            testId: 'workspace-collections-button',
+            value: 'mind-map',
+            label: t['com.learnify.mind-map.header'](),
+            testId: 'workspace-mind-map-button',
             className: styles.filterTab,
           },
           {
-            value: 'tags',
-            label: t['Tags'](),
-            testId: 'workspace-tags-button',
+            value: 'quiz-cards',
+            label: t['com.learnify.quiz-cards.header'](),
+            testId: 'workspace-quiz-cards-button',
+            className: styles.filterTab,
+          },
+          {
+            value: 'flashcards',
+            label: t['com.learnify.flashcards.header'](),
+            testId: 'workspace-flashcards-button',
+            className: styles.filterTab,
+          },
+          {
+            value: 'podcasts',
+            label: t['com.learnify.podcasts.header'](),
+            testId: 'workspace-podcasts-button',
             className: styles.filterTab,
           },
         ],

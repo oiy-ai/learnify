@@ -5,7 +5,15 @@ import { atom } from 'jotai';
  */
 export const openQuotaModalAtom = atom(false);
 
-export type AllPageFilterOption = 'docs' | 'collections' | 'tags';
+export type AllPageFilterOption =
+  | 'docs'
+  | 'collections'
+  | 'tags'
+  | 'notes'
+  | 'mind-map'
+  | 'quiz-cards'
+  | 'flashcards'
+  | 'podcasts';
 export const allPageFilterSelectAtom = atom<AllPageFilterOption>('docs');
 
 export const openWorkspaceListModalAtom = atom(false);

@@ -24,8 +24,11 @@ const sidebarWidthKey = 'workbenchSidebarWidth';
 
 export class Workbench extends Entity {
   constructor(
+    // eslint-disable-next-line no-unused-vars
     private readonly defaultState: WorkbenchDefaultState,
+    // eslint-disable-next-line no-unused-vars
     private readonly newTabHandler: WorkbenchNewTabHandler,
+    // eslint-disable-next-line no-unused-vars
     private readonly globalState: GlobalState
   ) {
     super();
@@ -207,6 +210,26 @@ export class Workbench extends Entity {
 
   openTag(tagId: string, options?: WorkbenchOpenOptions) {
     this.open(`/tag/${tagId}`, options);
+  }
+
+  openNotes(options?: WorkbenchOpenOptions) {
+    this.open('/notes', options);
+  }
+
+  openMindMap(options?: WorkbenchOpenOptions) {
+    this.open('/mind-map', options);
+  }
+
+  openQACards(options?: WorkbenchOpenOptions) {
+    this.open('/quiz-cards', options);
+  }
+
+  openFlashcards(options?: WorkbenchOpenOptions) {
+    this.open('/flashcards', options);
+  }
+
+  openPodcasts(options?: WorkbenchOpenOptions) {
+    this.open('/podcasts', options);
   }
 
   viewAt(positionIndex: WorkbenchPosition): View | undefined {

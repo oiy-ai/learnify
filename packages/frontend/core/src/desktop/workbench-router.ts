@@ -22,6 +22,26 @@ export const workbenchRoutes = [
     lazy: () => import('./pages/workspace/tag'),
   },
   {
+    path: '/notes',
+    lazy: () => import('./pages/learnify/workspace/notes'),
+  },
+  {
+    path: '/mind-map',
+    lazy: () => import('./pages/learnify/workspace/mind-map'),
+  },
+  {
+    path: '/quiz-cards',
+    lazy: () => import('./pages/learnify/workspace/quiz-cards'),
+  },
+  {
+    path: '/flashcards',
+    lazy: () => import('./pages/learnify/workspace/flashcards'),
+  },
+  {
+    path: '/podcasts',
+    lazy: () => import('./pages/learnify/workspace/podcasts'),
+  },
+  {
     path: '/trash',
     lazy: () => import('./pages/workspace/trash-page'),
   },

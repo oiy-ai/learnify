@@ -36,7 +36,7 @@ export const resolveRouteLinkMeta = (
 
     // http://---/workspace/{workspaceid}/xxx/yyy
     // http://---/workspace/{workspaceid}/xxx
-    const [_, workspaceId, moduleName, subModuleName] =
+    const [, workspaceId, moduleName, subModuleName] =
       url.pathname.match(/\/workspace\/([^/]+)\/([^/]+)(?:\/([^/]+))?/) || [];
 
     if (workspaceId) {
@@ -94,7 +94,17 @@ export const isLink = (href: string) => {
 /**
  * @see /packages/frontend/core/src/router.tsx
  */
-export const routeModulePaths = ['all', 'collection', 'tag', 'trash'] as const;
+export const routeModulePaths = [
+  'all',
+  'collection',
+  'tag',
+  'trash',
+  'notes',
+  'mind-map',
+  'quiz-cards',
+  'flashcards',
+  'podcasts',
+] as const;
 export type RouteModulePath = (typeof routeModulePaths)[number];
 
 const isRouteModulePath = (
@@ -168,8 +178,8 @@ export function toURLSearchParams(
   if (!params) return;
 
   const items = Object.entries(params)
-    .filter(([_, v]) => !isNil(v))
-    .filter(([_, v]) => {
+    .filter(([, v]) => !isNil(v))
+    .filter(([, v]) => {
       if (typeof v === 'string') {
         return v.length > 0;
       }
@@ -185,7 +195,7 @@ export function toURLSearchParams(
 
   return new URLSearchParams(
     items
-      .filter(([_, v]) => v.length)
+      .filter(([, v]) => v.length)
       .map(([k, v]) => [k, Array.isArray(v) ? v.join(',') : v])
   );
 }
