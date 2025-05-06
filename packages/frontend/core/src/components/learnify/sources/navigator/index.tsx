@@ -3,7 +3,7 @@ import { ExportToPdfIcon, ImageIcon, LinkIcon } from '@blocksuite/icons/rc';
 import { useState } from 'react';
 
 import * as styles from './index.css';
-import { mockSources } from './mockData';
+import { mockSources } from './mock-data';
 
 interface SourceCardProps {
   id: string;
