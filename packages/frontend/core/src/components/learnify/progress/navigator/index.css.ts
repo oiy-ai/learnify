@@ -2,7 +2,9 @@ import { cssVar } from '@toeverything/theme';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { style } from '@vanilla-extract/css';
 
-export const progressRoot = style({});
+export const progressRoot = style({
+  paddingRight: 12,
+});
 
 export const progressInfoRow = style({
   display: 'flex',
@@ -73,6 +75,7 @@ export const progressItem = style({
   flexDirection: 'column',
   gap: 8,
   padding: 8,
+  fontWeight: 500,
 });
 
 export const title = style({

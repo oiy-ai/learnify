@@ -1,4 +1,5 @@
 import { cssVar } from '@toeverything/theme';
+import { cssVarV2 } from '@toeverything/theme/v2';
 import { createVar, globalStyle, style } from '@vanilla-extract/css';
 
 export const progressColorVar = createVar();
@@ -6,15 +7,22 @@ export const progressColorVar = createVar();
 export const mindMapWrapper = style({
   display: 'flex',
   alignItems: 'center',
-  gap: 8,
   marginTop: 8,
 });
 
 export const progressWrapper = style({
   display: 'flex',
   alignItems: 'center',
-  gap: 8,
   marginTop: 8,
+  backgroundColor: cssVarV2('layer/background/secondary'),
+  borderRadius: 8,
+  padding: 8,
+});
+
+export const navigationWrapper = style({
+  display: 'flex',
+  alignItems: 'center',
+  margin: '0 4px',
 });
 
 export const workspaceAndUserWrapper = style({
