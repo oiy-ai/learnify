@@ -413,6 +413,7 @@ __metadata:
     "@lit/context": "npm:^1.1.4"
     "@marsidev/react-turnstile": "npm:^1.1.0"
     "@preact/signals-core": "npm:^1.8.0"
+    "@radix-ui/react-checkbox": "npm:^1.2.3"
     "@radix-ui/react-collapsible": "npm:^1.1.2"
     "@radix-ui/react-dialog": "npm:^1.1.3"
     "@radix-ui/react-popover": "npm:^1.1.3"
@@ -763,10 +764,10 @@ __metadata:
     "@istanbuljs/schema": "npm:^0.1.3"
     "@magic-works/i18n-codegen": "npm:^0.6.1"
     "@playwright/test": "npm:=1.52.0"
-    "@radix-ui/react-checkbox": "npm:^1.2.3"
     "@smarttools/eslint-plugin-rxjs": "npm:^1.0.8"
     "@taplo/cli": "npm:^0.7.0"
     "@toeverything/infra": "workspace:*"
+    "@types/compression": "npm:^1.7.5"
     "@types/eslint": "npm:^9.6.1"
     "@types/node": "npm:^22.0.0"
     "@typescript-eslint/parser": "npm:^8.18.0"
@@ -14802,6 +14803,15 @@ __metadata:
     "@types/node": "npm:*"
     "@types/responselike": "npm:^1.0.0"
   checksum: 10/159f9fdb2a1b7175eef453ae2ced5ea04c0d2b9610cc9ccd9f9abb066d36dacb1f37acd879ace10ad7cbb649490723feb396fb7307004c9670be29636304b988
+  languageName: node
+  linkType: hard
+
+"@types/compression@npm:^1.7.5":
+  version: 1.7.5
+  resolution: "@types/compression@npm:1.7.5"
+  dependencies:
+    "@types/express": "npm:*"
+  checksum: 10/9d65485bfb8e20035dedbbbebea06ea0c0554ac7bedb11ec3f2c6582cb082d121a10a03b4803b56315ae31705043eddf97eaf49c3dad6f9e39f7875b27c8feb4
   languageName: node
   linkType: hard
 

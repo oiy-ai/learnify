@@ -50,6 +50,7 @@ import { CopilotModule } from './plugins/copilot';
 import { CustomerIoModule } from './plugins/customerio';
 import { GCloudModule } from './plugins/gcloud';
 import { LicenseModule } from './plugins/license';
+import { MarkitdownModule } from './plugins/markitdown/markitdown.module';
 import { OAuthModule } from './plugins/oauth';
 import { PaymentModule } from './plugins/payment';
 import { WorkerModule } from './plugins/worker';
@@ -186,7 +187,10 @@ export function buildAppModule(env: Env) {
     .useIf(() => env.dev || env.selfhosted, WorkerModule, SelfhostModule)
 
     // gcloud
-    .useIf(() => env.gcp, GCloudModule);
+    .useIf(() => env.gcp, GCloudModule)
+
+    // markitdown
+    .use(MarkitdownModule);
 
   return factor.compile();
 }
