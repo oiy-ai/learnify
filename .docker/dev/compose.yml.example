@@ -24,6 +24,14 @@ services:
       - 1025:1025
       - 8025:8025
 
+  markitdown:
+    image: markitdown-mcp:latest
+    volumes:
+      - ${PWD}/.docker/dev/markitdown:/workdir
+    ports:
+      - 3001:3001
+    command: --sse --host 0.0.0.0 --port 3001
+
 networks:
   dev:
 
