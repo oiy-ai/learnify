@@ -1,6 +1,12 @@
 > ⚠️This repository is still in development.⚠️
 > ⚠️This document is for developers, not for users.⚠️
 
+# Summary
+
+It's an AI agent that can help you to master new knowledge, better and faster.
+
+![](https://cdn.jsdelivr.net/gh/a1exsun/file@main//learnify/demo.gif)
+
 # run the frontend
 
 ## 1. install yarn(if you haven't)
