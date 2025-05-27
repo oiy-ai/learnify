@@ -5,7 +5,7 @@
 
 It's an AI agent that can help you to master new knowledge, better and faster.
 
-![](https://cdn.jsdelivr.net/gh/a1exsun/file@main//learnify/demo.gif)
+<img src="https://cdn.jsdelivr.net/gh/a1exsun/file@main//learnify/demo.gif" alt="demo" width="100%" />
 
 # run the frontend
 
