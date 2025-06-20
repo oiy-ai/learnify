@@ -6,6 +6,12 @@ on:
       flavor:
         type: string
         required: true
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: 'Build flavor'
+        required: true
+        type: string
 
 permissions:
   contents: 'write'
@@ -33,7 +39,7 @@ jobs:
           BUILD_TYPE: ${{ github.event.inputs.flavor }}
           CAPTCHA_SITE_KEY: ${{ secrets.CAPTCHA_SITE_KEY }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: 'affine-web'
+          SENTRY_PROJECT: 'learnify-web'
           SENTRY_RELEASE: ${{ steps.version.outputs.APP_VERSION }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
@@ -66,7 +72,7 @@ jobs:
           BUILD_TYPE: ${{ github.event.inputs.flavor }}
           CAPTCHA_SITE_KEY: ${{ secrets.CAPTCHA_SITE_KEY }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: 'affine-admin'
+          SENTRY_PROJECT: 'learnify-admin'
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           PERFSEE_TOKEN: ${{ secrets.PERFSEE_TOKEN }}
@@ -98,7 +104,7 @@ jobs:
           BUILD_TYPE: ${{ github.event.inputs.flavor }}
           CAPTCHA_SITE_KEY: ${{ secrets.CAPTCHA_SITE_KEY }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: 'affine-mobile'
+          SENTRY_PROJECT: 'learnify-mobile'
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           PERFSEE_TOKEN: ${{ secrets.PERFSEE_TOKEN }}
@@ -224,7 +230,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           registry-url: https://npm.pkg.github.com
-          scope: '@toeverything'
+          scope: '@a1exsun'
 
       - name: Download web artifact
         uses: actions/download-artifact@v4
@@ -266,7 +272,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           provenance: true
           file: .github/deployment/front/Dockerfile
-          tags: ghcr.io/toeverything/affine-front:${{env.RELEASE_FLAVOR}}-${{ env.GIT_SHORT_HASH }},ghcr.io/toeverything/affine-front:${{env.RELEASE_FLAVOR}}
+          tags: ghcr.io/a1exsun/learnify-front:${{env.RELEASE_FLAVOR}}-${{ env.GIT_SHORT_HASH }},ghcr.io/a1exsun/learnify-front:${{env.RELEASE_FLAVOR}}
 
       - name: Build graphql Dockerfile
         uses: docker/build-push-action@v6
@@ -277,4 +283,4 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           provenance: true
           file: .github/deployment/node/Dockerfile
-          tags: ghcr.io/toeverything/affine-graphql:${{env.RELEASE_FLAVOR}}-${{ env.GIT_SHORT_HASH }},ghcr.io/toeverything/affine-graphql:${{env.RELEASE_FLAVOR}}
+          tags: ghcr.io/a1exsun/learnify-graphql:${{env.RELEASE_FLAVOR}}-${{ env.GIT_SHORT_HASH }},ghcr.io/a1exsun/learnify-graphql:${{env.RELEASE_FLAVOR}}
