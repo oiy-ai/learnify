@@ -58,7 +58,7 @@ jobs:
 
           echo "Previous version: $prev_version"
           echo "version=$prev_version" >> $GITHUB_OUTPUT
-          echo "namesapce=$namespace" >> $GITHUB_OUTPUT
+          echo "namespace=$namespace" >> $GITHUB_OUTPUT
 
   build-images:
     name: Build Images
@@ -125,18 +125,18 @@ jobs:
       - name: Setup Node.js
         uses: ./.github/actions/setup-node
         with:
-          extra-flags: 'workspaces focus @affine/changelog'
+          extra-flags: 'workspaces focus @learnify/changelog'
           electron-install: false
       - name: Output deployed info
         if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
         id: set_info
         run: |
           if [ "${{ github.event.inputs.flavor }}" = "canary" ]; then
-            echo "deployed_url=https://affine.fail" >> $GITHUB_OUTPUT
+            echo "deployed_url=https://learnify-canary.example.com" >> $GITHUB_OUTPUT
           elif [ "${{ github.event.inputs.flavor }}" = "beta" ]; then
-            echo "deployed_url=https://insider.affine.pro" >> $GITHUB_OUTPUT
+            echo "deployed_url=https://beta.learnify.example.com" >> $GITHUB_OUTPUT
           elif [ "${{ github.event.inputs.flavor }}" = "stable" ]; then
-            echo "deployed_url=https://app.affine.pro" >> $GITHUB_OUTPUT
+            echo "deployed_url=https://app.learnify.example.com" >> $GITHUB_OUTPUT
           else
             exit 1
           fi
