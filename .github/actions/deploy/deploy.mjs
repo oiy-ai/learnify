@@ -40,28 +40,28 @@ const replicaConfig = {
     doc: Number(process.env.BETA_DOC_REPLICA) || 2,
   },
   canary: {
-    web: 2,
-    graphql: 2,
-    sync: 2,
-    renderer: 2,
-    doc: 2,
+    web: 1,
+    graphql: 1,
+    sync: 1,
+    renderer: 1,
+    doc: 1,
   },
 };
 
 const cpuConfig = {
   beta: {
-    web: '300m',
-    graphql: '1',
-    sync: '1',
-    doc: '1',
-    renderer: '300m',
+    web: '200m',
+    graphql: '500m',
+    sync: '500m',
+    doc: '500m',
+    renderer: '200m',
   },
   canary: {
-    web: '300m',
-    graphql: '1',
-    sync: '1',
-    doc: '1',
-    renderer: '300m',
+    web: '200m',
+    graphql: '500m',
+    sync: '500m',
+    doc: '500m',
+    renderer: '200m',
   },
 };
 
@@ -126,7 +126,8 @@ const createHelmCommand = ({ isDryRun }) => {
     `--set-string global.deployment.platform="gcp"`,
     `--set-string global.app.buildType="${buildType}"`,
     `--set        global.ingress.enabled=true`,
-    `--set-json   global.ingress.annotations="{ \\"kubernetes.io/ingress.class\\": \\"gce\\", \\"kubernetes.io/ingress.allow-http\\": \\"true\\", \\"kubernetes.io/ingress.global-static-ip-name\\": \\"${STATIC_IP_NAME}\\" }"`,
+    `--set-json   global.ingress.annotations="{ \\"kubernetes.io/ingress.allow-http\\": \\"true\\", \\"kubernetes.io/ingress.global-static-ip-name\\": \\"${STATIC_IP_NAME}\\" }"`,
+    `--set-string global.ingress.ingressClassName="gce"`,
     `--set-string global.ingress.host="${host}"`,
     `--set-string global.version="${APP_VERSION}"`,
     ...redisAndPostgres,
@@ -145,7 +146,7 @@ const createHelmCommand = ({ isDryRun }) => {
     `--set        doc.replicaCount=${replica.doc}`,
     ...serviceAnnotations,
     ...resources,
-    `--timeout 10m`,
+    `--timeout 20m`,
     flag,
   ].join(' ');
   return deployCommand;
