@@ -20,7 +20,7 @@ runs:
     - id: auth
       uses: google-github-actions/auth@v2
       with:
-        workload_identity_provider: 'projects/${{ inputs.gcp-project-number }}/locations/global/workloadIdentityPools/github-actions/providers/github-actions-helm-deploy'
+        workload_identity_provider: 'projects/${{ inputs.gcp-project-number }}/locations/global/workloadIdentityPools/github-actions/providers/github-actions-provider'
         service_account: '${{ inputs.service-account }}'
         token_format: 'access_token'
         project_id: '${{ inputs.gcp-project-id }}'
