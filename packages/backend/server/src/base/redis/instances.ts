@@ -94,7 +94,7 @@ export class QueueRedis extends Redis {
     super({
       ...options,
       db: 0, // Use database 0 for Upstash compatibility
-      keyPrefix: 'queue:', // Add prefix for logical separation
+      // BullMQ doesn't support ioredis keyPrefix, it uses its own prefix option
       // required explicitly set to `null` by bullmq
       maxRetriesPerRequest: null,
     });
