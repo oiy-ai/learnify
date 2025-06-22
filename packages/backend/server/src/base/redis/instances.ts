@@ -69,7 +69,8 @@ export class SessionRedis extends Redis {
     const options = Redis.buildRedisOptions(config.redis);
     super({
       ...options,
-      db: (config.redis.db ?? 0) + 2,
+      db: 0, // Use database 0 for Upstash compatibility
+      keyPrefix: 'session:', // Add prefix for logical separation
     });
   }
 }
@@ -80,7 +81,8 @@ export class SocketIoRedis extends Redis {
     const options = Redis.buildRedisOptions(config.redis);
     super({
       ...options,
-      db: (config.redis.db ?? 0) + 3,
+      db: 0, // Use database 0 for Upstash compatibility
+      keyPrefix: 'socket:', // Add prefix for logical separation
     });
   }
 }
@@ -91,7 +93,8 @@ export class QueueRedis extends Redis {
     const options = Redis.buildRedisOptions(config.redis);
     super({
       ...options,
-      db: (config.redis.db ?? 0) + 4,
+      db: 0, // Use database 0 for Upstash compatibility
+      keyPrefix: 'queue:', // Add prefix for logical separation
       // required explicitly set to `null` by bullmq
       maxRetriesPerRequest: null,
     });
