@@ -43,11 +43,11 @@ const replicaConfig = {
     doc: Number(process.env.BETA_DOC_REPLICA) || 2,
   },
   canary: {
-    web: 2,
-    graphql: 2,
-    sync: 2,
-    renderer: 2,
-    doc: 2,
+    web: 1,
+    graphql: 1,
+    sync: 1,
+    renderer: 1,
+    doc: 1,
   },
 };
 
