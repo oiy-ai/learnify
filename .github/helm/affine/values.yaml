@@ -35,27 +35,27 @@ graphql:
     type: ClusterIP
     port: 3000
     annotations:
-      cloud.google.com/backend-config: '{"default": "affine-api-backendconfig"}'
+      cloud.google.com/backend-config: '{"default": "learnify-api-backendconfig"}'
 
 sync:
   service:
     type: ClusterIP
     port: 3010
     annotations:
-      cloud.google.com/backend-config: '{"default": "affine-api-backendconfig"}'
+      cloud.google.com/backend-config: '{"default": "learnify-api-backendconfig"}'
 
 renderer:
   service:
     type: ClusterIP
     port: 3000
     annotations:
-      cloud.google.com/backend-config: '{"default": "affine-api-backendconfig"}'
+      cloud.google.com/backend-config: '{"default": "learnify-api-backendconfig"}'
 
 doc:
   service:
     type: ClusterIP
     annotations:
-      cloud.google.com/backend-config: '{"default": "affine-api-backendconfig"}'
+      cloud.google.com/backend-config: '{"default": "learnify-api-backendconfig"}'
 
 web:
   service:

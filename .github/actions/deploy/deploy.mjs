@@ -120,7 +120,7 @@ const createHelmCommand = ({ isDryRun }) => {
 
   const host = DEPLOY_HOST || CANARY_DEPLOY_HOST;
   const deployCommand = [
-    `helm upgrade --install affine .github/helm/affine`,
+    `helm upgrade --install learnify .github/helm/affine`,
     `--namespace  ${namespace}`,
     `--set-string global.deployment.type="affine"`,
     `--set-string global.deployment.platform="gcp"`,
