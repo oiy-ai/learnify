@@ -91,7 +91,7 @@
     "html-validate": "^9.0.0",
     "htmlrewriter": "^0.0.12",
     "http-errors": "^2.0.0",
-    "ioredis": "^5.4.1",
+    "ioredis": "^5.6.1",
     "is-mobile": "^5.0.0",
     "jsonwebtoken": "^9.0.2",
     "keyv": "^5.2.2",
