@@ -15,7 +15,7 @@ app:
 serviceAccount:
   create: true
   annotations: {}
-  name: 'affine-sync'
+  name: 'learnify-sync'
 
 podAnnotations: {}
 

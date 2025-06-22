@@ -22,11 +22,12 @@ global:
     password: ''
     database: 0
   docService:
-    name: 'affine-doc'
+    name: 'learnify-doc'
     port: 3020
   deployment:
     # change to 'selfhosted' and 'unknown' if this chart is ready to be used for selfhosted deployment
-    type: 'affine'
+    # type: 'affine'
+    type: 'selfhosted'
     platform: 'gcp'
 
 graphql:

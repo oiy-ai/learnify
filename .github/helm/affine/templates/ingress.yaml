@@ -43,7 +43,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: affine-sync
+                name: learnify-sync
                 port:
                   number: {{ .Values.sync.service.port }}
           - path: /graphql
@@ -64,14 +64,14 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: affine-renderer
+                name: learnify-renderer
                 port:
                   number: {{ .Values.renderer.service.port }}
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: affine-web
+                name: learnify-web
                 port:
                   number: {{ .Values.web.service.port }}
 {{- end }}
