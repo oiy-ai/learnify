@@ -50,14 +50,14 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: affine-graphql
+                name: learnify-graphql
                 port:
                   number: {{ .Values.graphql.service.port }}
           - path: /api
             pathType: Prefix
             backend:
               service:
-                name: affine-graphql
+                name: learnify-graphql
                 port:
                   number: {{ .Values.graphql.service.port }}
           - path: /workspace

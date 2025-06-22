@@ -54,7 +54,7 @@ jobs:
           echo "Namespace set to: $namespace"
 
           # Get the previous version from the deployment
-          prev_version=$(kubectl get deployment -n $namespace affine-graphql -o=jsonpath='{.spec.template.spec.containers[0].image}' | awk -F '-' '{print $3}')
+          prev_version=$(kubectl get deployment -n $namespace learnify-graphql -o=jsonpath='{.spec.template.spec.containers[0].image}' | awk -F '-' '{print $3}')
 
           echo "Previous version: $prev_version"
           echo "version=$prev_version" >> $GITHUB_OUTPUT

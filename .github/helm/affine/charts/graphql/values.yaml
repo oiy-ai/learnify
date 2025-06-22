@@ -19,7 +19,7 @@ app:
 serviceAccount:
   create: true
   annotations: {}
-  name: 'affine-graphql'
+  name: 'learnify-graphql'
 
 podAnnotations: {}
 
