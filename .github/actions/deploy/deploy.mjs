@@ -170,7 +170,20 @@ const templates = output
   .join('---');
 console.log(templates);
 
-execSync(createHelmCommand({ isDryRun: false }), {
+// 添加调试信息
+console.log('=== Helm Command Debug ===');
+const finalCommand = createHelmCommand({ isDryRun: false });
+console.log('Command:', finalCommand);
+console.log('=== Environment Variables ===');
+console.log('DATABASE_URL:', DATABASE_URL ? 'SET' : 'NOT SET');
+console.log('REDIS_SERVER_HOST:', REDIS_SERVER_HOST ? 'SET' : 'NOT SET');
+console.log(
+  'REDIS_SERVER_PASSWORD:',
+  REDIS_SERVER_PASSWORD ? 'SET' : 'NOT SET'
+);
+console.log('=========================');
+
+execSync(finalCommand, {
   encoding: 'utf-8',
   stdio: 'inherit',
 });
