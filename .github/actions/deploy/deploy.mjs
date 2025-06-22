@@ -78,7 +78,7 @@ const createHelmCommand = ({ isDryRun }) => {
           `--set-string global.database.password=${DATABASE_PASSWORD}`,
           `--set-string global.database.name=${DATABASE_NAME}`,
           `--set-string global.redis.host="${REDIS_SERVER_HOST}"`,
-          `--set-string global.redis.password="${REDIS_SERVER_PASSWORD}"`,
+          `--set-string global.redis.password="${REDIS_SERVER_PASSWORD || ''}"`,
         ]
       : [];
   const serviceAnnotations = [
