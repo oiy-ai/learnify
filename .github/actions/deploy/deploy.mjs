@@ -50,19 +50,29 @@ const replicaConfig = {
 
 const cpuConfig = {
   beta: {
-    web: '300m',
-    graphql: '1',
-    sync: '1',
-    doc: '1',
-    renderer: '300m',
+    web: '200m',
+    graphql: '500m',
+    sync: '500m',
+    doc: '500m',
+    renderer: '200m',
   },
   canary: {
-    web: '300m',
-    graphql: '1',
-    sync: '1',
-    doc: '1',
-    renderer: '300m',
+    web: '200m',
+    graphql: '500m',
+    sync: '500m',
+    doc: '500m',
+    renderer: '200m',
   },
+};
+
+// 安全转义shell参数的辅助函数
+const escapeShellArg = arg => {
+  if (!arg) return '""';
+  // 如果包含特殊字符，用单引号包围并转义内部的单引号
+  if (/[^a-zA-Z0-9._-]/.test(arg)) {
+    return `'${arg.replace(/'/g, `'\\''`)}'`;
+  }
+  return arg;
 };
 
 const createHelmCommand = ({ isDryRun }) => {
@@ -72,13 +82,13 @@ const createHelmCommand = ({ isDryRun }) => {
     DATABASE_URL && REDIS_SERVER_HOST
       ? [
           `--set        cloud-sql-proxy.enabled=true`,
-          `--set-string cloud-sql-proxy.database.connectionName="${GCLOUD_CONNECTION_NAME}"`,
-          `--set-string global.database.host="${DATABASE_URL}"`,
-          `--set-string global.database.user="${DATABASE_USERNAME}"`,
-          `--set-string global.database.password="${DATABASE_PASSWORD}"`,
-          `--set-string global.database.name="${DATABASE_NAME}"`,
-          `--set-string global.redis.host="${REDIS_SERVER_HOST}"`,
-          `--set-string global.redis.password="${REDIS_SERVER_PASSWORD || ''}"`,
+          `--set-string cloud-sql-proxy.database.connectionName=${escapeShellArg(GCLOUD_CONNECTION_NAME)}`,
+          `--set-string global.database.host=${escapeShellArg(DATABASE_URL)}`,
+          `--set-string global.database.user=${escapeShellArg(DATABASE_USERNAME)}`,
+          `--set-string global.database.password=${escapeShellArg(DATABASE_PASSWORD)}`,
+          `--set-string global.database.name=${escapeShellArg(DATABASE_NAME)}`,
+          `--set-string global.redis.host=${escapeShellArg(REDIS_SERVER_HOST)}`,
+          `--set-string global.redis.password=${escapeShellArg(REDIS_SERVER_PASSWORD || '')}`,
         ]
       : [];
   const serviceAnnotations = [
@@ -132,7 +142,8 @@ const createHelmCommand = ({ isDryRun }) => {
     `--set-string global.deployment.platform="gcp"`,
     `--set-string global.app.buildType="${buildType}"`,
     `--set        global.ingress.enabled=true`,
-    `--set-json   global.ingress.annotations="{ \\"kubernetes.io/ingress.class\\": \\"gce\\", \\"kubernetes.io/ingress.allow-http\\": \\"true\\", \\"kubernetes.io/ingress.global-static-ip-name\\": \\"${STATIC_IP_NAME}\\" }"`,
+    `--set-json   global.ingress.annotations="{ \\"kubernetes.io/ingress.allow-http\\": \\"true\\", \\"kubernetes.io/ingress.global-static-ip-name\\": \\"${STATIC_IP_NAME}\\" }"`,
+    `--set-string global.ingress.className="gce"`,
     `--set-string global.ingress.host="${host}"`,
     `--set-string global.version="${APP_VERSION}"`,
     ...redisAndPostgres,
@@ -151,7 +162,7 @@ const createHelmCommand = ({ isDryRun }) => {
     `--set        doc.replicaCount=${replica.doc}`,
     ...serviceAnnotations,
     ...resources,
-    `--timeout 10m`,
+    `--timeout 20m`,
     flag,
   ].join(' ');
   return deployCommand;
@@ -178,9 +189,62 @@ console.log(
   'REDIS_SERVER_PASSWORD:',
   REDIS_SERVER_PASSWORD ? 'SET' : 'NOT SET'
 );
+console.log('BUILD_TYPE:', buildType);
+console.log(
+  'NAMESPACE:',
+  isProduction
+    ? 'production'
+    : isBeta
+      ? 'beta'
+      : isInternal
+        ? 'internal'
+        : 'dev'
+);
 console.log('=========================');
 
-execSync(finalCommand, {
-  encoding: 'utf-8',
-  stdio: 'inherit',
-});
+try {
+  execSync(finalCommand, {
+    encoding: 'utf-8',
+    stdio: 'inherit',
+  });
+  console.log('✅ 部署成功完成!');
+} catch (error) {
+  console.error('❌ 部署失败:', error.message);
+  console.log('正在检查 pod 状态...');
+
+  const namespace = isProduction
+    ? 'production'
+    : isBeta
+      ? 'beta'
+      : isInternal
+        ? 'internal'
+        : 'dev';
+
+  try {
+    // 检查 pod 状态
+    const podStatus = execSync(
+      `kubectl get pods -n ${namespace} -l app.kubernetes.io/instance=learnify`,
+      {
+        encoding: 'utf-8',
+        stdio: 'pipe',
+      }
+    );
+    console.log('Pod 状态:');
+    console.log(podStatus);
+
+    // 检查最近的事件
+    const events = execSync(
+      `kubectl get events -n ${namespace} --sort-by='.lastTimestamp' | tail -20`,
+      {
+        encoding: 'utf-8',
+        stdio: 'pipe',
+      }
+    );
+    console.log('最近的事件:');
+    console.log(events);
+  } catch (debugError) {
+    console.error('无法获取调试信息:', debugError.message);
+  }
+
+  throw error;
+}
