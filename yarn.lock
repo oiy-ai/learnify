@@ -766,7 +766,6 @@ __metadata:
     "@smarttools/eslint-plugin-rxjs": "npm:^1.0.8"
     "@taplo/cli": "npm:^0.7.0"
     "@toeverything/infra": "workspace:*"
-    "@types/compression": "npm:^1.7.5"
     "@types/eslint": "npm:^9.6.1"
     "@types/node": "npm:^22.0.0"
     "@typescript-eslint/parser": "npm:^8.18.0"
@@ -954,7 +953,6 @@ __metadata:
     "@prisma/instrumentation": "npm:^6.7.0"
     "@react-email/components": "npm:0.0.38"
     "@socket.io/redis-adapter": "npm:^8.3.0"
-    "@types/compression": "npm:^1.7.5"
     "@types/cookie-parser": "npm:^1.4.8"
     "@types/express": "npm:^5.0.1"
     "@types/express-serve-static-core": "npm:^5.0.6"
@@ -14570,16 +14568,6 @@ __metadata:
     "@types/node": "npm:*"
     "@types/responselike": "npm:^1.0.0"
   checksum: 10/159f9fdb2a1b7175eef453ae2ced5ea04c0d2b9610cc9ccd9f9abb066d36dacb1f37acd879ace10ad7cbb649490723feb396fb7307004c9670be29636304b988
-  languageName: node
-  linkType: hard
-
-"@types/compression@npm:^1.7.5":
-  version: 1.8.1
-  resolution: "@types/compression@npm:1.8.1"
-  dependencies:
-    "@types/express": "npm:*"
-    "@types/node": "npm:*"
-  checksum: 10/cd746c830a5c981568d36989c3c43a55caf1872b54e3f9891b82fba04501de11882091df3ece11fbede2de01179c99d08639a08831e06c3966873f928407c01a
   languageName: node
   linkType: hard
 

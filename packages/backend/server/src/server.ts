@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
-import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
 
@@ -38,7 +37,6 @@ export async function run() {
     app.setGlobalPrefix(config.server.path);
   }
 
-  app.use(compression({ threshold: 0 }));
   app.use(serverTimingAndCache);
 
   app.use(

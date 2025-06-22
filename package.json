@@ -60,7 +60,6 @@
     "@smarttools/eslint-plugin-rxjs": "^1.0.8",
     "@taplo/cli": "^0.7.0",
     "@toeverything/infra": "workspace:*",
-    "@types/compression": "^1.7.5",
     "@types/eslint": "^9.6.1",
     "@types/node": "^22.0.0",
     "@typescript-eslint/parser": "^8.18.0",
