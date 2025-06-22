@@ -69,7 +69,7 @@ const createHelmCommand = ({ isDryRun }) => {
   const flag = isDryRun ? '--dry-run' : '--atomic';
   const imageTag = `${buildType}-${GIT_SHORT_HASH}`;
   const redisAndPostgres =
-    isProduction || isBeta || isInternal
+    DATABASE_URL && REDIS_SERVER_HOST
       ? [
           `--set        cloud-sql-proxy.enabled=true`,
           `--set-string cloud-sql-proxy.database.connectionName="${GCLOUD_CONNECTION_NAME}"`,
@@ -146,7 +146,9 @@ const createHelmCommand = ({ isDryRun }) => {
     `--set        doc.replicaCount=${replica.doc}`,
     ...serviceAnnotations,
     ...resources,
-    `--timeout 20m`,
+    `--timeout 30m`,
+    `--wait`,
+    `--debug`,
     flag,
   ].join(' ');
   return deployCommand;
