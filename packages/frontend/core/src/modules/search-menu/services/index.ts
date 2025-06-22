@@ -1,7 +1,4 @@
-import type {
-  CollectionMeta,
-  TagMeta,
-} from '@affine/core/components/page-list';
+import type { TagMeta } from '@affine/core/components/page-list';
 import { I18n } from '@affine/i18n';
 import { createSignalFromObservable } from '@blocksuite/affine/shared/utils';
 import type { DocMeta } from '@blocksuite/affine/store';
@@ -18,7 +15,7 @@ import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { map } from 'rxjs';
 
-import type { CollectionService } from '../../collection';
+import type { CollectionMeta, CollectionService } from '../../collection';
 import type { DocDisplayMetaService } from '../../doc-display-meta';
 import type { DocsSearchService } from '../../docs-search';
 import { type RecentDocsService } from '../../quicksearch';
@@ -262,12 +259,12 @@ export class SearchMenuService extends Service {
         query,
       }),
       items: result.map(item => {
-        const title = this.highlightFuseTitle(
+        const name = this.highlightFuseTitle(
           item.matches,
-          item.item.title,
-          'title'
+          item.item.name,
+          'name'
         );
-        return this.toTagMenuItem({ ...item.item, title }, action);
+        return this.toTagMenuItem({ ...item.item, name }, action);
       }),
     };
   }
@@ -285,7 +282,7 @@ export class SearchMenuService extends Service {
     `;
     return {
       key: tag.id,
-      name: html`${unsafeHTML(tag.title)}`,
+      name: html`${unsafeHTML(tag.name)}`,
       icon: tagIcon,
       action: async () => {
         await action(tag);
@@ -298,7 +295,7 @@ export class SearchMenuService extends Service {
     action: SearchCollectionMenuAction,
     _abortSignal: AbortSignal
   ): LinkedMenuGroup {
-    const collections = this.collectionService.collections$.value;
+    const collections = this.collectionService.collectionMetas$.value;
     if (query.trim().length === 0) {
       return {
         name: I18n.t('com.affine.editor.at-menu.collections', {

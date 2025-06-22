@@ -1,3 +1,4 @@
+import type { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import type { EditorHost } from '@blocksuite/affine/std';
 import { ShadowlessElement } from '@blocksuite/affine/std';
@@ -20,11 +21,15 @@ export class ChatContentRichText extends WithDisposable(ShadowlessElement) {
   @property({ attribute: false })
   accessor extensions!: ExtensionType[];
 
+  @property({ attribute: false })
+  accessor affineFeatureFlagService!: FeatureFlagService;
+
   protected override render() {
     const { text, host } = this;
     return html`${createTextRenderer(host, {
       customHeading: true,
       extensions: this.extensions,
+      affineFeatureFlagService: this.affineFeatureFlagService,
     })(text, this.state)}`;
   }
 }

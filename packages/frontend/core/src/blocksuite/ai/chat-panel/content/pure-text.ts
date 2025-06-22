@@ -8,7 +8,7 @@ export class ChatContentPureText extends ShadowlessElement {
     .chat-content-pure-text {
       display: inline-block;
       text-align: left;
-      max-width: 800px;
+      max-width: 100%;
       max-height: 500px;
       overflow-y: auto;
       overflow-x: hidden;
@@ -40,9 +40,14 @@ export class ChatContentPureText extends ShadowlessElement {
   @property({ attribute: 'data-testid', reflect: true })
   accessor testId = 'chat-content-pure-text';
 
+  stopPropagation(event: Event) {
+    event.stopPropagation();
+  }
+
   protected override render() {
     return this.text.length > 0
-      ? html`<div class="chat-content-pure-text">${this.text}</div>`
+      ? // prettier-ignore
+        html`<div class="chat-content-pure-text" @copy=${this.stopPropagation}>${this.text}</div>`
       : nothing;
   }
 }

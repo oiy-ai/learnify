@@ -50,13 +50,14 @@ import {
   workspaceAndUserWrapper,
   workspaceWrapper,
 } from './index.css';
-// import { AppSidebarJournalButton } from './journal-button';
-// import { NotificationButton } from './notification-button';
+import { InviteMembersButton } from './invite-members-button';
+import { AppSidebarJournalButton } from './journal-button';
+import { NotificationButton } from './notification-button';
 import { SidebarAudioPlayer } from './sidebar-audio-player';
-// import { TemplateDocEntrance } from './template-doc-entrance';
-// import { TrashButton } from './trash-button';
-// import { UpdaterButton } from './updater-button';
-import { UserInfo } from './user-info';
+import { TemplateDocEntrance } from './template-doc-entrance';
+import { TrashButton } from './trash-button';
+import { UpdaterButton } from './updater-button';
+import UserInfo from './user-info';
 
 export type RootAppSidebarProps = {
   isPublicWorkspace: boolean;
@@ -103,20 +104,28 @@ export const RootAppSidebar = memo((): ReactElement => {
     AuthService,
   });
 
-  // const sessionStatus = useLiveData(authService.session.status$);
-  // const t = useI18n();
-  // const workspaceDialogService = useService(WorkspaceDialogService);
-  // const workbench = workbenchService.workbench;
+  const sessionStatus = useLiveData(authService.session.status$);
+  const t = useI18n();
+  const workspaceDialogService = useService(WorkspaceDialogService);
+  const workbench = workbenchService.workbench;
+  const workspaceSelectorOpen = useLiveData(workbench.workspaceSelectorOpen$);
   const onOpenQuickSearchModal = useCallback(() => {
     cMDKQuickSearchService.toggle();
   }, [cMDKQuickSearchService]);
 
-  // const onOpenSettingModal = useCallback(() => {
-  //   workspaceDialogService.open('setting', {
-  //     activeTab: 'appearance',
-  //   });
-  //   track.$.navigationPanel.$.openSettings();
-  // }, [workspaceDialogService]);
+  const onWorkspaceSelectorOpenChange = useCallback(
+    (open: boolean) => {
+      workbench.setWorkspaceSelectorOpen(open);
+    },
+    [workbench]
+  );
+
+  const onOpenSettingModal = useCallback(() => {
+    workspaceDialogService.open('setting', {
+      activeTab: 'appearance',
+    });
+    track.$.navigationPanel.$.openSettings();
+  }, [workspaceDialogService]);
 
   // const handleOpenDocs = useCallback(
   //   (result: {
@@ -157,7 +166,13 @@ export const RootAppSidebar = memo((): ReactElement => {
       <SidebarContainer>
         <div className={workspaceAndUserWrapper}>
           <div className={workspaceWrapper}>
-            <WorkspaceNavigator showEnableCloudButton showSyncStatus />
+            <WorkspaceNavigator
+              showEnableCloudButton
+              showSyncStatus
+              open={workspaceSelectorOpen}
+              onOpenChange={onWorkspaceSelectorOpenChange}
+              dense
+            />
           </div>
           <UserInfo />
         </div>
@@ -196,8 +211,8 @@ export const RootAppSidebar = memo((): ReactElement => {
         {/* <NavigationPanelFavorites /> */}
         {/* <NavigationPanelOrganize /> */}
         {/* <NavigationPanelMigrationFavorites /> */}
-        {/* <NavigationPanelCollections /> */}
         {/* <NavigationPanelTags /> */}
+        {/* <NavigationPanelCollections /> */}
         {/* <CollapsibleSection
           name="others"
           title={t['com.affine.rootAppSidebar.others']()}
@@ -211,6 +226,7 @@ export const RootAppSidebar = memo((): ReactElement => {
           >
             <span data-testid="import-modal-trigger">{t['Import']()}</span>
           </MenuItem>
+          <InviteMembersButton />
           <TemplateDocEntrance />
           <ExternalMenuLinkItem
             href="https://affine.pro/blog?tag=Release+Note"

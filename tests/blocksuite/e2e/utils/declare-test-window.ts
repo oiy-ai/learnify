@@ -1,14 +1,9 @@
 import type * as Effect from '@blocksuite/affine/effects';
-import type * as ConnectorEffect from '@blocksuite/affine/gfx/connector';
-import type * as ShapeEffect from '@blocksuite/affine/gfx/shape';
 import type { EditorHost } from '@blocksuite/affine/std';
 import type { Store, Transformer, Workspace } from '@blocksuite/affine/store';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
 
-declare type _GLOBAL_ =
-  | typeof Effect
-  | typeof ConnectorEffect
-  | typeof ShapeEffect;
+declare type _GLOBAL_ = typeof Effect;
 
 declare global {
   interface Window {

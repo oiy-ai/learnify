@@ -4,7 +4,7 @@ import {
   listBlobsQuery,
   releaseDeletedBlobsMutation,
   setBlobMutation,
-  workspaceQuotaQuery,
+  workspaceBlobQuotaQuery,
 } from '@affine/graphql';
 
 import {
@@ -95,7 +95,7 @@ export class CloudBlobStorage extends BlobStorageBase {
     try {
       const blobSizeLimit = await this.getBlobSizeLimit();
       if (blob.data.byteLength > blobSizeLimit) {
-        throw new OverSizeError();
+        throw new OverSizeError(this.humanReadableBlobSizeLimitCache);
       }
       await this.connection.gql({
         query: setBlobMutation,
@@ -113,10 +113,10 @@ export class CloudBlobStorage extends BlobStorageBase {
         throw new OverCapacityError();
       }
       if (userFriendlyError.is('BLOB_QUOTA_EXCEEDED')) {
-        throw new OverSizeError();
+        throw new OverSizeError(this.humanReadableBlobSizeLimitCache);
       }
       if (userFriendlyError.is('CONTENT_TOO_LARGE')) {
-        throw new OverSizeError();
+        throw new OverSizeError(this.humanReadableBlobSizeLimitCache);
       }
       throw err;
     }
@@ -148,6 +148,7 @@ export class CloudBlobStorage extends BlobStorageBase {
     }));
   }
 
+  private humanReadableBlobSizeLimitCache: string | null = null;
   private blobSizeLimitCache: number | null = null;
   private blobSizeLimitCacheTime = 0;
   private async getBlobSizeLimit() {
@@ -160,10 +161,12 @@ export class CloudBlobStorage extends BlobStorageBase {
     }
     try {
       const res = await this.connection.gql({
-        query: workspaceQuotaQuery,
+        query: workspaceBlobQuotaQuery,
         variables: { id: this.options.id },
       });
 
+      this.humanReadableBlobSizeLimitCache =
+        res.workspace.quota.humanReadable.blobLimit;
       this.blobSizeLimitCache = res.workspace.quota.blobLimit;
       this.blobSizeLimitCacheTime = Date.now();
       return this.blobSizeLimitCache;

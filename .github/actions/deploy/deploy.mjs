@@ -16,6 +16,9 @@ const {
   REDIS_SERVER_HOST,
   REDIS_SERVER_PASSWORD,
   STATIC_IP_NAME,
+  AFFINE_INDEXER_SEARCH_PROVIDER,
+  AFFINE_INDEXER_SEARCH_ENDPOINT,
+  AFFINE_INDEXER_SEARCH_API_KEY,
 } = process.env;
 
 const buildType = BUILD_TYPE || 'canary';
@@ -91,6 +94,11 @@ const createHelmCommand = ({ isDryRun }) => {
           `--set-string global.redis.password=${escapeShellArg(REDIS_SERVER_PASSWORD || '')}`,
         ]
       : [];
+  const indexerOptions = [
+    `--set-string global.indexer.provider="${AFFINE_INDEXER_SEARCH_PROVIDER}"`,
+    `--set-string global.indexer.endpoint="${AFFINE_INDEXER_SEARCH_ENDPOINT}"`,
+    `--set-string global.indexer.apiKey="${AFFINE_INDEXER_SEARCH_API_KEY}"`,
+  ];
   const serviceAnnotations = [
     `--set-json   web.serviceAccount.annotations="{ \\"iam.gke.io/gcp-service-account\\": \\"${APP_IAM_ACCOUNT}\\" }"`,
     `--set-json   graphql.serviceAccount.annotations="{ \\"iam.gke.io/gcp-service-account\\": \\"${APP_IAM_ACCOUNT}\\" }"`,
@@ -147,6 +155,7 @@ const createHelmCommand = ({ isDryRun }) => {
     `--set-string global.ingress.host="${host}"`,
     `--set-string global.version="${APP_VERSION}"`,
     ...redisAndPostgres,
+    ...indexerOptions,
     `--set        web.replicaCount=${replica.web}`,
     `--set-string web.image.tag="${imageTag}"`,
     `--set        graphql.replicaCount=${replica.graphql}`,

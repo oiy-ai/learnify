@@ -15,5 +15,3 @@ export type AllPageFilterOption =
   | 'flashcards'
   | 'podcasts';
 export const allPageFilterSelectAtom = atom<AllPageFilterOption>('docs');
-
-export const openWorkspaceListModalAtom = atom(false);

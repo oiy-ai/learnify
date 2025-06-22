@@ -77,10 +77,23 @@ export class TestingApp extends NestApplication {
     assert(init.body, 'body is required for gql request');
     assert(init.headers, 'headers is required for gql request');
 
-    const res = await this.request('post', '/graphql')
-      .send(init?.body)
+    const req = this.request('post', '/graphql')
       .set('accept', 'application/json')
       .set(init.headers as Record<string, string>);
+
+    if (init.body instanceof FormData) {
+      for (const [key, value] of init.body.entries()) {
+        if (value instanceof File) {
+          req.attach(key, Buffer.from(await value.arrayBuffer()));
+        } else {
+          req.field(key, value);
+        }
+      }
+    } else {
+      req.send(init.body);
+    }
+
+    const res = await req;
 
     return new Response(Buffer.from(JSON.stringify(res.body)), {
       status: res.status,
@@ -141,12 +154,10 @@ export class TestingApp extends NestApplication {
   }
 
   async login(user: MockedUser) {
-    await this.POST('/api/auth/sign-in')
-      .send({
-        email: user.email,
-        password: user.password,
-      })
-      .expect(200);
+    return await this.POST('/api/auth/sign-in').send({
+      email: user.email,
+      password: user.password,
+    });
   }
 
   async switchUser(userOrId: string | { id: string }) {

@@ -1,12 +1,11 @@
 import type { AffineEditorContainer } from '@affine/core/blocksuite/block-suite-editor';
-import type { DefaultOpenProperty } from '@affine/core/components/doc-properties';
+import type { DefaultOpenProperty } from '@affine/core/components/properties';
+import { PresentTool } from '@blocksuite/affine/blocks/frame';
+import { DefaultTool } from '@blocksuite/affine/blocks/surface';
 import type { DocTitle } from '@blocksuite/affine/fragments/doc-title';
 import type { DocMode, ReferenceParams } from '@blocksuite/affine/model';
 import { HighlightSelection } from '@blocksuite/affine/shared/selection';
-import {
-  DocModeProvider,
-  FeatureFlagService as BSFeatureFlagService,
-} from '@blocksuite/affine/shared/services';
+import { DocModeProvider } from '@blocksuite/affine/shared/services';
 import { GfxControllerIdentifier } from '@blocksuite/affine/std/gfx';
 import type { InlineEditor } from '@blocksuite/std/inline';
 import { effect } from '@preact/signals-core';
@@ -15,7 +14,6 @@ import { defaults, isEqual, omit } from 'lodash-es';
 import { skip } from 'rxjs';
 
 import type { DocService } from '../../doc';
-import { AFFINE_FLAGS, type FeatureFlagService } from '../../feature-flag';
 import { paramsParseOptions, preprocessParams } from '../../navigation/utils';
 import type { WorkbenchView } from '../../workbench';
 import type { WorkspaceService } from '../../workspace';
@@ -75,9 +73,11 @@ export class Editor extends Entity {
       GfxControllerIdentifier
     );
     if (!gfx) return;
-    gfx.tool.setTool({
-      type: !this.isPresenting$.value ? 'frameNavigator' : 'default',
-    });
+    if (!this.isPresenting$.value) {
+      gfx.tool.setTool(PresentTool);
+    } else {
+      gfx.tool.setTool(DefaultTool);
+    }
   }
 
   setSelector(selector: EditorSelector | undefined) {
@@ -192,7 +192,6 @@ export class Editor extends Entity {
       throw new Error('already bound');
     }
 
-    this._setupBlocksuiteEditorFlags(editorContainer);
     this.editorContainer$.next(editorContainer);
     const unsubs: (() => void)[] = [];
 
@@ -321,24 +320,9 @@ export class Editor extends Entity {
     };
   }
 
-  private _setupBlocksuiteEditorFlags(editorContainer: AffineEditorContainer) {
-    const affineFeatureFlagService = this.featureFlagService;
-    const bsFeatureFlagService = editorContainer.doc.get(BSFeatureFlagService);
-    Object.entries(AFFINE_FLAGS).forEach(([key, flag]) => {
-      if (flag.category === 'blocksuite') {
-        const value =
-          affineFeatureFlagService.flags[key as keyof AFFINE_FLAGS].value;
-        if (value !== undefined) {
-          bsFeatureFlagService.setFlag(flag.bsFlag, value);
-        }
-      }
-    });
-  }
-
   constructor(
     private readonly docService: DocService,
-    private readonly workspaceService: WorkspaceService,
-    private readonly featureFlagService: FeatureFlagService
+    private readonly workspaceService: WorkspaceService
   ) {
     super();
   }

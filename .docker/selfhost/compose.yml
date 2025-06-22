@@ -21,6 +21,7 @@ services:
     environment:
       - REDIS_SERVER_HOST=redis
       - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE:-affine}
+      - AFFINE_INDEXER_ENABLED=false
     restart: unless-stopped
 
   affine_migration:
@@ -36,6 +37,7 @@ services:
     environment:
       - REDIS_SERVER_HOST=redis
       - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE:-affine}
+      - AFFINE_INDEXER_ENABLED=false
     depends_on:
       postgres:
         condition: service_healthy
@@ -53,7 +55,7 @@ services:
     restart: unless-stopped
 
   postgres:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     container_name: affine_postgres
     volumes:
       - ${DB_DATA_LOCATION}:/var/lib/postgresql/data

@@ -6,6 +6,7 @@ import {
   type LoaderFunction,
   redirect,
   useLoaderData,
+  // oxlint-disable-next-line @typescript-eslint/no-restricted-imports
   useNavigate,
 } from 'react-router-dom';
 import { z } from 'zod';
@@ -66,7 +67,7 @@ export const Component = () => {
   useEffect(() => {
     auth
       .oauthPreflight(data.provider, data.client, data.redirectUri)
-      .then(url => {
+      .then(({ url }) => {
         // this is the url of oauth provider auth page, can't navigate with react-router
         location.href = url;
       })

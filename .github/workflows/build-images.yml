@@ -119,6 +119,7 @@ jobs:
   build-server-native:
     name: Build Server native - ${{ matrix.targets.name }}
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.flavor }}
     strategy:
       fail-fast: false
       matrix:
@@ -142,6 +143,9 @@ jobs:
           extra-flags: workspaces focus @affine/server-native
       - name: Build Rust
         uses: ./.github/actions/build-rust
+        env:
+          AFFINE_PRO_PUBLIC_KEY: ${{ secrets.AFFINE_PRO_PUBLIC_KEY }}
+          AFFINE_PRO_LICENSE_AES_KEY: ${{ secrets.AFFINE_PRO_LICENSE_AES_KEY }}
         with:
           target: ${{ matrix.targets.name }}
           package: '@affine/server-native'
@@ -178,6 +182,8 @@ jobs:
           path: ./packages/backend/native
       - name: List server-native files
         run: ls -alh ./packages/backend/native
+      - name: Build @affine/reader
+        run: yarn workspace @affine/reader build
       - name: Build Server
         run: yarn workspace @affine/server build
       - name: Upload server dist
@@ -258,6 +264,9 @@ jobs:
 
       - name: Generate Prisma client
         run: yarn workspace @affine/server prisma generate
+
+      - name: Mv node_modules
+        run: mv ./node_modules ./packages/backend/server
 
       - name: Setup Version
         id: version

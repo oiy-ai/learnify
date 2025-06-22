@@ -317,7 +317,7 @@ test('change note color', async ({ page }) => {
   );
 
   await selectNoteInEdgeless(page, noteId);
-  await triggerComponentToolbarAction(page, 'changeNoteColor');
+  await triggerComponentToolbarAction(page, 'changeNoteStyle');
   await changeEdgelessNoteBackground(page, 'Green');
   await assertEdgelessNoteBackground(
     page,

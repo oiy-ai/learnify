@@ -252,7 +252,7 @@ jobs:
         shell: bash
         # node_modules of nbstore is not needed for building, and it will make the build process out of memory
         run: |
-          rm -rf packages/frontend/apps/electron/node_modules/@affine/nbstore/node_modules/@blocksuite
+          rm -rf packages/frontend/apps/electron/node_modules/@affine/nbstore/node_modules/@blocksuite/affine/node_modules
           rm -rf packages/frontend/apps/electron/node_modules/@affine/native/node_modules
 
       - name: package

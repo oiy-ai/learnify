@@ -11,7 +11,9 @@ import {
   forkCopilotSessionMutation,
   getCopilotHistoriesQuery,
   getCopilotHistoryIdsQuery,
+  getCopilotSessionQuery,
   getCopilotSessionsQuery,
+  getWorkspaceEmbeddingStatusQuery,
   type GraphQLQuery,
   listContextObjectQuery,
   listContextQuery,
@@ -136,6 +138,18 @@ export class CopilotClient {
     }
   }
 
+  async getSession(workspaceId: string, sessionId: string) {
+    try {
+      const res = await this.gql({
+        query: getCopilotSessionQuery,
+        variables: { sessionId, workspaceId },
+      });
+      return res.currentUser?.copilot?.session;
+    } catch (err) {
+      throw resolveError(err);
+    }
+  }
+
   async getSessions(
     workspaceId: string,
     docId?: string,
@@ -241,7 +255,7 @@ export class CopilotClient {
         sessionId,
       },
     });
-    return res.currentUser?.copilot?.contexts?.[0]?.id;
+    return res.currentUser?.copilot?.contexts?.[0]?.id || undefined;
   }
 
   async addContextDoc(options: OptionsField<typeof addContextDocMutation>) {
@@ -333,13 +347,23 @@ export class CopilotClient {
     return res.currentUser?.copilot?.contexts?.[0];
   }
 
-  async matchContext(contextId: string, content: string, limit?: number) {
+  async matchContext(
+    content: string,
+    contextId?: string,
+    workspaceId?: string,
+    limit?: number,
+    scopedThreshold?: number,
+    threshold?: number
+  ) {
     const res = await this.gql({
       query: matchContextQuery,
       variables: {
-        contextId,
         content,
+        contextId,
+        workspaceId,
         limit,
+        scopedThreshold,
+        threshold,
       },
     });
     const { matchFiles: files, matchWorkspaceDocs: docs } =
@@ -352,12 +376,14 @@ export class CopilotClient {
     messageId,
     reasoning,
     webSearch,
+    modelId,
     signal,
   }: {
     sessionId: string;
     messageId?: string;
     reasoning?: boolean;
     webSearch?: boolean;
+    modelId?: string;
     signal?: AbortSignal;
   }) {
     let url = `/api/copilot/chat/${sessionId}`;
@@ -365,6 +391,7 @@ export class CopilotClient {
       messageId,
       reasoning,
       webSearch,
+      modelId,
     });
     if (queryString) {
       url += `?${queryString}`;
@@ -380,11 +407,13 @@ export class CopilotClient {
       messageId,
       reasoning,
       webSearch,
+      modelId,
     }: {
       sessionId: string;
       messageId?: string;
       reasoning?: boolean;
       webSearch?: boolean;
+      modelId?: string;
     },
     endpoint = 'stream'
   ) {
@@ -393,6 +422,7 @@ export class CopilotClient {
       messageId,
       reasoning,
       webSearch,
+      modelId,
     });
     if (queryString) {
       url += `?${queryString}`;
@@ -430,5 +460,12 @@ export class CopilotClient {
       }
     });
     return queryString.toString();
+  }
+
+  getEmbeddingStatus(workspaceId: string) {
+    return this.gql({
+      query: getWorkspaceEmbeddingStatusQuery,
+      variables: { workspaceId },
+    }).then(res => res.queryWorkspaceEmbeddingStatus);
   }
 }

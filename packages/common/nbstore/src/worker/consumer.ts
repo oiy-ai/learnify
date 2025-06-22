@@ -212,6 +212,8 @@ class StoreConsumer {
           const undo = this.docSync.addPriority(docId, priority);
           return () => undo();
         }),
+      'docSync.waitForSynced': (docId, ctx) =>
+        this.docSync.waitForSynced(docId ?? undefined, ctx.signal),
       'docSync.resetSync': () => this.docSync.resetSync(),
       'blobSync.state': () => this.blobSync.state$,
       'blobSync.blobState': blobId => this.blobSync.blobState$(blobId),

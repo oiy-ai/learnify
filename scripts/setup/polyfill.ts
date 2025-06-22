@@ -1,6 +1,8 @@
-// @ts-expect-error it's just a external script
+/* eslint-disable */
+// @ts-nocheck
+
 Promise.withResolvers ??= function withResolvers() {
-  let a,
+  var a,
     b,
     c = new this(function (resolve, reject) {
       a = resolve;

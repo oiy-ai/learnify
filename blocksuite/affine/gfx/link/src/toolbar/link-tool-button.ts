@@ -1,13 +1,12 @@
 import { insertLinkByQuickSearchCommand } from '@blocksuite/affine-block-bookmark';
 import { insertEmbedCard } from '@blocksuite/affine-block-embed';
+import { DefaultTool } from '@blocksuite/affine-block-surface';
 import { toggleEmbedCardCreateModal } from '@blocksuite/affine-components/embed-card-modal';
 import { LinkIcon } from '@blocksuite/affine-components/icons';
-import type * as PointerEffect from '@blocksuite/affine-gfx-pointer';
 import { TelemetryProvider } from '@blocksuite/affine-shared/services';
 import { QuickToolMixin } from '@blocksuite/affine-widget-edgeless-toolbar';
+import { GfxControllerIdentifier } from '@blocksuite/std/gfx';
 import { css, html, LitElement } from 'lit';
-
-declare type _GLOBAL_ = typeof PointerEffect;
 
 export class EdgelessLinkToolButton extends QuickToolMixin(LitElement) {
   static override styles = css`
@@ -18,7 +17,7 @@ export class EdgelessLinkToolButton extends QuickToolMixin(LitElement) {
     }
   `;
 
-  override type = 'default' as const;
+  override type = DefaultTool;
 
   private _onClick() {
     const [success, { insertedLinkType }] = this.edgeless.std.command.exec(
@@ -40,6 +39,12 @@ export class EdgelessLinkToolButton extends QuickToolMixin(LitElement) {
               props: { url },
             });
           },
+        },
+        ({ mode }) => {
+          if (mode === 'edgeless') {
+            const gfx = this.edgeless.std.get(GfxControllerIdentifier);
+            gfx.tool.setTool(DefaultTool);
+          }
         }
       ).catch(console.error);
       return;

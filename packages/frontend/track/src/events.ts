@@ -39,6 +39,7 @@ type WorkspaceEvents =
   | 'export'
   | 'openWorkspaceList';
 type DocEvents =
+  | 'openDoc'
   | 'createDoc'
   | 'quickStart'
   | 'renameDoc'
@@ -53,7 +54,11 @@ type DocEvents =
   | 'bookmark'
   | 'editProperty'
   | 'editPropertyMeta'
-  | 'addProperty';
+  | 'addProperty'
+  | 'editDisplayMenu'
+  | 'navigateAllDocsRouter'
+  | 'navigatePinedCollectionRouter'
+  | 'htmlBlockPreviewFailed';
 type EditorEvents =
   | 'bold'
   | 'italic'
@@ -77,7 +82,9 @@ type CollectionEvents =
   | 'createCollection'
   | 'deleteCollection'
   | 'renameCollection'
-  | 'addDocToCollection';
+  | 'addDocToCollection'
+  | 'editCollection'
+  | 'addPinnedCollection';
 type FolderEvents =
   | 'createFolder'
   | 'renameFolder'
@@ -118,7 +125,8 @@ type AuthEvents =
   | 'signIn'
   | 'signInFail'
   | 'signedIn'
-  | 'signOut';
+  | 'signOut'
+  | 'deleteAccount';
 type AccountEvents = 'uploadAvatar' | 'removeAvatar' | 'updateUserName';
 type PaymentEvents =
   | 'viewPlans'
@@ -163,7 +171,8 @@ type IntegrationEvents =
   | 'selectIntegrationImport'
   | 'confirmIntegrationImport'
   | 'abortIntegrationImport'
-  | 'completeIntegrationImport';
+  | 'completeIntegrationImport'
+  | 'createCalendarDocEvent';
 // END SECTION
 
 // SECTION: journal
@@ -180,6 +189,13 @@ type MeetingEvents =
 
 // SECTION: mention
 type MentionEvents = 'mentionMember' | 'noAccessPrompted';
+// END SECTION
+
+// SECTION: workspace embedding
+type WorkspaceEmbeddingEvents =
+  | 'toggleWorkspaceEmbedding'
+  | 'addAdditionalDocs'
+  | 'addIgnoredDocs';
 // END SECTION
 
 type UserEvents =
@@ -204,7 +220,8 @@ type UserEvents =
   | NotificationEvents
   | IntegrationEvents
   | MeetingEvents
-  | MentionEvents;
+  | MentionEvents
+  | WorkspaceEmbeddingEvents;
 
 interface PageDivision {
   [page: string]: {
@@ -226,7 +243,14 @@ interface PageEvents extends PageDivision {
   $: {
     $: {
       $: ['createWorkspace', 'checkout'];
-      auth: ['requestSignIn', 'signIn', 'signedIn', 'signInFail', 'signOut'];
+      auth: [
+        'requestSignIn',
+        'signIn',
+        'signedIn',
+        'signInFail',
+        'signOut',
+        'deleteAccount',
+      ];
     };
     sharePanel: {
       $: [
@@ -283,6 +307,11 @@ interface PageEvents extends PageDivision {
         'completeIntegrationImport',
       ];
       meetings: ['toggleMeetingFeatureFlag'];
+      indexerEmbedding: [
+        'toggleWorkspaceEmbedding',
+        'addAdditionalDocs',
+        'addIgnoredDocs',
+      ];
     };
     cmdk: {
       recent: ['recentDocs'];
@@ -318,12 +347,13 @@ interface PageEvents extends PageDivision {
         'toggleFavorite',
         'drop',
       ];
-      docs: ['createDoc', 'deleteDoc', 'linkDoc', 'drop'];
+      docs: ['createDoc', 'deleteDoc', 'linkDoc', 'drop', 'openDoc'];
       collections: [
         'createDoc',
         'addDocToCollection',
         'removeOrganizeItem',
         'drop',
+        'editCollection',
       ];
       folders: ['createDoc', 'drop'];
       tags: ['createDoc', 'tagDoc', 'drop'];
@@ -434,6 +464,7 @@ interface PageEvents extends PageDivision {
       aiActions: ['requestSignIn'];
       starterBar: ['quickStart', 'openTemplateListMenu'];
       audioBlock: ['transcribeRecording', 'openTranscribeNotes'];
+      codeBlock: ['htmlBlockPreviewFailed'];
     };
     inlineDocInfo: {
       $: ['toggle'];
@@ -442,6 +473,7 @@ interface PageEvents extends PageDivision {
     };
     sidepanel: {
       property: ['addProperty', 'editPropertyMeta'];
+      journal: ['createCalendarDocEvent'];
     };
     biDirectionalLinksPanel: {
       $: ['toggle'];
@@ -466,21 +498,30 @@ interface PageEvents extends PageDivision {
   };
   allDocs: {
     header: {
+      navigation: ['navigateAllDocsRouter', 'navigatePinedCollectionRouter'];
       actions: ['createDoc', 'createWorkspace'];
+      displayMenu: ['editDisplayMenu'];
+      viewMode: ['editDisplayMenu'];
+      collection: ['editCollection', 'addPinnedCollection'];
     };
     list: {
+      doc: ['openDoc'];
       docMenu: [
         'createDoc',
         'deleteDoc',
         'openInSplitView',
         'toggleFavorite',
         'openInNewTab',
+        'openDocInfo',
       ];
     };
   };
   collection: {
     docList: {
       docMenu: ['removeOrganizeItem'];
+    };
+    collection: {
+      $: ['editCollection'];
     };
   };
   tag: {};
@@ -503,6 +544,11 @@ interface PageEvents extends PageDivision {
         'dismissRecording',
         'finishRecording',
       ];
+    };
+  };
+  clipper: {
+    $: {
+      $: ['createDoc'];
     };
   };
 }
@@ -563,7 +609,11 @@ type ImportArgs = {
 };
 type IntegrationArgs<T extends Record<string, any>> = {
   type: string;
-  control: 'Readwise Card' | 'Readwise settings' | 'Readwise import list';
+  control:
+    | 'Readwise Card'
+    | 'Readwise settings'
+    | 'Readwise import list'
+    | 'Calendar Setting';
 } & T;
 
 type RecordingEventArgs = {
@@ -717,12 +767,45 @@ export type EventArgs = {
   mentionMember: {
     type: 'member' | 'invite' | 'more';
   };
+  htmlBlockPreviewFailed: {
+    type: string;
+  };
   noAccessPrompted: {};
   loadDoc: {
     workspaceId: string;
     docId: string;
     time: number;
     success: boolean;
+  };
+  toggleWorkspaceEmbedding: {
+    type: 'Embedding';
+    control: 'Workspace embedding';
+    option: 'on' | 'off';
+  };
+  addAdditionalDocs: {
+    type: 'Embedding';
+    control: 'Select doc';
+    docType: string;
+  };
+  addIgnoredDocs: {
+    type: 'Embedding';
+    control: 'Additional docs';
+    result: 'success' | 'failure';
+  };
+  editDisplayMenu: {
+    control:
+      | 'groupBy'
+      | 'orderBy'
+      | 'displayProperties'
+      | 'listViewOptions'
+      | 'quickActions';
+    type: string;
+  };
+  navigateAllDocsRouter: {
+    control: string;
+  };
+  navigatePinedCollectionRouter: {
+    control: 'all' | 'user-custom-collection';
   };
 };
 

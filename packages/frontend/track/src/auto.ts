@@ -116,7 +116,7 @@ export function enableAutoTrack(root: HTMLElement, trackFn: TrackFn) {
 
 declare module 'react' {
   //  we have to declare `T` but it's actually not used
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface HTMLAttributes<T> {
     'data-event-props'?: EventsUnion;
     'data-event-arg'?: string;

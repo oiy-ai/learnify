@@ -21,7 +21,8 @@ export class ActionImage extends WithDisposable(ShadowlessElement) {
   accessor testId = 'action-image';
 
   protected override render() {
-    const images = this.item.messages[0].attachments;
+    const images =
+      this.item.messages[1]?.attachments ?? this.item.messages[0].attachments;
 
     return html`<action-wrapper .host=${this.host} .item=${this.item}>
       <div style=${styleMap({ marginBottom: '12px' })}>

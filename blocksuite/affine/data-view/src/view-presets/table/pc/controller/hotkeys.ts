@@ -3,20 +3,22 @@ import type { ReactiveController } from 'lit';
 
 import { TableViewAreaSelection, TableViewRowSelection } from '../../selection';
 import { popRowMenu } from '../menu.js';
-import type { DataViewTable } from '../table-view.js';
+import type { TableViewUILogic } from '../table-view-ui-logic';
 
 export class TableHotkeysController implements ReactiveController {
   get selectionController() {
-    return this.host.selectionController;
+    return this.logic.selectionController;
   }
 
-  constructor(private readonly host: DataViewTable) {
-    this.host.addController(this);
+  constructor(private readonly logic: TableViewUILogic) {}
+
+  get host() {
+    return this.logic.ui$.value;
   }
 
   hostConnected() {
-    this.host.disposables.add(
-      this.host.props.bindHotkey({
+    this.host?.disposables.add(
+      this.logic.bindHotkey({
         Backspace: () => {
           const selection = this.selectionController.selection;
           if (!selection) {
@@ -25,7 +27,8 @@ export class TableHotkeysController implements ReactiveController {
           if (TableViewRowSelection.is(selection)) {
             const rows = TableViewRowSelection.rowsIds(selection);
             this.selectionController.selection = undefined;
-            this.host.props.view.rowDelete(rows);
+            this.logic.view.rowsDelete(rows);
+            this.logic.ui$.value?.requestUpdate();
             return;
           }
           const {
@@ -334,13 +337,16 @@ export class TableHotkeysController implements ReactiveController {
             context.get('keyboardState').raw.preventDefault();
             this.selectionController.selection = TableViewRowSelection.create({
               rows:
-                this.host.props.view.groupTrait.groupsDataList$.value?.flatMap(
+                this.logic.view.groupTrait.groupsDataList$.value?.flatMap(
                   group =>
-                    group?.rows.map(id => ({ groupKey: group.key, id })) ?? []
+                    group?.rows.map(row => ({
+                      groupKey: group.key,
+                      id: row.rowId,
+                    })) ?? []
                 ) ??
-                this.host.props.view.rows$.value.map(id => ({
+                this.logic.view.rows$.value.map(row => ({
                   groupKey: undefined,
-                  id,
+                  id: row.rowId,
                 })),
             });
             return true;
@@ -374,7 +380,7 @@ export class TableHotkeysController implements ReactiveController {
               rows: [row],
             });
             popRowMenu(
-              this.host.props.dataViewEle,
+              this.logic,
               popupTargetFromElement(cell),
               this.selectionController
             );

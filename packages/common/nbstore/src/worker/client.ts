@@ -242,6 +242,10 @@ class WorkerDocSync implements DocSync {
     return this.client.ob$('docSync.docState', docId);
   }
 
+  async waitForSynced(docId?: string, abort?: AbortSignal): Promise<void> {
+    await this.client.call('docSync.waitForSynced', docId ?? null, abort);
+  }
+
   addPriority(docId: string, priority: number) {
     const subscription = this.client
       .ob$('docSync.addPriority', { docId, priority })

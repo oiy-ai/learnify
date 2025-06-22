@@ -20,12 +20,11 @@
     "@blocksuite/icons": "^2.2.12",
     "@blocksuite/std": "workspace:*",
     "@blocksuite/store": "workspace:*",
-    "@blocksuite/sync": "workspace:*",
     "@floating-ui/dom": "^1.6.13",
     "@lit/context": "^1.1.2",
     "@preact/signals-core": "^1.8.0",
-    "@toeverything/theme": "^1.1.14",
-    "file-type": "^20.0.0",
+    "@toeverything/theme": "^1.1.15",
+    "file-type": "^21.0.0",
     "lit": "^3.2.0",
     "minimatch": "^10.0.1",
     "rxjs": "^7.8.1",
@@ -33,7 +32,6 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./effects": "./src/effects.ts",
     "./store": "./src/store.ts",
     "./view": "./src/view.ts"
   },
