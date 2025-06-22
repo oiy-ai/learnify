@@ -38,21 +38,37 @@ class Redis extends IORedis implements OnModuleInit, OnModuleDestroy {
       );
     }
   }
+
+  static buildRedisOptions(config: Config['redis']): RedisOptions {
+    const { tls, ...baseConfig } = config;
+
+    const options: RedisOptions = {
+      ...baseConfig,
+      ...baseConfig.ioredis,
+    };
+
+    // Handle TLS configuration - for cloud services like Upstash
+    if (tls) {
+      options.tls = {};
+    }
+
+    return options;
+  }
 }
 
 @Injectable()
 export class CacheRedis extends Redis {
   constructor(config: Config) {
-    super({ ...config.redis, ...config.redis.ioredis });
+    super(Redis.buildRedisOptions(config.redis));
   }
 }
 
 @Injectable()
 export class SessionRedis extends Redis {
   constructor(config: Config) {
+    const options = Redis.buildRedisOptions(config.redis);
     super({
-      ...config.redis,
-      ...config.redis.ioredis,
+      ...options,
       db: (config.redis.db ?? 0) + 2,
     });
   }
@@ -61,9 +77,9 @@ export class SessionRedis extends Redis {
 @Injectable()
 export class SocketIoRedis extends Redis {
   constructor(config: Config) {
+    const options = Redis.buildRedisOptions(config.redis);
     super({
-      ...config.redis,
-      ...config.redis.ioredis,
+      ...options,
       db: (config.redis.db ?? 0) + 3,
     });
   }
@@ -72,9 +88,9 @@ export class SocketIoRedis extends Redis {
 @Injectable()
 export class QueueRedis extends Redis {
   constructor(config: Config) {
+    const options = Redis.buildRedisOptions(config.redis);
     super({
-      ...config.redis,
-      ...config.redis.ioredis,
+      ...options,
       db: (config.redis.db ?? 0) + 4,
       // required explicitly set to `null` by bullmq
       maxRetriesPerRequest: null,
