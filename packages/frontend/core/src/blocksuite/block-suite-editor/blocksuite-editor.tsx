@@ -54,6 +54,7 @@ export interface EditorProps extends HTMLAttributes<HTMLDivElement> {
   readonly?: boolean;
   defaultOpenProperty?: DefaultOpenProperty;
   // on Editor ready
+  // eslint-disable-next-line no-unused-vars
   onEditorReady?: (editor: AffineEditorContainer) => (() => void) | void;
 }
 
@@ -274,7 +275,7 @@ const BlockSuiteEditorImpl = ({
             );
           case 'mind-map':
             return (
-              <BlocksuiteMindMapEditor
+              <BlocksuiteDocEditor
                 shared={shared}
                 page={page}
                 ref={mindMapRef}

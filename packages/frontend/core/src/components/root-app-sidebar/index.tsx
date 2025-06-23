@@ -50,13 +50,13 @@ import {
   workspaceAndUserWrapper,
   workspaceWrapper,
 } from './index.css';
-import { InviteMembersButton } from './invite-members-button';
-import { AppSidebarJournalButton } from './journal-button';
-import { NotificationButton } from './notification-button';
+import { InviteMembersButton } from './invite-members-button'; // eslint-disable-line no-unused-vars
+import { AppSidebarJournalButton } from './journal-button'; // eslint-disable-line no-unused-vars
+import { NotificationButton } from './notification-button'; // eslint-disable-line no-unused-vars
 import { SidebarAudioPlayer } from './sidebar-audio-player';
-import { TemplateDocEntrance } from './template-doc-entrance';
-import { TrashButton } from './trash-button';
-import { UpdaterButton } from './updater-button';
+import { TemplateDocEntrance } from './template-doc-entrance'; // eslint-disable-line no-unused-vars
+import { TrashButton } from './trash-button'; // eslint-disable-line no-unused-vars
+import { UpdaterButton } from './updater-button'; // eslint-disable-line no-unused-vars
 import UserInfo from './user-info';
 
 export type RootAppSidebarProps = {
@@ -104,8 +104,8 @@ export const RootAppSidebar = memo((): ReactElement => {
     AuthService,
   });
 
-  const sessionStatus = useLiveData(authService.session.status$);
-  const t = useI18n();
+  const sessionStatus = useLiveData(authService.session.status$); // eslint-disable-line no-unused-vars
+  const t = useI18n(); // eslint-disable-line no-unused-vars
   const workspaceDialogService = useService(WorkspaceDialogService);
   const workbench = workbenchService.workbench;
   const workspaceSelectorOpen = useLiveData(workbench.workspaceSelectorOpen$);
@@ -120,6 +120,7 @@ export const RootAppSidebar = memo((): ReactElement => {
     [workbench]
   );
 
+  // eslint-disable-next-line no-unused-vars
   const onOpenSettingModal = useCallback(() => {
     workspaceDialogService.open('setting', {
       activeTab: 'appearance',
