@@ -1,4 +1,4 @@
-name: Build Selfhost Image
+name: Build Images by Branch Update
 
 on:
   push:
