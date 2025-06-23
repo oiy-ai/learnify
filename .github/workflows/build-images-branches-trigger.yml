@@ -1,0 +1,19 @@
+name: Build Selfhost Image
+
+on:
+  push:
+    branches:
+      - canary
+      - dev
+
+permissions:
+  contents: 'write'
+  id-token: 'write'
+  packages: 'write'
+
+jobs:
+  build-image:
+    name: Build Image
+    uses: ./.github/workflows/build-images.yml
+    with:
+      flavor: ${{ github.ref_name }}

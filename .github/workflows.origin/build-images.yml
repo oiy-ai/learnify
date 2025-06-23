@@ -6,6 +6,12 @@ on:
       flavor:
         type: string
         required: true
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: 'Build flavor'
+        required: true
+        type: string
 
 permissions:
   contents: 'write'
