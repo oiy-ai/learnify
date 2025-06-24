@@ -61,16 +61,11 @@ jobs:
         run: |
           gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
 
-      - name: Create Artifact Registry repository if not exists
+      - name: Verify Artifact Registry repository exists
         run: |
           gcloud artifacts repositories describe ${{ env.ARTIFACT_REGISTRY_REPO }} \
             --location=${{ env.GCP_REGION }} \
-            --project=${{ env.GCP_PROJECT }} || \
-          gcloud artifacts repositories create ${{ env.ARTIFACT_REGISTRY_REPO }} \
-            --repository-format=docker \
-            --location=${{ env.GCP_REGION }} \
-            --project=${{ env.GCP_PROJECT }} \
-            --description="Docker repository for Learnify"
+            --project=${{ env.GCP_PROJECT }}
 
       - name: Pull and retag image from GHCR to Artifact Registry
         run: |
