@@ -1,7 +1,33 @@
-import { rmSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { cpus } from 'node:os';
+import { resolve } from 'node:path';
 
 import { Logger } from '@affine-tools/utils/logger';
+
+// Load environment variables from .env file in CLI tool directory
+function loadEnvFile() {
+  // Get the CLI tool directory (tools/cli) from current file path
+  const currentDir = resolve(new URL(import.meta.url).pathname, '..');
+  const cliDir = resolve(currentDir, '..');
+  const envPath = resolve(cliDir, '.env');
+
+  if (existsSync(envPath)) {
+    const envContent = readFileSync(envPath, 'utf-8');
+    envContent.split('\n').forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#')) {
+        const [key, ...valueParts] = trimmed.split('=');
+        if (key && valueParts.length > 0) {
+          const value = valueParts.join('=').replace(/^['"]|['"]$/g, '');
+          if (!process.env[key]) {
+            process.env[key] = value;
+          }
+        }
+      }
+    });
+  }
+}
+loadEnvFile();
 import { Package } from '@affine-tools/utils/workspace';
 import { merge } from 'lodash-es';
 import webpack from 'webpack';
@@ -99,6 +125,7 @@ function getBundleConfigs(pkg: Package) {
 
 const IN_CI = !!process.env.CI;
 const httpProxyMiddlewareLogLevel = IN_CI ? 'silent' : 'error';
+const PROXY_TARGET = process.env.PROXY_TARGET || 'http://localhost:3010';
 
 const defaultDevServerConfig: DevServerConfiguration = {
   host: '0.0.0.0',
@@ -128,19 +155,25 @@ const defaultDevServerConfig: DevServerConfiguration = {
   proxy: [
     {
       context: '/api',
-      target: 'http://localhost:3010',
+      target: PROXY_TARGET,
       logLevel: httpProxyMiddlewareLogLevel,
+      secure: false,
+      changeOrigin: true,
     },
     {
       context: '/socket.io',
-      target: 'http://localhost:3010',
+      target: PROXY_TARGET,
       ws: true,
       logLevel: httpProxyMiddlewareLogLevel,
+      secure: false,
+      changeOrigin: true,
     },
     {
       context: '/graphql',
-      target: 'http://localhost:3010',
+      target: PROXY_TARGET,
       logLevel: httpProxyMiddlewareLogLevel,
+      secure: false,
+      changeOrigin: true,
     },
   ],
 };
