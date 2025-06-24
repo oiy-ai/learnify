@@ -74,7 +74,7 @@ jobs:
             --max-instances=1 \
             --concurrency=80 \
             --timeout=300 \
-            --startup-cpu-boost \
+            --cpu-boost \
             --set-env-vars="REDIS_SERVER_PORT=6379,REDIS_SERVER_TLS=true,REDIS_SERVER_DATABASE=0,AFFINE_INDEXER_ENABLED=false" \
             --set-secrets="REDIS_SERVER_HOST=LEARNIFY_BETA_REDIS_HOST:latest,REDIS_SERVER_USERNAME=LEARNIFY_BETA_REDIS_USERNAME:latest,REDIS_SERVER_PASSWORD=LEARNIFY_BETA_REDIS_PASSWORD:latest,DATABASE_URL=LEARNIFY_BETA_DB_URL:latest" \
             --add-volume=name=learnify_beta_storage,type=cloud-storage,bucket=learnify_beta_storage \
