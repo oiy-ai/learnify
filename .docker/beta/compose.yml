@@ -1,0 +1,46 @@
+name: learnify
+services:
+  learnify:
+    image: ghcr.io/a1exsun/learnify-graphql:${AFFINE_REVISION:-canary}
+    container_name: learnify
+    network_mode: host
+    depends_on:
+      learnify_migration:
+        condition: service_completed_successfully
+    volumes:
+      # custom configurations
+      - ${UPLOAD_LOCATION}:/root/.affine/storage
+      - ${CONFIG_LOCATION}:/root/.affine/config
+    env_file:
+      - .env
+    environment:
+      - REDIS_SERVER_HOST=${REDIS_HOST}
+      - REDIS_SERVER_PORT=${REDIS_PORT}
+      - REDIS_SERVER_USERNAME=${REDIS_USERNAME}
+      - REDIS_SERVER_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_SERVER_TLS=${REDIS_TLS}
+      - REDIS_SERVER_DATABASE=${REDIS_DATABASE}
+      - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_URL}:${DB_PORT}/${DB_DATABASE:-affine}
+      - AFFINE_INDEXER_ENABLED=false
+    restart: unless-stopped
+
+  learnify_migration:
+    image: ghcr.io/a1exsun/learnify-graphql:${AFFINE_REVISION:-canary}
+    container_name: learnify_migration
+    command: ['sh', '-c', 'node ./scripts/self-host-predeploy.js']
+    network_mode: host
+    volumes:
+      # custom configurations
+      - ${UPLOAD_LOCATION}:/root/.affine/storage
+      - ${CONFIG_LOCATION}:/root/.affine/config
+    env_file:
+      - .env
+    environment:
+      - REDIS_SERVER_HOST=${REDIS_HOST}
+      - REDIS_SERVER_PORT=${REDIS_PORT}
+      - REDIS_SERVER_USERNAME=${REDIS_USERNAME}
+      - REDIS_SERVER_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_SERVER_TLS=${REDIS_TLS}
+      - REDIS_SERVER_DATABASE=${REDIS_DATABASE}
+      - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_URL}:${DB_PORT}/${DB_DATABASE:-affine}
+      - AFFINE_INDEXER_ENABLED=false
