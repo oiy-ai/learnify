@@ -18,80 +18,10 @@ jobs:
     with:
       flavor: ${{ github.ref_name == 'dev' && 'beta' || 'canary' }}
 
-  sync-to-gcp:
+  deploy-to-cloud-run:
     name: Deploy to Cloud Run
-    runs-on: ubuntu-latest
     needs: build-image
-    steps:
-      - name: Set up environment variables
-        run: |
-          if [ "${{ github.ref_name }}" == "dev" ]; then
-            echo "RELEASE_FLAVOR=beta" >> "$GITHUB_ENV"
-          else
-            echo "RELEASE_FLAVOR=canary" >> "$GITHUB_ENV"
-          fi
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Debug GCP credentials
-        run: |
-          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
-            echo "❌ GCP_SA_KEY is empty or not set"
-            echo "GCP_SA_KEY length: 0"
-          else
-            echo "✅ GCP_SA_KEY is available"
-            echo "GCP_SA_KEY length: $(echo '${{ secrets.GCP_SA_KEY }}' | wc -c)"
-            echo "GCP_SA_KEY starts with: $(echo '${{ secrets.GCP_SA_KEY }}' | head -c 20)..."
-            echo "GCP_SA_KEY ends with: ...$(echo '${{ secrets.GCP_SA_KEY }}' | tail -c 20)"
-          fi
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Verify image availability
-        run: |
-          echo "Checking if image exists in GHCR..."
-          docker pull ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }}
-          echo "✅ Image ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }} is available"
-
-      - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy learnify-beta \
-            --image=ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }} \
-            --region=australia-southeast2 \
-            --project=learnify-463605 \
-            --platform=managed \
-            --port=3010 \
-            --memory=2Gi \
-            --cpu=1 \
-            --min-instances=1 \
-            --max-instances=1 \
-            --concurrency=80 \
-            --timeout=300 \
-            --startup-cpu-boost \
-            --set-env-vars="REDIS_SERVER_PORT=6379,REDIS_SERVER_TLS=true,REDIS_SERVER_DATABASE=0,AFFINE_INDEXER_ENABLED=false" \
-            --set-secrets="REDIS_SERVER_HOST=LEARNIFY_BETA_REDIS_HOST:latest,REDIS_SERVER_USERNAME=LEARNIFY_BETA_REDIS_USERNAME:latest,REDIS_SERVER_PASSWORD=LEARNIFY_BETA_REDIS_PASSWORD:latest,DATABASE_URL=LEARNIFY_BETA_DB_URL:latest" \
-            --add-volume=name=learnify_beta_storage,type=cloud-storage,bucket=learnify_beta_storage \
-            --add-volume=name=learnify_beta_config,type=cloud-storage,bucket=learnify_beta_config \
-            --add-volume-mount=volume=learnify_beta_storage,mount-path=/root/.affine/storage \
-            --add-volume-mount=volume=learnify_beta_config,mount-path=/root/.affine/config \
-            --allow-unauthenticated
-
-      - name: Verify deployment
-        run: |
-          echo "Deployment completed! Service URL:"
-          gcloud run services describe learnify-beta \
-            --region=australia-southeast2 \
-            --project=learnify-463605 \
-            --format="value(status.url)"
-
-      - name: Cleanup local images
-        run: |
-          docker rmi ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }} || true
+    uses: ./.github/workflows/deploy-to-cloud-run.yml
+    with:
+      flavor: ${{ github.ref_name == 'dev' && 'beta' || 'canary' }}
+    secrets: inherit
