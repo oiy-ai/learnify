@@ -29,6 +29,9 @@ jobs:
       - name: Set up environment variables
         run: |
           echo "RELEASE_FLAVOR=${{ inputs.flavor }}" >> "$GITHUB_ENV"
+          echo "GCP_REGION=australia-southeast2" >> "$GITHUB_ENV"
+          echo "GCP_PROJECT=learnify-463605" >> "$GITHUB_ENV"
+          echo "ARTIFACT_REGISTRY_REPO=learnify-docker-repo" >> "$GITHUB_ENV"
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -54,12 +57,44 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
+
+      - name: Create Artifact Registry repository if not exists
+        run: |
+          gcloud artifacts repositories describe ${{ env.ARTIFACT_REGISTRY_REPO }} \
+            --location=${{ env.GCP_REGION }} \
+            --project=${{ env.GCP_PROJECT }} || \
+          gcloud artifacts repositories create ${{ env.ARTIFACT_REGISTRY_REPO }} \
+            --repository-format=docker \
+            --location=${{ env.GCP_REGION }} \
+            --project=${{ env.GCP_PROJECT }} \
+            --description="Docker repository for Learnify"
+
+      - name: Pull and retag image from GHCR to Artifact Registry
+        run: |
+          # 定义镜像路径
+          GHCR_IMAGE="ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }}"
+          AR_IMAGE="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.ARTIFACT_REGISTRY_REPO }}/learnify-graphql:${{ env.RELEASE_FLAVOR }}"
+
+          echo "Pulling image from GHCR: $GHCR_IMAGE"
+          docker pull $GHCR_IMAGE
+
+          echo "Tagging image for Artifact Registry: $AR_IMAGE"
+          docker tag $GHCR_IMAGE $AR_IMAGE
+
+          echo "Pushing image to Artifact Registry: $AR_IMAGE"
+          docker push $AR_IMAGE
+
+          echo "AR_IMAGE=$AR_IMAGE" >> "$GITHUB_ENV"
+
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy learnify-beta \
-            --image=ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }} \
-            --region=australia-southeast2 \
-            --project=learnify-463605 \
+            --image=${{ env.AR_IMAGE }} \
+            --region=${{ env.GCP_REGION }} \
+            --project=${{ env.GCP_PROJECT }} \
             --platform=managed \
             --port=3010 \
             --memory=2Gi \
@@ -82,10 +117,11 @@ jobs:
         run: |
           echo "Deployment completed! Service URL:"
           gcloud run services describe learnify-beta \
-            --region=australia-southeast2 \
-            --project=learnify-463605 \
+            --region=${{ env.GCP_REGION }} \
+            --project=${{ env.GCP_PROJECT }} \
             --format="value(status.url)"
 
       - name: Cleanup local images
         run: |
           docker rmi ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }} || true
+          docker rmi ${{ env.AR_IMAGE }} || true
