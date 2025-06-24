@@ -16,7 +16,7 @@ jobs:
   build-web:
     name: Build @affine/web
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.flavor }}
+    environment: ${{ inputs.flavor }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Version
@@ -30,7 +30,7 @@ jobs:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          BUILD_TYPE: ${{ github.event.inputs.flavor }}
+          BUILD_TYPE: ${{ inputs.flavor }}
           CAPTCHA_SITE_KEY: ${{ secrets.CAPTCHA_SITE_KEY }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: 'learnify-web'
@@ -49,7 +49,7 @@ jobs:
   build-admin:
     name: Build @affine/admin
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.flavor }}
+    environment: ${{ inputs.flavor }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Version
@@ -63,7 +63,7 @@ jobs:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          BUILD_TYPE: ${{ github.event.inputs.flavor }}
+          BUILD_TYPE: ${{ inputs.flavor }}
           CAPTCHA_SITE_KEY: ${{ secrets.CAPTCHA_SITE_KEY }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: 'learnify-admin'
@@ -81,7 +81,7 @@ jobs:
   build-mobile:
     name: Build @affine/mobile
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.flavor }}
+    environment: ${{ inputs.flavor }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Version
@@ -95,7 +95,7 @@ jobs:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          BUILD_TYPE: ${{ github.event.inputs.flavor }}
+          BUILD_TYPE: ${{ inputs.flavor }}
           CAPTCHA_SITE_KEY: ${{ secrets.CAPTCHA_SITE_KEY }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: 'learnify-mobile'
@@ -113,7 +113,7 @@ jobs:
   build-server-native:
     name: Build Server native - ${{ matrix.targets.name }}
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.flavor }}
+    environment: ${{ inputs.flavor }}
     strategy:
       fail-fast: false
       matrix:

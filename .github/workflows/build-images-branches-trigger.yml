@@ -16,4 +16,4 @@ jobs:
     name: Build Image
     uses: ./.github/workflows/build-images.yml
     with:
-      flavor: ${{ github.ref_name }}
+      flavor: ${{ github.ref_name == 'dev' && 'beta' || 'canary' }}
