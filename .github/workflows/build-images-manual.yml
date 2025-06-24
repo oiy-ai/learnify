@@ -9,7 +9,7 @@ on:
         default: canary
         options:
           - canary
-          - dev
+          - beta
 
 permissions:
   contents: 'write'
