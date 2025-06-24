@@ -11,11 +11,11 @@ import {
 } from '@affine/core/modules/app-sidebar/views';
 // import { ExternalMenuLinkItem } from '@affine/core/modules/app-sidebar/views/menu-item/external-menu-link-item';
 import { AuthService } from '@affine/core/modules/cloud';
-// import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
+import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { CMDKQuickSearchService } from '@affine/core/modules/quicksearch/services/cmdk';
 import type { Workspace } from '@affine/core/modules/workspace';
-// import { useI18n } from '@affine/i18n';
-// import { track } from '@affine/track';
+import { useI18n } from '@affine/i18n';
+import { track } from '@affine/track';
 import type { Store } from '@blocksuite/affine/store';
 // import {
 //   AllDocsIcon,
@@ -23,7 +23,7 @@ import type { Store } from '@blocksuite/affine/store';
 //   // JournalIcon,
 //   SettingsIcon,
 // } from '@blocksuite/icons/rc';
-import { useServices } from '@toeverything/infra'; // useLiveData, useService,
+import { useLiveData, useService, useServices } from '@toeverything/infra';
 import type { ReactElement } from 'react';
 import { memo, useCallback } from 'react';
 
@@ -98,11 +98,13 @@ export type RootAppSidebarProps = {
  */
 export const RootAppSidebar = memo((): ReactElement => {
   // workbenchService, authService
-  const { cMDKQuickSearchService } = useServices({
-    WorkbenchService,
-    CMDKQuickSearchService,
-    AuthService,
-  });
+  const { cMDKQuickSearchService, workbenchService, authService } = useServices(
+    {
+      WorkbenchService,
+      CMDKQuickSearchService,
+      AuthService,
+    }
+  );
 
   const sessionStatus = useLiveData(authService.session.status$); // eslint-disable-line no-unused-vars
   const t = useI18n(); // eslint-disable-line no-unused-vars
