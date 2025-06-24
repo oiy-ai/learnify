@@ -19,7 +19,7 @@ jobs:
       flavor: ${{ github.ref_name == 'dev' && 'beta' || 'canary' }}
 
   sync-to-gcp:
-    name: Sync Images to GCP Artifact Registry
+    name: Deploy to Cloud Run
     runs-on: ubuntu-latest
     needs: build-image
     steps:
@@ -55,26 +55,16 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Configure Docker for GCP
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev
-
-      - name: Pull and retag GraphQL image
+      - name: Verify image availability
         run: |
-          # Pull the image from GHCR
+          echo "Checking if image exists in GHCR..."
           docker pull ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }}
-
-          # Tag for GCP Artifact Registry
-          docker tag ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }} \
-            us-central1-docker.pkg.dev/learnify-463605/ghcr-proxy/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }}
-
-      - name: Push to GCP Artifact Registry
-        run: |
-          docker push us-central1-docker.pkg.dev/learnify-463605/ghcr-proxy/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }}
+          echo "✅ Image ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }} is available"
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy learnify-beta \
-            --image=us-central1-docker.pkg.dev/learnify-463605/ghcr-proxy/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }} \
+            --image=ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }} \
             --region=australia-southeast2 \
             --project=learnify-463605 \
             --platform=managed \
@@ -105,4 +95,3 @@ jobs:
       - name: Cleanup local images
         run: |
           docker rmi ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }} || true
-          docker rmi us-central1-docker.pkg.dev/learnify-463605/ghcr-proxy/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }} || true
