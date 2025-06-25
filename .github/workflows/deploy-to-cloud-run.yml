@@ -29,9 +29,20 @@ jobs:
       - name: Set up environment variables
         run: |
           echo "RELEASE_FLAVOR=${{ inputs.flavor }}" >> "$GITHUB_ENV"
-          echo "GCP_REGION=australia-southeast2" >> "$GITHUB_ENV"
           echo "GCP_PROJECT=learnify-463605" >> "$GITHUB_ENV"
           echo "ARTIFACT_REGISTRY_REPO=learnify-docker-repo" >> "$GITHUB_ENV"
+          echo "SERVICE_NAME=learnify-${{ inputs.flavor }}" >> "$GITHUB_ENV"
+
+          # 根据不同 flavor 设置对应的区域和存储桶
+          if [ "${{ inputs.flavor }}" = "canary" ]; then
+            echo "GCP_REGION=asia-east2" >> "$GITHUB_ENV"
+            echo "STORAGE_BUCKET=learnify_canary_storage" >> "$GITHUB_ENV"
+            echo "CONFIG_BUCKET=learnify_canary_config" >> "$GITHUB_ENV"
+          else
+            echo "GCP_REGION=australia-southeast2" >> "$GITHUB_ENV"
+            echo "STORAGE_BUCKET=learnify_beta_storage" >> "$GITHUB_ENV"
+            echo "CONFIG_BUCKET=learnify_beta_config" >> "$GITHUB_ENV"
+          fi
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -59,19 +70,21 @@ jobs:
 
       - name: Configure Docker for Artifact Registry
         run: |
-          gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
+          # Artifact Registry 总是在 australia-southeast2
+          gcloud auth configure-docker australia-southeast2-docker.pkg.dev
 
       - name: Verify Artifact Registry repository exists
         run: |
+          # Artifact Registry 总是在 australia-southeast2
           gcloud artifacts repositories describe ${{ env.ARTIFACT_REGISTRY_REPO }} \
-            --location=${{ env.GCP_REGION }} \
+            --location=australia-southeast2 \
             --project=${{ env.GCP_PROJECT }}
 
       - name: Pull and retag image from GHCR to Artifact Registry
         run: |
-          # 定义镜像路径
+          # 定义镜像路径 - Artifact Registry 总是在 australia-southeast2
           GHCR_IMAGE="ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }}"
-          AR_IMAGE="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.ARTIFACT_REGISTRY_REPO }}/learnify-graphql:${{ env.RELEASE_FLAVOR }}"
+          AR_IMAGE="australia-southeast2-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.ARTIFACT_REGISTRY_REPO }}/learnify-graphql:${{ env.RELEASE_FLAVOR }}"
 
           echo "Pulling image from GHCR: $GHCR_IMAGE"
           docker pull $GHCR_IMAGE
@@ -86,7 +99,14 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy learnify-beta \
+          # 根据 flavor 设置对应的 secrets
+          if [ "${{ env.RELEASE_FLAVOR }}" = "canary" ]; then
+            SECRET_PREFIX="LEARNIFY_CANARY"
+          else
+            SECRET_PREFIX="LEARNIFY_BETA"
+          fi
+
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image=${{ env.AR_IMAGE }} \
             --region=${{ env.GCP_REGION }} \
             --project=${{ env.GCP_PROJECT }} \
@@ -100,18 +120,18 @@ jobs:
             --timeout=300 \
             --cpu-boost \
             --service-account=ghcr-sync@learnify-463605.iam.gserviceaccount.com \
-            --set-env-vars="REDIS_SERVER_PORT=6379,REDIS_SERVER_TLS=true,REDIS_SERVER_DATABASE=0,AFFINE_INDEXER_ENABLED=false" \
-            --set-secrets="REDIS_SERVER_HOST=LEARNIFY_BETA_REDIS_HOST:latest,REDIS_SERVER_USERNAME=LEARNIFY_BETA_REDIS_USERNAME:latest,REDIS_SERVER_PASSWORD=LEARNIFY_BETA_REDIS_PASSWORD:latest,DATABASE_URL=LEARNIFY_BETA_DB_URL:latest" \
-            --add-volume=name=learnify_beta_storage,type=cloud-storage,bucket=learnify_beta_storage \
-            --add-volume=name=learnify_beta_config,type=cloud-storage,bucket=learnify_beta_config \
-            --add-volume-mount=volume=learnify_beta_storage,mount-path=/root/.affine/storage \
-            --add-volume-mount=volume=learnify_beta_config,mount-path=/root/.affine/config \
+            --set-env-vars="AFFINE_SERVER_PORT=3010,REDIS_SERVER_PORT=6379,REDIS_SERVER_TLS=true,REDIS_SERVER_DATABASE=0,AFFINE_INDEXER_ENABLED=false" \
+            --set-secrets="REDIS_SERVER_HOST=${SECRET_PREFIX}_REDIS_HOST:latest,REDIS_SERVER_USERNAME=${SECRET_PREFIX}_REDIS_USERNAME:latest,REDIS_SERVER_PASSWORD=${SECRET_PREFIX}_REDIS_PASSWORD:latest,DATABASE_URL=${SECRET_PREFIX}_DB_URL:latest" \
+            --add-volume=name=${{ env.STORAGE_BUCKET }},type=cloud-storage,bucket=${{ env.STORAGE_BUCKET }} \
+            --add-volume=name=${{ env.CONFIG_BUCKET }},type=cloud-storage,bucket=${{ env.CONFIG_BUCKET }} \
+            --add-volume-mount=volume=${{ env.STORAGE_BUCKET }},mount-path=/root/.affine/storage \
+            --add-volume-mount=volume=${{ env.CONFIG_BUCKET }},mount-path=/root/.affine/config \
             --allow-unauthenticated
 
       - name: Verify deployment
         run: |
           echo "Deployment completed! Service URL:"
-          gcloud run services describe learnify-beta \
+          gcloud run services describe ${{ env.SERVICE_NAME }} \
             --region=${{ env.GCP_REGION }} \
             --project=${{ env.GCP_PROJECT }} \
             --format="value(status.url)"
