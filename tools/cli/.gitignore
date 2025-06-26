@@ -1,6 +1,5 @@
 # Environment variables
 .env
-.env.*
 
 # Build outputs
 dist/
