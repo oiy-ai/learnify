@@ -1,13 +1,15 @@
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { Logger } from '@affine-tools/utils/logger';
 
 // Load environment variables from .env file in CLI tool directory
 function loadEnvFile() {
   // Get the CLI tool directory (tools/cli) from current file path
-  const currentDir = resolve(new URL(import.meta.url).pathname, '..');
+  const currentFile = fileURLToPath(import.meta.url); // compatible with win/linux
+  const currentDir = resolve(currentFile, '..');
   const cliDir = resolve(currentDir, '..');
   const envPath = resolve(cliDir, '.env');
 
