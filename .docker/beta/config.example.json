@@ -1,0 +1,208 @@
+{
+  "metrics": {
+    "enabled": false
+  },
+  "crypto": {
+    "privateKey": ""
+  },
+  "job": {
+    "queue": {
+      "attempts": 5,
+      "backoff": {
+        "type": "exponential",
+        "delay": 1000
+      },
+      "removeOnComplete": true,
+      "removeOnFail": {
+        "age": 86400,
+        "count": 500
+      }
+    },
+    "worker": {},
+    "queues.copilot": {
+      "concurrency": 10
+    },
+    "queues.doc": {
+      "concurrency": 1
+    },
+    "queues.indexer": {
+      "concurrency": 1
+    },
+    "queues.notification": {
+      "concurrency": 10
+    },
+    "queues.nightly": {
+      "concurrency": 1
+    }
+  },
+  "throttle": {
+    "enabled": true,
+    "throttlers.default": {
+      "ttl": 60,
+      "limit": 120
+    },
+    "throttlers.strict": {
+      "ttl": 60,
+      "limit": 20
+    }
+  },
+  "auth": {
+    "allowSignup": true,
+    "requireEmailDomainVerification": false,
+    "requireEmailVerification": true,
+    "passwordRequirements": {
+      "min": 8,
+      "max": 32
+    },
+    "session.ttl": 1296000,
+    "session.ttr": 604800
+  },
+  "mailer": {
+    "SMTP.host": "",
+    "SMTP.port": 465,
+    "SMTP.username": "",
+    "SMTP.password": "",
+    "SMTP.sender": "",
+    "SMTP.ignoreTLS": false
+  },
+  "db": {
+    "prisma": {}
+  },
+  "redis": {
+    "ioredis": {}
+  },
+
+  "doc": {
+    "experimental.yocto": false,
+    "history.interval": 600000
+  },
+  "storages": {
+    "avatar.publicPath": "/api/avatars/",
+    "avatar.storage": {
+      "provider": "fs",
+      "bucket": "avatars",
+      "config": {
+        "path": "~/.affine/storage"
+      }
+    },
+    "blob.storage": {
+      "provider": "fs",
+      "bucket": "blobs",
+      "config": {
+        "path": "~/.affine/storage"
+      }
+    }
+  },
+  "websocket": {
+    "transports": ["websocket", "polling"],
+    "maxHttpBufferSize": 100000000
+  },
+  "server": {
+    "name": "AFFiNE Self Hosted Server",
+    "externalUrl": "",
+    "https": false,
+    "host": "localhost",
+    "port": 3010,
+    "path": ""
+  },
+  "flags": {
+    "earlyAccessControl": false
+  },
+  "docService": {
+    "endpoint": ""
+  },
+  "client": {
+    "versionControl.enabled": false,
+    "versionControl.requiredVersion": ">=0.20.0"
+  },
+  "captcha": {
+    "enabled": false,
+    "config": {
+      "turnstile": {
+        "secret": ""
+      },
+      "challenge": {
+        "bits": 20
+      }
+    }
+  },
+  "copilot": {
+    "enabled": false,
+    "providers.openai": {
+      "apiKey": ""
+    },
+    "providers.fal": {
+      "apiKey": ""
+    },
+    "providers.gemini": {
+      "apiKey": ""
+    },
+    "providers.geminiVertex": {},
+    "providers.perplexity": {
+      "apiKey": ""
+    },
+    "providers.anthropic": {
+      "apiKey": ""
+    },
+    "providers.anthropicVertex": {},
+    "unsplash": {
+      "key": ""
+    },
+    "exa": {
+      "key": ""
+    },
+    "storage": {
+      "provider": "fs",
+      "bucket": "copilot",
+      "config": {
+        "path": "~/.affine/storage"
+      }
+    }
+  },
+  "customerIo": {
+    "enabled": false,
+    "token": ""
+  },
+  "indexer": {
+    "enabled": false,
+    "provider.type": "manticoresearch",
+    "provider.endpoint": "http://localhost:9308",
+    "provider.apiKey": "",
+    "provider.username": "",
+    "provider.password": "",
+    "autoIndex.batchSize": 10
+  },
+  "oauth": {
+    "providers.google": {
+      "clientId": "",
+      "clientSecret": "",
+      "args": {}
+    },
+    "providers.github": {
+      "clientId": "",
+      "clientSecret": "",
+      "args": {}
+    },
+    "providers.oidc": {
+      "clientId": "",
+      "clientSecret": "",
+      "issuer": "",
+      "args": {}
+    },
+    "providers.apple": {
+      "clientId": "",
+      "clientSecret": "",
+      "args": {}
+    }
+  },
+  "payment": {
+    "enabled": false,
+    "showLifetimePrice": true,
+    "apiKey": "",
+    "webhookKey": "",
+    "stripe": {}
+  },
+  "worker": {
+    "allowedOrigin": ["localhost", "127.0.0.1"]
+  }
+} 
