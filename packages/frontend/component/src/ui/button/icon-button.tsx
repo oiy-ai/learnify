@@ -37,7 +37,7 @@ export interface IconButtonProps
    * > The number is the size of the icon, the button size is calculated based on the icon size + padding.
    * > OR, you can define `width` and `height` in `style` or `className` directly.
    */
-  size?: '12' | '14' | '16' | '20' | '24' | '42' | number;
+  size?: '12' | '14' | '16' | '20' | '24' | '32' | '42' | number;
   iconClassName?: string;
   iconStyle?: CSSProperties;
 }

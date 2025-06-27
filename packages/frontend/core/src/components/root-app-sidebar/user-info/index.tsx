@@ -41,11 +41,11 @@ const AuthorizedUserInfo = ({ account }: { account: AuthAccountInfo }) => {
       <IconButton
         data-testid="sidebar-user-avatar"
         variant="plain"
-        size="20"
+        size="32"
         style={{ padding: 0 }}
         withoutHover
       >
-        <Avatar size={20} name={account.label} url={account.avatar} />
+        <Avatar size={32} name={account.label} url={account.avatar} />
       </IconButton>
     </Menu>
   );
@@ -63,7 +63,7 @@ const UnauthorizedUserInfo = () => {
       onClick={openSignInModal}
       data-testid="sidebar-user-avatar"
       variant="plain"
-      size="20"
+      size="32"
     >
       <UnknownUserIcon />
     </IconButton>
