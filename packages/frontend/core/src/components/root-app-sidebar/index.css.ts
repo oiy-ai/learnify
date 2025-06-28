@@ -40,7 +40,8 @@ export const quickSearchAndNewPage = style({
   marginRight: -6,
 });
 export const quickSearch = style({
-  width: 0,
+  height: 42,
+  width: 110,
   flex: 1,
 });
 

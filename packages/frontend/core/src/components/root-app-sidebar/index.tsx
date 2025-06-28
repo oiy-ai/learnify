@@ -1,6 +1,6 @@
 // Import is already correct, no changes needed
 import {
-  AddPageButton,
+  // AddPageButton,
   // AppDownloadButton,
   AppSidebar,
   // MenuItem,
@@ -177,6 +177,14 @@ export const RootAppSidebar = memo((): ReactElement => {
               dense={false}
             />
           </div>
+          <div className={quickSearchAndNewPage}>
+            <QuickSearchInput
+              className={quickSearch}
+              data-testid="slider-bar-quick-search-button"
+              data-event-props="$.navigationPanel.$.quickSearch"
+              onClick={onOpenQuickSearchModal}
+            />
+          </div>
           <UserInfo />
         </div>
         <div className={mindMapWrapper}>
@@ -185,15 +193,7 @@ export const RootAppSidebar = memo((): ReactElement => {
         <div className={progressWrapper}>
           <ProgressNavigator />
         </div>
-        <div className={quickSearchAndNewPage}>
-          <QuickSearchInput
-            className={quickSearch}
-            data-testid="slider-bar-quick-search-button"
-            data-event-props="$.navigationPanel.$.quickSearch"
-            onClick={onOpenQuickSearchModal}
-          />
-          <AddPageButton />
-        </div>
+
         {/* <AllDocsButton /> */}
         {/* <AppSidebarJournalButton /> */}
         {/* {sessionStatus === 'authenticated' && <NotificationButton />} */}
