@@ -27,9 +27,8 @@ export const workspaceAndUserWrapper = style({
   alignItems: 'center',
   justifyContent: 'space-between',
   gap: 8,
-  width: 'calc(100% + 12px)',
+  width: '100%',
   height: 42,
-  paddingRight: 6,
   alignSelf: 'center',
 });
 export const quickSearchAndNewPage = style({

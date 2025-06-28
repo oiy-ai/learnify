@@ -41,11 +41,16 @@ const AuthorizedUserInfo = ({ account }: { account: AuthAccountInfo }) => {
       <IconButton
         data-testid="sidebar-user-avatar"
         variant="plain"
-        size="32"
-        style={{ padding: 0 }}
-        withoutHover
+        size="42"
+        style={{ padding: 0, borderRadius: '8px' }}
+        withoutHover={false}
       >
-        <Avatar size={32} name={account.label} url={account.avatar} />
+        <Avatar
+          style={{ marginLeft: '5px' }}
+          size={32}
+          name={account.label}
+          url={account.avatar}
+        />
       </IconButton>
     </Menu>
   );
