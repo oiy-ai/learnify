@@ -48,6 +48,7 @@ import {
   progressWrapper,
   quickSearch,
   quickSearchAndNewPage,
+  scrollableWrapper,
   workspaceAndUserWrapper,
   workspaceWrapper,
 } from './index.css';
@@ -205,7 +206,7 @@ export const RootAppSidebar = memo((): ReactElement => {
           </span>
         </MenuItem> */}
       </SidebarContainer>
-      <SidebarScrollableContainer>
+      <SidebarScrollableContainer className={scrollableWrapper}>
         <div className={navigationWrapper}>
           <NavigationPanelSources />
         </div>

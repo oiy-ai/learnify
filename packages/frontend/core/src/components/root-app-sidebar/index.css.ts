@@ -19,7 +19,10 @@ export const progressWrapper = style({
 export const navigationWrapper = style({
   display: 'flex',
   alignItems: 'center',
-  margin: '0 4px',
+});
+
+export const scrollableWrapper = style({
+  margin: '0 14px',
 });
 
 export const workspaceAndUserWrapper = style({

@@ -69,7 +69,7 @@ export const NavigationPanelSources = () => {
 
   return (
     <div className={styles.sourcesContainer}>
-      <div className={styles.sourcesHeader}>{'Reference Materials >'}</div>
+      <div className={styles.sourcesHeader}>{'Reference Materials'}</div>
       {mockSources.map(source => (
         <SourceCard
           key={source.id}
