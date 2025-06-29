@@ -1,4 +1,5 @@
 // Import is already correct, no changes needed
+import { Tabs } from '@affine/component/ui/tabs';
 import {
   // AddPageButton,
   // AppDownloadButton,
@@ -37,18 +38,20 @@ import { memo, useCallback } from 'react';
 //   NavigationPanelTags,
 // } from '../../desktop/components/navigation-panel';
 import { WorkbenchService } from '../../modules/workbench';
-import { MindMapNavigator } from '../learnify/mind-map/navigator';
+import { MindMapsNavigator } from '../learnify/mind-maps/navigator';
 import { ProgressNavigator } from '../learnify/progress/navigator';
 import { NavigationPanelSources } from '../learnify/sources/navigator';
 import { WorkspaceNavigator } from '../workspace-selector';
 import {
   bottomContainer,
-  mindMapWrapper,
+  featurePanelWrapper,
   navigationWrapper,
   progressWrapper,
   quickSearch,
   quickSearchAndNewPage,
   scrollableWrapper,
+  tabsListCustom,
+  tabsWrapper,
   workspaceAndUserWrapper,
   workspaceWrapper,
 } from './index.css';
@@ -186,8 +189,27 @@ export const RootAppSidebar = memo((): ReactElement => {
           </div>
           <UserInfo />
         </div>
-        <div className={mindMapWrapper}>
-          <MindMapNavigator />
+        <div className={featurePanelWrapper}>
+          <Tabs.Root defaultValue="mindmap" className={tabsWrapper}>
+            <Tabs.List className={tabsListCustom}>
+              <Tabs.Trigger value="mindmap">Mind Maps</Tabs.Trigger>
+              <Tabs.Trigger value="progress">Notes</Tabs.Trigger>
+              <Tabs.Trigger value="quizcards">Quiz Cards</Tabs.Trigger>
+              <Tabs.Trigger value="flashcards">Flashcards</Tabs.Trigger>
+            </Tabs.List>
+            <Tabs.Content value="mindmap">
+              <MindMapsNavigator />
+            </Tabs.Content>
+            <Tabs.Content value="progress">
+              <MindMapsNavigator />
+            </Tabs.Content>
+            <Tabs.Content value="quizcards">
+              <MindMapsNavigator />
+            </Tabs.Content>
+            <Tabs.Content value="flashcards">
+              <MindMapsNavigator />
+            </Tabs.Content>
+          </Tabs.Root>
         </div>
         <div className={progressWrapper}>
           <ProgressNavigator />

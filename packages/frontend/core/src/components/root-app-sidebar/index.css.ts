@@ -1,10 +1,22 @@
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { style } from '@vanilla-extract/css';
 
-export const mindMapWrapper = style({
+export const featurePanelWrapper = style({
+  border: `1px solid ${cssVarV2('layer/insideBorder/border')}`,
+  borderRadius: 8,
   display: 'flex',
   alignItems: 'center',
   marginTop: 8,
+});
+
+export const tabsWrapper = style({
+  padding: 8,
+});
+
+export const tabsListCustom = style({
+  gap: 10,
+  textAlign: 'center',
+  justifyContent: 'center',
 });
 
 export const progressWrapper = style({
