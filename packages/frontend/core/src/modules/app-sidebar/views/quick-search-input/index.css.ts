@@ -2,9 +2,9 @@ import { cssVar } from '@toeverything/theme';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { style } from '@vanilla-extract/css';
 export const root = style({
-  display: 'inline-flex',
+  display: 'flex',
   alignItems: 'center',
-  justifyContent: 'space-between',
+  gap: 4,
   borderRadius: '4px',
   fontSize: cssVar('fontSm'),
   width: '100%',

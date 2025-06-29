@@ -20,10 +20,10 @@ export function QuickSearchInput({ onClick, ...props }: QuickSearchInputProps) {
       onClick={onClick}
       tabIndex={0}
     >
-      <span className={styles.quickSearchBarEllipsisStyle}>
-        {t['Quick search']()}...
-      </span>
       <SearchIcon className={styles.icon} />
+      <span className={styles.quickSearchBarEllipsisStyle}>
+        {t['Quick search']()}
+      </span>
     </div>
   );
 }
