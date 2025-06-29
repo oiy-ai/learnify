@@ -2,7 +2,7 @@ import { useTheme } from 'next-themes';
 
 import * as styles from './index.css';
 
-export const MindMapNavigator = () => {
+export const MindMapsNavigator = () => {
   const { resolvedTheme } = useTheme();
   const lightImage =
     'https://cdn.jsdelivr.net/gh/a1exsun/file@main//hexo/20250505154900908.png';

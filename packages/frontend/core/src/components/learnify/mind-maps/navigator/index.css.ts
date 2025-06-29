@@ -2,8 +2,6 @@ import { cssVarV2 } from '@toeverything/theme/v2';
 import { style } from '@vanilla-extract/css';
 
 export const root = style({
-  border: `1px solid ${cssVarV2('layer/insideBorder/border')}`,
-  borderRadius: 8,
   padding: 8,
   transition: 'all 0.8s ease',
   position: 'relative',
