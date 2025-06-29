@@ -38,8 +38,11 @@ import { memo, useCallback } from 'react';
 //   NavigationPanelTags,
 // } from '../../desktop/components/navigation-panel';
 import { WorkbenchService } from '../../modules/workbench';
+import { FlashcardsNavigator } from '../learnify/flashcards/navigator';
 import { MindMapsNavigator } from '../learnify/mind-maps/navigator';
+import { NotesNavigator } from '../learnify/notes/navigator';
 import { ProgressNavigator } from '../learnify/progress/navigator';
+import { QuizCardsNavigator } from '../learnify/quiz-cards/navigator';
 import { NavigationPanelSources } from '../learnify/sources/navigator';
 import { WorkspaceNavigator } from '../workspace-selector';
 import {
@@ -50,6 +53,7 @@ import {
   quickSearch,
   quickSearchAndNewPage,
   scrollableWrapper,
+  tabsContentWrapper,
   tabsListCustom,
   tabsWrapper,
   workspaceAndUserWrapper,
@@ -193,21 +197,21 @@ export const RootAppSidebar = memo((): ReactElement => {
           <Tabs.Root defaultValue="mindmap" className={tabsWrapper}>
             <Tabs.List className={tabsListCustom}>
               <Tabs.Trigger value="mindmap">Mind Maps</Tabs.Trigger>
-              <Tabs.Trigger value="progress">Notes</Tabs.Trigger>
+              <Tabs.Trigger value="notes">Notes</Tabs.Trigger>
               <Tabs.Trigger value="quizcards">Quiz Cards</Tabs.Trigger>
               <Tabs.Trigger value="flashcards">Flashcards</Tabs.Trigger>
             </Tabs.List>
-            <Tabs.Content value="mindmap">
+            <Tabs.Content value="mindmap" className={tabsContentWrapper}>
               <MindMapsNavigator />
             </Tabs.Content>
-            <Tabs.Content value="progress">
-              <MindMapsNavigator />
+            <Tabs.Content value="notes" className={tabsContentWrapper}>
+              <NotesNavigator />
             </Tabs.Content>
-            <Tabs.Content value="quizcards">
-              <MindMapsNavigator />
+            <Tabs.Content value="quizcards" className={tabsContentWrapper}>
+              <QuizCardsNavigator />
             </Tabs.Content>
-            <Tabs.Content value="flashcards">
-              <MindMapsNavigator />
+            <Tabs.Content value="flashcards" className={tabsContentWrapper}>
+              <FlashcardsNavigator />
             </Tabs.Content>
           </Tabs.Root>
         </div>

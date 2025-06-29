@@ -19,6 +19,10 @@ export const tabsListCustom = style({
   justifyContent: 'center',
 });
 
+export const tabsContentWrapper = style({
+  borderRadius: 8,
+});
+
 export const progressWrapper = style({
   display: 'flex',
   alignItems: 'center',

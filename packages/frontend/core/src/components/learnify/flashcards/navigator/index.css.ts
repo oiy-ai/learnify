@@ -23,6 +23,14 @@ export const root = style({
       opacity: 0.3,
       pointerEvents: 'none',
     },
+    '&[data-theme="dark"]::before': {
+      content: '',
+      position: 'absolute',
+      backgroundColor: 'rgba(0, 0, 0, 0.4)',
+      borderRadius: 8,
+      pointerEvents: 'none',
+      zIndex: 1,
+    },
   },
 });
 
