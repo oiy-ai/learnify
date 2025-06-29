@@ -11,11 +11,11 @@ import {
 } from '@affine/core/modules/app-sidebar/views';
 // import { ExternalMenuLinkItem } from '@affine/core/modules/app-sidebar/views/menu-item/external-menu-link-item';
 import { AuthService } from '@affine/core/modules/cloud';
-import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
+// import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { CMDKQuickSearchService } from '@affine/core/modules/quicksearch/services/cmdk';
 import type { Workspace } from '@affine/core/modules/workspace';
-import { useI18n } from '@affine/i18n';
-import { track } from '@affine/track';
+// import { useI18n } from '@affine/i18n';
+// import { track } from '@affine/track';
 import type { Store } from '@blocksuite/affine/store';
 // import {
 //   AllDocsIcon,
@@ -23,7 +23,8 @@ import type { Store } from '@blocksuite/affine/store';
 //   // JournalIcon,
 //   SettingsIcon,
 // } from '@blocksuite/icons/rc';
-import { useLiveData, useService, useServices } from '@toeverything/infra';
+// useService,
+import { useLiveData, useServices } from '@toeverything/infra';
 import type { ReactElement } from 'react';
 import { memo, useCallback } from 'react';
 
@@ -50,13 +51,13 @@ import {
   workspaceAndUserWrapper,
   workspaceWrapper,
 } from './index.css';
-import { InviteMembersButton } from './invite-members-button'; // eslint-disable-line no-unused-vars
-import { AppSidebarJournalButton } from './journal-button'; // eslint-disable-line no-unused-vars
-import { NotificationButton } from './notification-button'; // eslint-disable-line no-unused-vars
+// import { InviteMembersButton } from './invite-members-button';
+// import { AppSidebarJournalButton } from './journal-button';
+// import { NotificationButton } from './notification-button';
 import { SidebarAudioPlayer } from './sidebar-audio-player';
-import { TemplateDocEntrance } from './template-doc-entrance'; // eslint-disable-line no-unused-vars
-import { TrashButton } from './trash-button'; // eslint-disable-line no-unused-vars
-import { UpdaterButton } from './updater-button'; // eslint-disable-line no-unused-vars
+// import { TemplateDocEntrance } from './template-doc-entrance';
+// import { TrashButton } from './trash-button';
+// import { UpdaterButton } from './updater-button';
 import UserInfo from './user-info';
 
 export type RootAppSidebarProps = {
@@ -97,18 +98,16 @@ export type RootAppSidebarProps = {
  *
  */
 export const RootAppSidebar = memo((): ReactElement => {
-  // workbenchService, authService
-  const { cMDKQuickSearchService, workbenchService, authService } = useServices(
-    {
-      WorkbenchService,
-      CMDKQuickSearchService,
-      AuthService,
-    }
-  );
+  // workbenchService, authService, authService
+  const { cMDKQuickSearchService, workbenchService } = useServices({
+    WorkbenchService,
+    CMDKQuickSearchService,
+    AuthService,
+  });
 
-  const sessionStatus = useLiveData(authService.session.status$); // eslint-disable-line no-unused-vars
-  const t = useI18n(); // eslint-disable-line no-unused-vars
-  const workspaceDialogService = useService(WorkspaceDialogService);
+  // const sessionStatus = useLiveData(authService.session.status$);
+  // const t = useI18n();
+  // const workspaceDialogService = useService(WorkspaceDialogService);
   const workbench = workbenchService.workbench;
   const workspaceSelectorOpen = useLiveData(workbench.workspaceSelectorOpen$);
   const onOpenQuickSearchModal = useCallback(() => {
@@ -122,13 +121,12 @@ export const RootAppSidebar = memo((): ReactElement => {
     [workbench]
   );
 
-  // eslint-disable-next-line no-unused-vars
-  const onOpenSettingModal = useCallback(() => {
-    workspaceDialogService.open('setting', {
-      activeTab: 'appearance',
-    });
-    track.$.navigationPanel.$.openSettings();
-  }, [workspaceDialogService]);
+  // const onOpenSettingModal = useCallback(() => {
+  //   workspaceDialogService.open('setting', {
+  //     activeTab: 'appearance',
+  //   });
+  //   track.$.navigationPanel.$.openSettings();
+  // }, [workspaceDialogService]);
 
   // const handleOpenDocs = useCallback(
   //   (result: {

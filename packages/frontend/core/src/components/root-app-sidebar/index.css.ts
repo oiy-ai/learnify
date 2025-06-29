@@ -11,7 +11,7 @@ export const progressWrapper = style({
   display: 'flex',
   alignItems: 'center',
   marginTop: 8,
-  backgroundColor: cssVarV2('layer/background/secondary'),
+  border: `1px solid ${cssVarV2('layer/insideBorder/border')}`,
   borderRadius: 8,
   padding: 8,
 });

@@ -5,32 +5,37 @@ import {
   TextIcon,
   ViewLayersIcon,
 } from '@blocksuite/icons/rc';
-import { cssVar } from '@toeverything/theme';
-import { cssVarV2 } from '@toeverything/theme/v2';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 
-import { useLearnifyTheme } from '../../../../theme/learnify';
+import rainbowProgressImage from '../../assets/rainbow-progress.png';
 import * as styles from './index.css';
 
-const getColor = (
-  percent: number,
-  theme: ReturnType<typeof useLearnifyTheme>
-) => {
-  if (percent > 67) {
-    return theme.successColor;
+const getColor = (percent: number, theme: string | undefined) => {
+  let r, g, b;
+
+  if (theme === 'dark') {
+    // cmyk(92,0,34) 76 -> 37
+    // 5,61,40 -> 13, 161, 107
+    r = Math.round(5 + percent * 0.09);
+    g = Math.round(61 + percent * 1.01);
+    b = Math.round(40 + percent * 0.67);
+  } else {
+    // cmyk(92,0,34) 66 -> 10
+    // 7, 87, 57 -> 18, 230, 151
+    r = Math.round(7 + percent * 0.11);
+    g = Math.round(87 + percent * 1.43);
+    b = Math.round(57 + percent * 0.94);
   }
-  if (percent < 33) {
-    return theme.successColor2;
-  }
-  return theme.successColor1;
+  return `rgb(${r}, ${g}, ${b})`;
 };
 
-const percent1 = 65;
-const percent2 = 32;
-const percent3 = 88;
-const percent4 = 72;
+const percent1 = Math.floor(Math.random() * 33) + 33;
+const percent2 = Math.floor(Math.random() * 30) + 70;
+const percent3 = Math.floor(Math.random() * 30) + 3;
+const percent4 = 100;
 
 const Progress = ({
   name,
@@ -82,7 +87,13 @@ const Progress = ({
             className={styles.progressBar}
             style={{
               width: `${animatedPercent}%`,
-              backgroundColor: color ?? cssVarV2('button/primary'),
+              ...(color
+                ? { backgroundColor: color }
+                : {
+                    backgroundImage: `url(${rainbowProgressImage})`,
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat',
+                  }),
             }}
           />
         </div>
@@ -92,12 +103,12 @@ const Progress = ({
 };
 
 export const ProgressNavigator = () => {
-  const theme = useLearnifyTheme();
+  const { resolvedTheme } = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
-  const color1 = getColor(percent1, theme);
-  const color2 = getColor(percent2, theme);
-  const color3 = getColor(percent3, theme);
-  const color4 = getColor(percent4, theme);
+  const color1 = getColor(percent1, resolvedTheme);
+  const color2 = getColor(percent2, resolvedTheme);
+  const color3 = getColor(percent3, resolvedTheme);
+  const color4 = getColor(percent4, resolvedTheme);
 
   const overallPercent = Math.round(
     (percent1 + percent2 + percent3 + percent4) / 4
@@ -111,11 +122,7 @@ export const ProgressNavigator = () => {
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className={styles.progressItem}>
-          <Progress
-            name="Overall Progress"
-            percent={overallPercent}
-            color={cssVar('processingColor')}
-          />
+          <Progress name="Overall Progress" percent={overallPercent} />
         </div>
       </MenuLinkItem>
       {isExpanded && (
