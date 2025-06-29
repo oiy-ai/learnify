@@ -36,13 +36,14 @@ export const quickSearchAndNewPage = style({
   alignItems: 'center',
   gap: 8,
   padding: '4px 0',
-  marginLeft: -8,
-  marginRight: -6,
+  marginLeft: -4,
+  marginRight: -4,
 });
 export const quickSearch = style({
-  height: 42,
+  height: 34,
   width: 110,
   flex: 1,
+  border: `1px solid ${cssVarV2('layer/insideBorder/border')}`,
 });
 
 export const workspaceWrapper = style({

@@ -4,13 +4,14 @@ import { style } from '@vanilla-extract/css';
 export const root = style({
   display: 'inline-flex',
   alignItems: 'center',
+  justifyContent: 'space-between',
   borderRadius: '4px',
   fontSize: cssVar('fontSm'),
   width: '100%',
   height: '30px',
   userSelect: 'none',
   cursor: 'pointer',
-  padding: '0 12px 0 8px',
+  padding: '0 4px 0 8px',
   position: 'relative',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
@@ -19,7 +20,6 @@ export const root = style({
   },
 });
 export const icon = style({
-  marginRight: '12px',
   color: cssVarV2('icon/primary'),
   fontSize: '20px',
 });
@@ -31,6 +31,7 @@ export const shortcutHint = style({
   fontSize: cssVar('fontBase'),
 });
 export const quickSearchBarEllipsisStyle = style({
+  color: cssVarV2('text/secondary'),
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
