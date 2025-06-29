@@ -36,7 +36,7 @@ export type History = {
 };
 
 const MAX_WIDTH = 580;
-const MIN_WIDTH = 380;
+const MIN_WIDTH = 375;
 const isMacosDesktop = BUILD_CONFIG.isElectron && environment.isMacOs;
 
 export function AppSidebar({ children }: PropsWithChildren) {
