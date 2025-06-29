@@ -1,3 +1,4 @@
+import { cssVar } from '@toeverything/theme';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { style } from '@vanilla-extract/css';
 
@@ -37,6 +38,26 @@ export const navigationWrapper = style({
   alignItems: 'center',
 });
 
+export const referenceWrapper = style({
+  display: 'flex',
+  alignItems: 'center',
+  marginTop: 8,
+  gap: 8,
+  padding: '4px 0',
+});
+
+export const referenceHeader = style({
+  paddingLeft: 2,
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  fontSize: cssVar('fontBase'),
+  fontWeight: 600,
+  color: cssVarV2('text/tertiary'),
+  height: 30,
+  borderBottom: `1px solid ${cssVarV2('layer/insideBorder/border')}`,
+});
+
 export const scrollableWrapper = style({
   margin: '0 14px',
 });
@@ -60,9 +81,10 @@ export const quickSearchAndNewPage = style({
 });
 export const quickSearch = style({
   height: 34,
-  width: 110,
+  width: 95,
   flex: 1,
   border: `1px solid ${cssVarV2('layer/insideBorder/border')}`,
+  boxShadow: cssVar('buttonShadow'),
 });
 
 export const workspaceWrapper = style({

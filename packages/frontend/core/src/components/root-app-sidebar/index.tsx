@@ -43,6 +43,9 @@ import { MindMapsNavigator } from '../learnify/mind-maps/navigator';
 import { NotesNavigator } from '../learnify/notes/navigator';
 import { ProgressNavigator } from '../learnify/progress/navigator';
 import { QuizCardsNavigator } from '../learnify/quiz-cards/navigator';
+import { AddLinkButton } from '../learnify/sources/buttons/add-link-button';
+import { RecordButton } from '../learnify/sources/buttons/record-button';
+import { UploadButton } from '../learnify/sources/buttons/upload-button';
 import { NavigationPanelSources } from '../learnify/sources/navigator';
 import { WorkspaceNavigator } from '../workspace-selector';
 import {
@@ -52,6 +55,8 @@ import {
   progressWrapper,
   quickSearch,
   quickSearchAndNewPage,
+  referenceHeader,
+  referenceWrapper,
   scrollableWrapper,
   tabsContentWrapper,
   tabsListCustom,
@@ -217,6 +222,12 @@ export const RootAppSidebar = memo((): ReactElement => {
         </div>
         <div className={progressWrapper}>
           <ProgressNavigator />
+        </div>
+        <div className={referenceWrapper}>
+          <div className={referenceHeader}>{'Reference Materials'}</div>
+          <UploadButton />
+          <AddLinkButton />
+          <RecordButton />
         </div>
 
         {/* <AllDocsButton /> */}
