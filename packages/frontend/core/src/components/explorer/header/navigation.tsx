@@ -5,23 +5,47 @@ import track from '@affine/track';
 import * as styles from './navigation.css';
 
 const items = [
+  // {
+  //   value: 'docs',
+  //   label: 'com.affine.docs.header',
+  //   testId: 'workspace-docs-button',
+  //   to: '/all',
+  // },
+  // {
+  //   value: 'collections',
+  //   label: 'com.affine.collections.header',
+  //   testId: 'workspace-collections-button',
+  //   to: '/collection',
+  // },
+  // {
+  //   value: 'tags',
+  //   label: 'Tags',
+  //   testId: 'workspace-tags-button',
+  //   to: '/tag',
+  // },
   {
-    value: 'docs',
-    label: 'com.affine.docs.header',
-    testId: 'workspace-docs-button',
-    to: '/all',
+    value: 'mind-maps',
+    label: 'com.learnify.mind-map.header',
+    testId: 'workspace-mind-maps-button',
+    to: '/mind-maps',
   },
   {
-    value: 'collections',
-    label: 'com.affine.collections.header',
-    testId: 'workspace-collections-button',
-    to: '/collection',
+    value: 'notes',
+    label: 'com.learnify.notes.header',
+    testId: 'workspace-notes-button',
+    to: '/notes',
   },
   {
-    value: 'tags',
-    label: 'Tags',
-    testId: 'workspace-tags-button',
-    to: '/tag',
+    value: 'flashcards',
+    label: 'com.learnify.flashcards.header',
+    testId: 'workspace-flashcards-button',
+    to: '/flashcards',
+  },
+  {
+    value: 'podcasts',
+    label: 'com.learnify.podcasts.header',
+    testId: 'workspace-podcasts-button',
+    to: '/podcasts',
   },
 ] as const;
 
