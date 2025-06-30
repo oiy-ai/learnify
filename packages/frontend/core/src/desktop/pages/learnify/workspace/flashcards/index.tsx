@@ -1,6 +1,4 @@
-import type { Filter } from '@affine/env/filter';
 import { useI18n } from '@affine/i18n';
-import { useState } from 'react';
 
 import {
   ViewBody,
@@ -8,35 +6,28 @@ import {
   ViewIcon,
   ViewTitle,
 } from '../../../../../modules/workbench';
-import { AllPageHeader } from '../header/common-header';
+import { AllDocSidebarTabs } from '../../../workspace/layouts/all-doc-sidebar-tabs';
+import * as styles from './flashcards.css';
+import { FlashcardsHeader } from './header';
 
-export const FlashcardsPage = () => {
+export const Flashcards = () => {
   const t = useI18n();
-
-  const [hideHeaderCreateNew] = useState(true);
-  const [filters, setFilters] = useState<Filter[]>([]);
 
   return (
     <>
-      <ViewTitle title={t['com.learnify.flashcards.header']()} />
-      <ViewIcon icon="page" />
+      <ViewTitle title={t['Flashcards']()} />
+      <ViewIcon icon="flashcard" />
       <ViewHeader>
-        <AllPageHeader
-          showCreateNew={!hideHeaderCreateNew}
-          filters={filters}
-          onChangeFilters={setFilters}
-          activeFilter="flashcards"
-        />
+        <FlashcardsHeader />
       </ViewHeader>
       <ViewBody>
-        <div style={{ padding: '40px', textAlign: 'center', fontSize: '20px' }}>
-          TODO: Flashcards Page Implementation
-        </div>
+        <div className={styles.body}>TODO: this is Flashcards Page</div>
       </ViewBody>
+      <AllDocSidebarTabs />
     </>
   );
 };
 
 export const Component = () => {
-  return <FlashcardsPage />;
+  return <Flashcards />;
 };
