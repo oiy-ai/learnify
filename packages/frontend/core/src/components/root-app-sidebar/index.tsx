@@ -41,8 +41,8 @@ import { WorkbenchService } from '../../modules/workbench';
 import { FlashcardsNavigator } from '../learnify/flashcards/navigator';
 import { MindMapsNavigator } from '../learnify/mind-maps/navigator';
 import { NotesNavigator } from '../learnify/notes/navigator';
+import { PodcastsNavigator } from '../learnify/podcasts/navigator';
 import { ProgressNavigator } from '../learnify/progress/navigator';
-import { QuizCardsNavigator } from '../learnify/quiz-cards/navigator';
 import { AddLinkButton } from '../learnify/sources/buttons/add-link-button';
 import { RecordButton } from '../learnify/sources/buttons/record-button';
 import { UploadButton } from '../learnify/sources/buttons/upload-button';
@@ -203,8 +203,8 @@ export const RootAppSidebar = memo((): ReactElement => {
             <Tabs.List className={tabsListCustom}>
               <Tabs.Trigger value="mindmap">Mind Maps</Tabs.Trigger>
               <Tabs.Trigger value="notes">Notes</Tabs.Trigger>
-              <Tabs.Trigger value="quizcards">Quiz Cards</Tabs.Trigger>
               <Tabs.Trigger value="flashcards">Flashcards</Tabs.Trigger>
+              <Tabs.Trigger value="podcasts">Podcasts</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="mindmap" className={tabsContentWrapper}>
               <MindMapsNavigator />
@@ -212,11 +212,11 @@ export const RootAppSidebar = memo((): ReactElement => {
             <Tabs.Content value="notes" className={tabsContentWrapper}>
               <NotesNavigator />
             </Tabs.Content>
-            <Tabs.Content value="quizcards" className={tabsContentWrapper}>
-              <QuizCardsNavigator />
-            </Tabs.Content>
             <Tabs.Content value="flashcards" className={tabsContentWrapper}>
               <FlashcardsNavigator />
+            </Tabs.Content>
+            <Tabs.Content value="podcasts" className={tabsContentWrapper}>
+              <PodcastsNavigator />
             </Tabs.Content>
           </Tabs.Root>
         </div>
