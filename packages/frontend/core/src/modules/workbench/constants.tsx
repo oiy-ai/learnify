@@ -15,6 +15,11 @@ export const iconNameToIcon = {
   allDocs: <AllDocsIcon />,
   collection: <ViewLayersIcon />,
   doc: <PageIcon />,
+  note: <PageIcon />,
+  mindMap: <PageIcon />,
+  flashcard: <PageIcon />,
+  podcast: <PageIcon />,
+  // TODO update Icons
   page: <PageIcon />,
   edgeless: <EdgelessIcon />,
   journal: <TodayIcon />,

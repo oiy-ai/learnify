@@ -26,8 +26,8 @@ export const workbenchRoutes = [
     lazy: () => import('./pages/learnify/workspace/notes'),
   },
   {
-    path: '/mind-map',
-    lazy: () => import('./pages/learnify/workspace/mind-map'),
+    path: '/mind-maps',
+    lazy: () => import('./pages/learnify/workspace/mind-maps'),
   },
   {
     path: '/quiz-cards',
