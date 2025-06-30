@@ -1,6 +1,4 @@
-import type { Filter } from '@affine/env/filter';
 import { useI18n } from '@affine/i18n';
-import { useState } from 'react';
 
 import {
   ViewBody,
@@ -8,35 +6,28 @@ import {
   ViewIcon,
   ViewTitle,
 } from '../../../../../modules/workbench';
-import { AllPageHeader } from '../header/common-header';
+import { AllDocSidebarTabs } from '../../../workspace/layouts/all-doc-sidebar-tabs';
+import { PodcastsHeader } from './header';
+import * as styles from './podcasts.css';
 
-export const PodcastsPage = () => {
+export const Podcasts = () => {
   const t = useI18n();
-
-  const [hideHeaderCreateNew] = useState(true);
-  const [filters, setFilters] = useState<Filter[]>([]);
 
   return (
     <>
-      <ViewTitle title={t['com.learnify.podcasts.header']()} />
-      <ViewIcon icon="page" />
+      <ViewTitle title={t['Podcasts']()} />
+      <ViewIcon icon="podcast" />
       <ViewHeader>
-        <AllPageHeader
-          showCreateNew={!hideHeaderCreateNew}
-          filters={filters}
-          onChangeFilters={setFilters}
-          activeFilter="podcasts"
-        />
+        <PodcastsHeader />
       </ViewHeader>
       <ViewBody>
-        <div style={{ padding: '40px', textAlign: 'center', fontSize: '20px' }}>
-          TODO: Podcasts Page Implementation
-        </div>
+        <div className={styles.body}>TODO: this is Podcasts Page</div>
       </ViewBody>
+      <AllDocSidebarTabs />
     </>
   );
 };
 
 export const Component = () => {
-  return <PodcastsPage />;
+  return <Podcasts />;
 };
