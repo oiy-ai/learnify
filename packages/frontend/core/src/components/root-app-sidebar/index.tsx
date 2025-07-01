@@ -201,7 +201,7 @@ export const RootAppSidebar = memo((): ReactElement => {
         <div className={featurePanelWrapper}>
           <Tabs.Root defaultValue="mindmap" className={tabsWrapper}>
             <Tabs.List className={tabsListCustom}>
-              <Tabs.Trigger value="mindmap">Mind Maps</Tabs.Trigger>
+              <Tabs.Trigger value="mindmap">MindMaps</Tabs.Trigger>
               <Tabs.Trigger value="notes">Notes</Tabs.Trigger>
               <Tabs.Trigger value="flashcards">Flashcards</Tabs.Trigger>
               <Tabs.Trigger value="podcasts">Podcasts</Tabs.Trigger>
