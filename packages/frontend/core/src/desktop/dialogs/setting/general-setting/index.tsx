@@ -7,7 +7,7 @@ import {
   AppearanceIcon,
   ExperimentIcon,
   FolderIcon,
-  InformationIcon,
+  // InformationIcon,
   KeyboardIcon,
   MeetingIcon,
   NotificationIcon,
@@ -140,13 +140,13 @@ export const useGeneralSettingList = (): GeneralSettingList => {
         title: t['com.affine.settings.workspace.experimental-features'](),
         icon: <ExperimentIcon />,
         testId: 'experimental-features-trigger',
-      },
-      {
-        key: 'about',
-        title: t['com.affine.aboutAFFiNE.title'](),
-        icon: <InformationIcon />,
-        testId: 'about-panel-trigger',
       }
+      // {
+      //   key: 'about',
+      //   title: t['com.affine.aboutAFFiNE.title'](),
+      //   icon: <InformationIcon />,
+      //   testId: 'about-panel-trigger',
+      // }
     );
     return settings;
   }, [
@@ -160,6 +160,7 @@ export const useGeneralSettingList = (): GeneralSettingList => {
 
 interface GeneralSettingProps {
   activeTab: SettingTab;
+  // eslint-disable-next-line no-unused-vars
   onChangeSettingState: (settingState: SettingState) => void;
 }
 
