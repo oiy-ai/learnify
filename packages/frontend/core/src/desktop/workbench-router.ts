@@ -33,8 +33,12 @@ export const workbenchRoutes = [
     path: '/quiz-cards',
     lazy: () => import('./pages/learnify/workspace/quiz-cards'),
   },
+  // {
+  //   path: '/flashcards',
+  //   lazy: () => import('./pages/learnify/workspace/flashcards'),
+  // },
   {
-    path: '/flashcards',
+    path: '/flashcards/:collectionId',
     lazy: () => import('./pages/learnify/workspace/flashcards'),
   },
   {

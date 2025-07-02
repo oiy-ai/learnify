@@ -11,12 +11,12 @@ const items = [
   //   testId: 'workspace-docs-button',
   //   to: '/all',
   // },
-  // {
-  //   value: 'collections',
-  //   label: 'com.affine.collections.header',
-  //   testId: 'workspace-collections-button',
-  //   to: '/collection',
-  // },
+  {
+    value: 'collections',
+    label: 'com.affine.collections.header',
+    testId: 'workspace-collections-button',
+    to: '/collection',
+  },
   // {
   //   value: 'tags',
   //   label: 'Tags',
@@ -39,7 +39,7 @@ const items = [
     value: 'flashcards',
     label: 'com.learnify.flashcards.header',
     testId: 'workspace-flashcards-button',
-    to: '/flashcards',
+    to: '/flashcards/ux9-nJjWd-mH09V6d8IiU',
   },
   {
     value: 'podcasts',
