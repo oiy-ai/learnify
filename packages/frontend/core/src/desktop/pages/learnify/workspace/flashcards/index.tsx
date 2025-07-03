@@ -18,7 +18,6 @@ import { useI18n } from '@affine/i18n';
 import { ViewLayersIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService, useServices } from '@toeverything/infra';
 import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 
 import { useNavigateHelper } from '../../../../../components/hooks/use-navigate-helper';
 import {
@@ -130,11 +129,9 @@ export const Component = function CollectionPage() {
   });
   const globalContext = globalContextService.globalContext;
   const t = useI18n();
-  const params = useParams();
   const collection = useLiveData(
-    params.collectionId
-      ? collectionService.collection$(params.collectionId)
-      : null
+    // TODO 改为更正式的方案
+    collectionService.collection$('ux9-nJjWd-mH09V6d8IiU')
   );
   const name = useLiveData(collection?.name$);
   const isActiveView = useIsActiveView();

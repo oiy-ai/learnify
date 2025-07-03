@@ -39,7 +39,7 @@ const items = [
     value: 'flashcards',
     label: 'com.learnify.flashcards.header',
     testId: 'workspace-flashcards-button',
-    to: '/flashcards/ux9-nJjWd-mH09V6d8IiU',
+    to: '/flashcards',
   },
   {
     value: 'podcasts',
