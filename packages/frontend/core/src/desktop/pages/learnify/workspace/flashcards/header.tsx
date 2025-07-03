@@ -5,7 +5,7 @@ import { ExplorerNavigation } from '@affine/core/components/explorer/header/navi
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
 import { Header } from '@affine/core/components/pure/header';
 
-export const CollectionDetailHeader = ({
+export const FlashcardsHeader = ({
   displayPreference,
   onDisplayPreferenceChange,
 }: {
@@ -31,7 +31,7 @@ export const CollectionDetailHeader = ({
           />
         </FlexWrapper>
       }
-      left={<ExplorerNavigation active="collections" />}
+      left={<ExplorerNavigation active="flashcards" />}
     />
   );
 };

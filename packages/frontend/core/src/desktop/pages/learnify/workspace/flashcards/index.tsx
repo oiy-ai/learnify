@@ -29,7 +29,7 @@ import {
 } from '../../../../../modules/workbench';
 import { PageNotFound } from '../../../404';
 import { AllDocSidebarTabs } from '../../../workspace/layouts/all-doc-sidebar-tabs';
-import { CollectionDetailHeader } from './header';
+import { FlashcardsHeader } from './header';
 import * as styles from './index.css';
 import { CollectionListHeader } from './list-header';
 
@@ -45,6 +45,7 @@ export const CollectionDetail = ({
   const isAdmin = useLiveData(permissionService.permission.isAdmin$);
   const isOwner = useLiveData(permissionService.permission.isOwner$);
 
+   
   const displayPreference = useLiveData(
     explorerContextValue.displayPreference$
   );
@@ -105,7 +106,7 @@ export const CollectionDetail = ({
   return (
     <DocExplorerContext.Provider value={explorerContextValue}>
       <ViewHeader>
-        <CollectionDetailHeader
+        <FlashcardsHeader
           displayPreference={displayPreference}
           onDisplayPreferenceChange={handleDisplayPreferenceChange}
         />
