@@ -4,7 +4,7 @@ import { createContext } from 'react';
 import type { ExplorerDisplayPreference } from './types';
 
 const DefaultDisplayPreference: ExplorerDisplayPreference = {
-  view: 'masonry',
+  view: 'list',
   displayProperties: [
     'system:createdAt',
     'system:updatedAt',

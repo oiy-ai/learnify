@@ -4,8 +4,8 @@ import {
   createDocExplorerContext,
   DocExplorerContext,
 } from '@affine/core/components/explorer/context';
-import { DocsExplorer } from '@affine/core/components/explorer/docs-view/docs-list';
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
+import { CardsExplorer } from '@affine/core/components/learnify/flashcards/explorer/cards-list';
 import {
   type Collection,
   CollectionService,
@@ -31,21 +31,27 @@ import { PageNotFound } from '../../../404';
 import { AllDocSidebarTabs } from '../../../workspace/layouts/all-doc-sidebar-tabs';
 import { FlashcardsHeader } from './header';
 import * as styles from './index.css';
-import { CollectionListHeader } from './list-header';
 
 export const CollectionDetail = ({
   collection,
 }: {
   collection: Collection;
 }) => {
-  const [explorerContextValue] = useState(createDocExplorerContext);
+  const [explorerContextValue] = useState(() =>
+    createDocExplorerContext({
+      view: 'masonry',
+      groupBy: {
+        type: 'system',
+        key: 'tags',
+      },
+    })
+  );
   const collectionRulesService = useService(CollectionRulesService);
 
   const permissionService = useService(WorkspacePermissionService);
   const isAdmin = useLiveData(permissionService.permission.isAdmin$);
   const isOwner = useLiveData(permissionService.permission.isOwner$);
 
-   
   const displayPreference = useLiveData(
     explorerContextValue.displayPreference$
   );
@@ -113,9 +119,9 @@ export const CollectionDetail = ({
       </ViewHeader>
       <ViewBody>
         <FlexWrapper flexDirection="column" alignItems="stretch" width="100%">
-          <CollectionListHeader collection={collection} />
+          {/* <CollectionListHeader collection={collection} /> */}
           <div className={styles.scrollArea}>
-            <DocsExplorer disableMultiDelete={!isAdmin && !isOwner} />
+            <CardsExplorer disableMultiDelete={!isAdmin && !isOwner} />
           </div>
         </FlexWrapper>
       </ViewBody>
@@ -225,6 +231,7 @@ const Placeholder = ({ collection }: { collection: Collection }) => {
         </div>
       </ViewHeader>
       <ViewBody>
+        {/* TODO: No Flashcards */}
         <EmptyCollectionDetail
           collection={collection}
           style={{ height: '100%' }}

@@ -99,5 +99,5 @@ export const inlineProperty = style({
 export const cardProperties = style({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: 8,
+  gap: 4,
 });
