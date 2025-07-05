@@ -38,7 +38,9 @@ export const CollectionDetail = ({
 }: {
   collection: Collection;
 }) => {
-  const [explorerContextValue] = useState(createDocExplorerContext);
+  const [explorerContextValue] = useState(() =>
+    createDocExplorerContext({ view: 'list' })
+  );
   const collectionRulesService = useService(CollectionRulesService);
 
   const permissionService = useService(WorkspacePermissionService);
