@@ -4,8 +4,8 @@ import {
   createDocExplorerContext,
   DocExplorerContext,
 } from '@affine/core/components/explorer/context';
-import { DocsExplorer } from '@affine/core/components/explorer/docs-view/docs-list';
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
+import { MindMapsExplorer } from '@affine/core/components/learnify/mind-maps/explorer/mind-maps-list';
 import {
   type Collection,
   CollectionService,
@@ -114,7 +114,7 @@ export const CollectionDetail = ({
       <ViewBody>
         <FlexWrapper flexDirection="column" alignItems="stretch" width="100%">
           <div className={styles.scrollArea}>
-            <DocsExplorer disableMultiDelete={!isAdmin && !isOwner} />
+            <MindMapsExplorer disableMultiDelete={!isAdmin && !isOwner} />
           </div>
         </FlexWrapper>
       </ViewBody>
