@@ -288,13 +288,13 @@ const SharePageFooter = () => {
   }
   return (
     <a
-      href="https://affine.pro"
+      href="https://learnify.oiy.ai"
       target="_blank"
       className={styles.link}
       rel="noreferrer"
     >
       <span className={styles.linkText}>
-        {t['com.affine.share-page.footer.built-with']()}
+        {t['com.affine.share-page.footer.built-with']()} Learnify
       </span>
       <Logo1Icon fontSize={20} />
     </a>
