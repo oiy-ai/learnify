@@ -5,19 +5,18 @@ import {
   useConfirmModal,
 } from '@affine/component';
 import { DocsService } from '@affine/core/modules/doc';
-import { DocsSearchService } from '@affine/core/modules/docs-search';
 import { WorkspacePropertyService } from '@affine/core/modules/workspace-property';
 import { Trans, useI18n } from '@affine/i18n';
-import { LiveData, useLiveData, useService } from '@toeverything/infra';
+import { useLiveData, useService } from '@toeverything/infra';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { memo, useCallback, useContext, useEffect, useMemo } from 'react';
 
 import { DocExplorerContext } from '../../../explorer/context';
 import { DocListItem } from '../../../explorer/docs-view/doc-list-item';
+import * as styles from '../../../explorer/docs-view/docs-list.css';
 import { ListFloatingToolbar } from '../../../page-list/components/list-floating-toolbar';
 import { SystemPropertyTypes } from '../../../system-property-types';
 import { WorkspacePropertyTypes } from '../../../workspace-property-types';
-import * as styles from './mind-maps-list.css';
 
 const GroupHeader = memo(function GroupHeader({
   groupId,
@@ -75,41 +74,13 @@ const GroupHeader = memo(function GroupHeader({
   return header;
 });
 
-const ratios = [0.66, 0.71, 0.59];
-
-// 根据文档内容计算卡片比例
-const calcCardRatio = (
-  rawType: string | undefined,
-  summary: string | null
-): number => {
-  // 1. 如果不是flashcards类型，随机从ratios中返回一个值
-  if (rawType !== 'flashcards') {
-    return ratios[Math.floor(Math.random() * ratios.length)];
+const ratios = [1.26, 1.304, 1.13, 1.391, 1.521];
+const calcCardRatioById = (id: string) => {
+  if (!id) {
+    return ratios[0];
   }
-
-  // 2. 如果是flashcards，需要判断question长度
-  if (summary && summary.startsWith('single-choice')) {
-    const contentStr = summary.replace('single-choice', '').trim();
-    const questionMatch = contentStr.match(/^(.*?)(?=\s*[a-d]\))/);
-    const question = questionMatch ? questionMatch[1].trim() : '';
-
-    // 计算question的词数
-    const wordCount = question
-      .split(/\s+/)
-      .filter(word => word.length > 0).length;
-
-    // 如果不超过30词，返回0.8, 30-40 词返回0.9, 40-50词返回0.95, 50-60词返回1
-    return wordCount <= 20
-      ? 0.62
-      : wordCount <= 30
-        ? 0.7
-        : wordCount <= 40
-          ? 0.75
-          : 0.82;
-  }
-
-  // 默认情况（flashcards但没有有效的summary）
-  return ratios[Math.floor(Math.random() * ratios.length)];
+  const code = id.charCodeAt(0);
+  return ratios[code % ratios.length];
 };
 
 export const DocListItemComponent = memo(function DocListItemComponent({
@@ -119,19 +90,22 @@ export const DocListItemComponent = memo(function DocListItemComponent({
   groupId: string;
   itemId: string;
 }) {
-  return <DocListItem docId={itemId} groupId={groupId} rawType="flashcards" />;
+  return <DocListItem docId={itemId} groupId={groupId} />;
 });
 
 export const MindMapsExplorer = ({
   className,
   disableMultiSelectToolbar,
   disableMultiDelete,
+  masonryItemWidthMin,
   onRestore,
   onDelete,
 }: {
   className?: string;
   disableMultiSelectToolbar?: boolean;
   disableMultiDelete?: boolean;
+  masonryItemWidthMin?: number;
+
   // eslint-disable-next-line no-unused-vars
   onRestore?: (ids: string[]) => void;
   /** Override the default delete action */
@@ -141,7 +115,6 @@ export const MindMapsExplorer = ({
   const t = useI18n();
   const contextValue = useContext(DocExplorerContext);
   const docsService = useService(DocsService);
-  const docsSearchService = useService(DocsSearchService);
 
   const groupBy = useLiveData(contextValue.groupBy$);
   const groups = useLiveData(contextValue.groups$);
@@ -149,29 +122,6 @@ export const MindMapsExplorer = ({
   const selectMode = useLiveData(contextValue.selectMode$);
   const selectedDocIds = useLiveData(contextValue.selectedDocIds$);
   const collapsedGroups = useLiveData(contextValue.collapsedGroups$);
-
-  // 获取所有文档的摘要
-  const docSummaries = useLiveData(
-    useMemo(() => {
-      const allDocIds = groups.flatMap(group => group.items);
-
-      // 为每个文档创建LiveData并合并
-      const summaryLiveDatas = allDocIds.map(docId =>
-        LiveData.from(docsSearchService.watchDocSummary(docId), null).map(
-          (summary: string | null) => ({ docId, summary })
-        )
-      );
-
-      return LiveData.computed(get => {
-        const summaries = new Map<string, string | null>();
-        summaryLiveDatas.forEach(liveData$ => {
-          const data = get(liveData$);
-          summaries.set(data.docId, data.summary);
-        });
-        return summaries;
-      });
-    }, [docsSearchService, groups])
-  );
 
   const { openConfirmModal } = useConfirmModal();
 
@@ -190,21 +140,16 @@ export const MindMapsExplorer = ({
               height: 42,
             } satisfies MasonryItem;
           }
-
-          // 获取文档摘要并计算比例
-          const summary = docSummaries.get(docId) ?? null;
-          const ratio = calcCardRatio('flashcards', summary);
-
           return {
             id: docId,
             Component: DocListItemComponent,
-            ratio: view === 'grid' ? ratios[0] : ratio,
+            ratio: view === 'grid' ? ratios[0] : calcCardRatioById(docId),
           } satisfies MasonryItem;
         }),
       } satisfies MasonryGroup;
     });
     return items;
-  }, [groupBy, groups, view, docSummaries]);
+  }, [groupBy, groups, view]);
 
   const handleCloseFloatingToolbar = useCallback(() => {
     contextValue.selectMode$?.next(false);
@@ -282,7 +227,7 @@ export const MindMapsExplorer = ({
   }, [contextValue]);
 
   const responsivePaddingX = useCallback(
-    (w: number) => (w > 500 ? 48 : w > 393 ? 40 : 32),
+    (w: number) => (w > 500 ? 24 : w > 393 ? 20 : 16),
     []
   );
 
@@ -296,7 +241,7 @@ export const MindMapsExplorer = ({
         groupsGap={12}
         groupHeaderGapWithItems={12}
         columns={view === 'list' ? 1 : undefined}
-        itemWidthMin={window.innerWidth > 768 ? 380 : 310}
+        itemWidthMin={masonryItemWidthMin ?? 220}
         preloadHeight={100}
         itemWidth={'stretch'}
         virtualScroll
