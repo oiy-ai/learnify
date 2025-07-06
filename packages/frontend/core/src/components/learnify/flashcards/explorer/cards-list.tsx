@@ -105,7 +105,7 @@ export const DocListItemComponent = memo(function DocListItemComponent({
   groupId: string;
   itemId: string;
 }) {
-  return <DocListItem docId={itemId} groupId={groupId} />;
+  return <DocListItem docId={itemId} groupId={groupId} rawType="flashcards" />;
 });
 
 export const CardsExplorer = ({

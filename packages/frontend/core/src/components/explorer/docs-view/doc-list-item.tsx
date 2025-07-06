@@ -26,7 +26,7 @@ import {
   useContext,
 } from 'react';
 
-import { PagePreview } from '../../page-list/page-content-preview';
+import { PagePreview } from '../../learnify/page-list/page-content-preview';
 import { DocExplorerContext } from '../context';
 import { quickActions } from '../quick-actions.constants';
 import * as styles from './doc-list-item.css';
@@ -51,6 +51,7 @@ export const DocListViewIcon = ({
 export interface DocListItemProps {
   docId: string;
   groupId: string;
+  rawType?: 'flashcards' | 'mind-maps';
 }
 
 class MixId {
@@ -208,11 +209,13 @@ const RawDocTitle = memo(function RawDocTitle({ id }: { id: string }) {
 const RawDocPreview = memo(function RawDocPreview({
   id,
   loading,
+  rawType,
 }: {
   id: string;
   loading?: ReactNode;
+  rawType?: 'flashcards' | 'mind-maps';
 }) {
-  return <PagePreview pageId={id} fallback={loading} />;
+  return <PagePreview pageId={id} fallback={loading} rawType={rawType} />;
 });
 const DragHandle = memo(function DragHandle({
   id,
@@ -291,8 +294,12 @@ const DocTitle = memo(function DocTitle({
 const DocPreview = memo(function DocPreview({
   id,
   loading,
+  rawType,
   ...props
-}: HTMLProps<HTMLDivElement> & { loading?: ReactNode }) {
+}: HTMLProps<HTMLDivElement> & {
+  loading?: ReactNode;
+  rawType?: 'flashcards' | 'mind-maps';
+}) {
   const contextValue = useContext(DocExplorerContext);
   const showDocPreview = useLiveData(contextValue.showDocPreview$);
 
@@ -300,7 +307,7 @@ const DocPreview = memo(function DocPreview({
 
   return (
     <div {...props}>
-      <RawDocPreview id={id} loading={loading} />
+      <RawDocPreview id={id} loading={loading} rawType={rawType} />
     </div>
   );
 });
@@ -361,7 +368,7 @@ const cardMoreMenuContentOptions = {
   alignOffset: -4,
 } as const;
 
-export const CardViewDoc = ({ docId }: DocListItemProps) => {
+export const CardViewDoc = ({ docId, rawType }: DocListItemProps) => {
   const t = useI18n();
   const contextValue = useContext(DocExplorerContext);
   const selectMode = useLiveData(contextValue.selectMode$);
@@ -399,7 +406,11 @@ export const CardViewDoc = ({ docId }: DocListItemProps) => {
           />
         )}
       </header>
-      <DocPreview id={docId} className={styles.cardPreviewContainer} />
+      <DocPreview
+        id={docId}
+        className={styles.cardPreviewContainer}
+        rawType={rawType}
+      />
       <CardViewProperties docId={docId} />
     </li>
   );
