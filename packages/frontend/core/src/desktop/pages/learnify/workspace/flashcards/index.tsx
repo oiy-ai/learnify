@@ -44,6 +44,11 @@ export const CollectionDetail = ({
         type: 'system',
         key: 'tags',
       },
+      displayProperties: [
+        'system:updatedAt',
+        'system:createdBy',
+        'system:tags',
+      ],
     })
   );
   const collectionRulesService = useService(CollectionRulesService);
