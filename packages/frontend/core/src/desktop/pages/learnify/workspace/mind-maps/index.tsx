@@ -31,7 +31,6 @@ import { PageNotFound } from '../../../404';
 import { AllDocSidebarTabs } from '../../../workspace/layouts/all-doc-sidebar-tabs';
 import { MindMapsHeader } from './header';
 import * as styles from './index.css';
-import { CollectionListHeader } from './list-header';
 
 export const CollectionDetail = ({
   collection,
@@ -114,7 +113,6 @@ export const CollectionDetail = ({
       </ViewHeader>
       <ViewBody>
         <FlexWrapper flexDirection="column" alignItems="stretch" width="100%">
-          <CollectionListHeader collection={collection} />
           <div className={styles.scrollArea}>
             <DocsExplorer disableMultiDelete={!isAdmin && !isOwner} />
           </div>
