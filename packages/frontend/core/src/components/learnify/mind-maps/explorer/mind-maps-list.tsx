@@ -12,11 +12,11 @@ import { cssVarV2 } from '@toeverything/theme/v2';
 import { memo, useCallback, useContext, useEffect, useMemo } from 'react';
 
 import { DocExplorerContext } from '../../../explorer/context';
-import { DocListItem } from '../../../explorer/docs-view/doc-list-item';
 import * as styles from '../../../explorer/docs-view/docs-list.css';
 import { ListFloatingToolbar } from '../../../page-list/components/list-floating-toolbar';
 import { SystemPropertyTypes } from '../../../system-property-types';
 import { WorkspacePropertyTypes } from '../../../workspace-property-types';
+import { MindMapDocListItem } from './mind-maps-doc-item';
 
 const GroupHeader = memo(function GroupHeader({
   groupId,
@@ -90,7 +90,7 @@ export const DocListItemComponent = memo(function DocListItemComponent({
   groupId: string;
   itemId: string;
 }) {
-  return <DocListItem docId={itemId} groupId={groupId} />;
+  return <MindMapDocListItem docId={itemId} groupId={groupId} />;
 });
 
 export const MindMapsExplorer = ({

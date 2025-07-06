@@ -5,12 +5,15 @@ import {
   DocExplorerContext,
 } from '@affine/core/components/explorer/context';
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
+import { useGuard } from '@affine/core/components/guard';
 import { MindMapsExplorer } from '@affine/core/components/learnify/mind-maps/explorer/mind-maps-list';
+import { PageDetailEditor } from '@affine/core/components/page-detail-editor';
 import {
   type Collection,
   CollectionService,
 } from '@affine/core/modules/collection';
 import { CollectionRulesService } from '@affine/core/modules/collection-rules';
+import { EditorService } from '@affine/core/modules/editor';
 import { GlobalContextService } from '@affine/core/modules/global-context';
 import { WorkspacePermissionService } from '@affine/core/modules/permissions';
 import { WorkspaceService } from '@affine/core/modules/workspace';
@@ -28,6 +31,7 @@ import {
   ViewTitle,
 } from '../../../../../modules/workbench';
 import { PageNotFound } from '../../../404';
+import { DetailPageWrapper } from '../../../workspace/detail-page/detail-page-wrapper';
 import { AllDocSidebarTabs } from '../../../workspace/layouts/all-doc-sidebar-tabs';
 import { MindMapsHeader } from './header';
 import * as styles from './index.css';
@@ -46,6 +50,39 @@ export const CollectionDetail = ({
     })
   );
   const collectionRulesService = useService(CollectionRulesService);
+  const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+
+  const handleEditorLoad = useCallback(() => {
+    // 编辑器加载完成后的回调
+    console.log('Editor loaded for mind-maps preview');
+  }, []);
+
+  // 监听选中的文档ID变化
+  const selectedDocIds = useLiveData(explorerContextValue.selectedDocIds$);
+
+  useEffect(() => {
+    // 当有文档被选中时，设置第一个选中的文档为编辑器显示的文档
+    console.log('Selected doc IDs changed:', selectedDocIds);
+    if (selectedDocIds.length > 0) {
+      const newSelectedDocId = selectedDocIds[0];
+      console.log('Setting selected doc ID to:', newSelectedDocId);
+      setSelectedDocId(newSelectedDocId);
+    } else {
+      // 如果没有选中的文档，清除当前选择
+      setSelectedDocId(null);
+    }
+  }, [selectedDocIds]);
+
+  // 检查文档访问权限
+  const canAccess = useGuard('Doc_Read', selectedDocId ?? '');
+
+  // 添加调试信息
+  useEffect(() => {
+    if (selectedDocId) {
+      console.log('Selected document:', selectedDocId);
+      console.log('Can access document:', canAccess);
+    }
+  }, [selectedDocId, canAccess]);
 
   const permissionService = useService(WorkspacePermissionService);
   const isAdmin = useLiveData(permissionService.permission.isAdmin$);
@@ -117,14 +154,61 @@ export const CollectionDetail = ({
         />
       </ViewHeader>
       <ViewBody>
-        <FlexWrapper flexDirection="column" alignItems="stretch" width="45%">
+        <FlexWrapper flexDirection="column" alignItems="stretch" width="40%">
           <div className={styles.scrollArea}>
             <MindMapsExplorer disableMultiDelete={!isAdmin && !isOwner} />
           </div>
         </FlexWrapper>
+        <FlexWrapper
+          flexDirection="column"
+          alignItems="stretch"
+          width="60%"
+          className={styles.rightPanel}
+        >
+          {selectedDocId ? (
+            <DetailPageWrapper
+              pageId={selectedDocId}
+              canAccess={canAccess}
+              skeleton={
+                <div className={styles.editorPlaceholder}>加载中...</div>
+              }
+              notFound={
+                <div className={styles.editorPlaceholder}>
+                  文档未找到或无权限访问
+                </div>
+              }
+            >
+              <MindMapEditorWrapper onLoad={handleEditorLoad} />
+            </DetailPageWrapper>
+          ) : (
+            <div className={styles.editorPlaceholder}>
+              <div className={styles.placeholderContent}>
+                <div className={styles.placeholderText}>
+                  请选择一个文档来查看
+                </div>
+              </div>
+            </div>
+          )}
+        </FlexWrapper>
       </ViewBody>
     </DocExplorerContext.Provider>
   );
+};
+
+// Mind-maps 专用的编辑器包装器，强制使用 edgeless 模式
+const MindMapEditorWrapper = ({ onLoad }: { onLoad: () => void }) => {
+  const editorService = useService(EditorService);
+
+  useEffect(() => {
+    // 强制设置为 edgeless 模式
+    const currentMode = editorService.editor.mode$.value;
+    if (currentMode !== 'edgeless') {
+      console.log('Switching to edgeless mode for mind-maps preview');
+      editorService.editor.setMode('edgeless');
+    }
+  }, [editorService]);
+
+  return <PageDetailEditor onLoad={onLoad} readonly />;
 };
 
 export const Component = function CollectionPage() {

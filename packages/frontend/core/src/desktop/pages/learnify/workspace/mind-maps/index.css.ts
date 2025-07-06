@@ -57,3 +57,29 @@ export const newPageButtonText = style({
   lineHeight: '20px',
   fontWeight: 500,
 });
+
+export const editorPlaceholder = style({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
+export const placeholderContent = style({
+  textAlign: 'center',
+  color: cssVarV2.text.secondary,
+});
+
+export const placeholderText = style({
+  fontSize: 14,
+  lineHeight: '22px',
+  color: cssVarV2.text.secondary,
+});
+
+export const rightPanel = style({
+  margin: '16px',
+  border: `1px solid ${cssVarV2.layer.insideBorder.border}`,
+  borderRadius: 8,
+  backgroundColor: cssVarV2.layer.background.primary,
+});
