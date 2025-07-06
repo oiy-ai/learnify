@@ -64,17 +64,20 @@ export const editorPlaceholder = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  borderRadius: 8,
 });
 
 export const placeholderContent = style({
   textAlign: 'center',
   color: cssVarV2.text.secondary,
+  borderRadius: 8,
 });
 
 export const placeholderText = style({
   fontSize: 14,
   lineHeight: '22px',
   color: cssVarV2.text.secondary,
+  borderRadius: 8,
 });
 
 export const rightPanel = style({
