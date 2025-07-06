@@ -38,7 +38,12 @@ export const CollectionDetail = ({
   collection: Collection;
 }) => {
   const [explorerContextValue] = useState(() =>
-    createDocExplorerContext({ view: 'list' })
+    createDocExplorerContext({
+      view: 'list',
+      displayProperties: ['system:updatedAt', 'system:updatedBy'],
+      showDocIcon: true,
+      showDocPreview: false,
+    })
   );
   const collectionRulesService = useService(CollectionRulesService);
 
@@ -112,7 +117,7 @@ export const CollectionDetail = ({
         />
       </ViewHeader>
       <ViewBody>
-        <FlexWrapper flexDirection="column" alignItems="stretch" width="100%">
+        <FlexWrapper flexDirection="column" alignItems="stretch" width="45%">
           <div className={styles.scrollArea}>
             <MindMapsExplorer disableMultiDelete={!isAdmin && !isOwner} />
           </div>
