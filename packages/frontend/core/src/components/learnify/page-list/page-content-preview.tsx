@@ -3,6 +3,8 @@ import { WorkspaceService } from '@affine/core/modules/workspace';
 import { LiveData, useLiveData, useService } from '@toeverything/infra';
 import { type ReactNode, useEffect, useMemo } from 'react';
 
+import * as styles from './group-definitions.css';
+
 interface PagePreviewProps {
   pageId: string;
   emptyFallback?: ReactNode;
@@ -17,36 +19,11 @@ interface FlashcardPreviewProps {
 
 const FlashcardPreview = ({ question, options }: FlashcardPreviewProps) => {
   return (
-    <div style={{ padding: '12px', fontSize: '14px' }}>
-      <div
-        style={{ marginBottom: '16px', fontWeight: '500', lineHeight: '1.5' }}
-      >
-        {question}
-      </div>
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+    <div className={styles.flashcardContainer}>
+      <div className={styles.flashcardQuestion}>{question}</div>
+      <div className={styles.flashcardOptionsContainer}>
         {options.map((option, index) => (
-          <button
-            key={index}
-            style={{
-              padding: '6px 12px',
-              fontSize: '12px',
-              border: '1px solid #e0e0e0',
-              borderRadius: '6px',
-              backgroundColor: '#f8f9fa',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              minWidth: '60px',
-              textAlign: 'center',
-            }}
-            onMouseOver={e => {
-              e.currentTarget.style.backgroundColor = '#e9ecef';
-              e.currentTarget.style.borderColor = '#ced4da';
-            }}
-            onMouseOut={e => {
-              e.currentTarget.style.backgroundColor = '#f8f9fa';
-              e.currentTarget.style.borderColor = '#e0e0e0';
-            }}
-          >
+          <button key={index} className={styles.flashcardOption}>
             {option.label.toUpperCase()}) {option.text}
           </button>
         ))}
@@ -115,16 +92,22 @@ function postprocessFlashcardContent(content: ReactNode): ReactNode {
     const questionMatch = contentStr.match(/^(.*?)(?=\s*[a-d]\))/);
     const question = questionMatch ? questionMatch[1].trim() : '';
 
-    // Extract options using regex
-
-    const optionsRegex = /([a-d])\)\s*([^a-d)]*?)(?=\s*[a-d]\)|$)/g;
+    // Extract options by finding all option patterns
+    const optionMatches = [...contentStr.matchAll(/([a-d])\)\s*/g)];
     const options: Array<{ label: string; text: string }> = [];
-    let match;
 
-    while ((match = optionsRegex.exec(contentStr)) !== null) {
+    for (let i = 0; i < optionMatches.length; i++) {
+      const currentMatch = optionMatches[i];
+      const nextMatch = optionMatches[i + 1];
+
+      const startIndex = currentMatch.index! + currentMatch[0].length;
+      const endIndex = nextMatch ? nextMatch.index! : contentStr.length;
+
+      const optionText = contentStr.slice(startIndex, endIndex).trim();
+
       options.push({
-        label: match[1],
-        text: match[2].trim(),
+        label: currentMatch[1],
+        text: optionText,
       });
     }
 
