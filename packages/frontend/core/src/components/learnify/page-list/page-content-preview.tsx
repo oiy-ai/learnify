@@ -83,6 +83,15 @@ function postprocessFlashcardContent(content: ReactNode): ReactNode {
 
   let postprocessor: ReactNode = content;
 
+  // 辅助函数：限制文本长度到指定单词数
+  const limitTextToWords = (text: string, maxWords: number): string => {
+    const words = text.split(/\s+/);
+    if (words.length <= maxWords) {
+      return text;
+    }
+    return words.slice(0, maxWords).join(' ') + '...';
+  };
+
   if (content.startsWith('single-choice')) {
     // summary go like this: single-choice questionxxxx a)xxx b)xxx c)xxx d)xxx
     // we need to extract the question and the options, then return a template with the question and the options
@@ -90,7 +99,10 @@ function postprocessFlashcardContent(content: ReactNode): ReactNode {
 
     // Extract question (everything before the first option)
     const questionMatch = contentStr.match(/^(.*?)(?=\s*[a-d]\))/);
-    const question = questionMatch ? questionMatch[1].trim() : '';
+    const rawQuestion = questionMatch ? questionMatch[1].trim() : '';
+
+    // 限制question长度到100个单词
+    const question = limitTextToWords(rawQuestion, 45);
 
     // Extract options by finding all option patterns
     const optionMatches = [...contentStr.matchAll(/([a-d])\)\s*/g)];

@@ -5,9 +5,10 @@ import {
   useConfirmModal,
 } from '@affine/component';
 import { DocsService } from '@affine/core/modules/doc';
+import { DocsSearchService } from '@affine/core/modules/docs-search';
 import { WorkspacePropertyService } from '@affine/core/modules/workspace-property';
 import { Trans, useI18n } from '@affine/i18n';
-import { useLiveData, useService } from '@toeverything/infra';
+import { LiveData, useLiveData, useService } from '@toeverything/infra';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { memo, useCallback, useContext, useEffect, useMemo } from 'react';
 
@@ -74,28 +75,41 @@ const GroupHeader = memo(function GroupHeader({
   return header;
 });
 
-const ratios = [0.54, 0.57, 0.66, 0.71];
-const quizRatios = [0.75, 0.79, 0.81, 0.85];
+const ratios = [0.66, 0.71, 0.59];
 
-// 简单的字符串哈希函数，避免不同字符串产生相同的哈希值
-const hashString = (str: string): number => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // 转换为32位整数
-  }
-  return Math.abs(hash);
-};
-
-const calcCardRatioById = (id: string, type: string) => {
-  const hash = hashString(id);
-
-  if (type === 'quiz-card') {
-    return quizRatios[hash % quizRatios.length];
+// 根据文档内容计算卡片比例
+const calcCardRatio = (
+  rawType: string | undefined,
+  summary: string | null
+): number => {
+  // 1. 如果不是flashcards类型，随机从ratios中返回一个值
+  if (rawType !== 'flashcards') {
+    return ratios[Math.floor(Math.random() * ratios.length)];
   }
 
-  return ratios[hash % ratios.length];
+  // 2. 如果是flashcards，需要判断question长度
+  if (summary && summary.startsWith('single-choice')) {
+    const contentStr = summary.replace('single-choice', '').trim();
+    const questionMatch = contentStr.match(/^(.*?)(?=\s*[a-d]\))/);
+    const question = questionMatch ? questionMatch[1].trim() : '';
+
+    // 计算question的词数
+    const wordCount = question
+      .split(/\s+/)
+      .filter(word => word.length > 0).length;
+
+    // 如果不超过30词，返回0.8, 30-40 词返回0.9, 40-50词返回0.95, 50-60词返回1
+    return wordCount <= 20
+      ? 0.62
+      : wordCount <= 30
+        ? 0.7
+        : wordCount <= 40
+          ? 0.75
+          : 0.82;
+  }
+
+  // 默认情况（flashcards但没有有效的summary）
+  return ratios[Math.floor(Math.random() * ratios.length)];
 };
 
 export const DocListItemComponent = memo(function DocListItemComponent({
@@ -127,6 +141,7 @@ export const CardsExplorer = ({
   const t = useI18n();
   const contextValue = useContext(DocExplorerContext);
   const docsService = useService(DocsService);
+  const docsSearchService = useService(DocsSearchService);
 
   const groupBy = useLiveData(contextValue.groupBy$);
   const groups = useLiveData(contextValue.groups$);
@@ -134,6 +149,29 @@ export const CardsExplorer = ({
   const selectMode = useLiveData(contextValue.selectMode$);
   const selectedDocIds = useLiveData(contextValue.selectedDocIds$);
   const collapsedGroups = useLiveData(contextValue.collapsedGroups$);
+
+  // 获取所有文档的摘要
+  const docSummaries = useLiveData(
+    useMemo(() => {
+      const allDocIds = groups.flatMap(group => group.items);
+
+      // 为每个文档创建LiveData并合并
+      const summaryLiveDatas = allDocIds.map(docId =>
+        LiveData.from(docsSearchService.watchDocSummary(docId), null).map(
+          (summary: string | null) => ({ docId, summary })
+        )
+      );
+
+      return LiveData.computed(get => {
+        const summaries = new Map<string, string | null>();
+        summaryLiveDatas.forEach(liveData$ => {
+          const data = get(liveData$);
+          summaries.set(data.docId, data.summary);
+        });
+        return summaries;
+      });
+    }, [docsSearchService, groups])
+  );
 
   const { openConfirmModal } = useConfirmModal();
 
@@ -152,22 +190,21 @@ export const CardsExplorer = ({
               height: 42,
             } satisfies MasonryItem;
           }
+
+          // 获取文档摘要并计算比例
+          const summary = docSummaries.get(docId) ?? null;
+          const ratio = calcCardRatio('flashcards', summary);
+
           return {
             id: docId,
             Component: DocListItemComponent,
-            ratio:
-              view === 'grid'
-                ? ratios[0]
-                : calcCardRatioById(
-                    docId,
-                    Math.random() > 0.5 ? 'quiz-card' : 'flashcard'
-                  ),
+            ratio: view === 'grid' ? ratios[0] : ratio,
           } satisfies MasonryItem;
         }),
       } satisfies MasonryGroup;
     });
     return items;
-  }, [groupBy, groups, view]);
+  }, [groupBy, groups, view, docSummaries]);
 
   const handleCloseFloatingToolbar = useCallback(() => {
     contextValue.selectMode$?.next(false);
