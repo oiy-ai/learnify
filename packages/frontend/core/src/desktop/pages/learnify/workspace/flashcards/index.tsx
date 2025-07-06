@@ -46,7 +46,7 @@ export const CollectionDetail = ({
       },
       displayProperties: [
         'system:updatedAt',
-        'system:createdBy',
+        'system:updatedBy',
         'system:tags',
       ],
     })
