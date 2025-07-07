@@ -134,7 +134,7 @@ export const ProgressNavigator = () => {
           </MenuLinkItem>
           <MenuLinkItem to="/all" icon={<ViewLayersIcon />}>
             <div className={styles.progressItem}>
-              <Progress name="Q&A Cards" percent={percent2} color={color2} />
+              <Progress name="Notes" percent={percent2} color={color2} />
             </div>
           </MenuLinkItem>
           <MenuLinkItem to="/all" icon={<TextIcon />}>
