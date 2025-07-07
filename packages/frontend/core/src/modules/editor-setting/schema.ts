@@ -27,7 +27,7 @@ const AffineEditorSettingSchema = z.object({
   displayBiDirectionalLink: z.boolean().default(true),
   edgelessDefaultTheme: z
     .enum(['specified', 'dark', 'light', 'auto'])
-    .default('specified'),
+    .default('auto'),
   openDocMode: z
     .enum([
       'open-in-active-view',
