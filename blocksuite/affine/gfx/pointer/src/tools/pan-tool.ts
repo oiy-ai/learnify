@@ -1,8 +1,13 @@
 import { EdgelessLegacySlotIdentifier } from '@blocksuite/affine-block-surface';
 import { on } from '@blocksuite/affine-shared/utils';
 import type { PointerEventState } from '@blocksuite/std';
-import { BaseTool, MouseButton, type ToolOptions } from '@blocksuite/std/gfx';
-import { Signal } from '@preact/signals-core';
+import {
+  BaseTool,
+  InteractivityIdentifier,
+  MouseButton,
+  type ToolOptions,
+} from '@blocksuite/std/gfx';
+import { signal } from '@preact/signals-core';
 
 interface RestorablePresentToolOptions {
   mode?: string; // 'fit' | 'fill', simplified to string for local use
@@ -18,13 +23,20 @@ export class PanTool extends BaseTool<PanToolOption> {
 
   private _lastPoint: [number, number] | null = null;
 
-  readonly panning$ = new Signal<boolean>(false);
+  readonly panning$ = signal(false);
+
+  get interactivity() {
+    return this.std.getOptional(InteractivityIdentifier);
+  }
 
   override get allowDragWithRightButton(): boolean {
     return true;
   }
 
-  override dragEnd(_: PointerEventState): void {
+  override dragEnd(e: PointerEventState): void {
+    // 分发dragend事件给interactivity系统
+    this.interactivity?.dispatchEvent('dragend', e);
+
     this._lastPoint = null;
     this.panning$.value = false;
   }
@@ -47,6 +59,31 @@ export class PanTool extends BaseTool<PanToolOption> {
   override dragStart(e: PointerEventState): void {
     this._lastPoint = [e.x, e.y];
     this.panning$.value = true;
+  }
+
+  override click(e: PointerEventState): void {
+    // 分发点击事件给interactivity系统，使思维导图的展开/收起功能正常工作
+    this.interactivity?.dispatchEvent('click', e);
+  }
+
+  override doubleClick(e: PointerEventState): void {
+    // 分发双击事件给interactivity系统
+    this.interactivity?.dispatchEvent('dblclick', e);
+  }
+
+  override pointerDown(e: PointerEventState): void {
+    // 分发pointerdown事件给interactivity系统
+    this.interactivity?.dispatchEvent('pointerdown', e);
+  }
+
+  override pointerMove(e: PointerEventState): void {
+    // 分发pointer move事件给interactivity系统，使hover功能正常工作
+    this.interactivity?.dispatchEvent('pointermove', e);
+  }
+
+  override pointerUp(e: PointerEventState): void {
+    // 分发pointerup事件给interactivity系统
+    this.interactivity?.dispatchEvent('pointerup', e);
   }
 
   override mounted(): void {
