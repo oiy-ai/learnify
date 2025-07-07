@@ -208,7 +208,11 @@ const MindMapEditorWrapper = ({ onLoad }: { onLoad: () => void }) => {
     }
   }, [editorService]);
 
-  return <PageDetailEditor onLoad={onLoad} readonly />;
+  return (
+    <div className={styles.mindMapEditorWrapper}>
+      <PageDetailEditor onLoad={onLoad} readonly />
+    </div>
+  );
 };
 
 export const Component = function CollectionPage() {

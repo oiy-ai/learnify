@@ -64,25 +64,32 @@ export const editorPlaceholder = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: 8,
+  borderRadius: 16,
 });
 
 export const placeholderContent = style({
   textAlign: 'center',
   color: cssVarV2.text.secondary,
-  borderRadius: 8,
 });
 
 export const placeholderText = style({
   fontSize: 14,
   lineHeight: '22px',
   color: cssVarV2.text.secondary,
-  borderRadius: 8,
 });
 
 export const rightPanel = style({
   margin: '16px',
   border: `1px solid ${cssVarV2.layer.insideBorder.border}`,
-  borderRadius: 8,
+  borderRadius: 16,
   backgroundColor: cssVarV2.layer.background.primary,
+});
+
+export const mindMapEditorWrapper = style({
+  width: '100%',
+  height: '100%',
+  borderRadius: 16,
+  overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column',
 });
