@@ -26,7 +26,7 @@ export function UploadButton({
 
   const handleUpload = useAsyncCallback(
     // eslint-disable-next-line no-unused-vars
-    async (e?: MouseEvent) => {
+    async (_e?: MouseEvent) => {
       // 创建文件输入元素
       const input = document.createElement('input');
       input.type = 'file';
