@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build-web:
-    name: Build @affine/web
+    name: Build @learnify/web
     runs-on: ubuntu-latest
     environment: ${{ inputs.flavor }}
     steps:
@@ -47,7 +47,7 @@ jobs:
           if-no-files-found: error
 
   build-admin:
-    name: Build @affine/admin
+    name: Build @learnify/admin
     runs-on: ubuntu-latest
     environment: ${{ inputs.flavor }}
     steps:
@@ -79,7 +79,7 @@ jobs:
           if-no-files-found: error
 
   build-mobile:
-    name: Build @affine/mobile
+    name: Build @learnify/mobile
     runs-on: ubuntu-latest
     environment: ${{ inputs.flavor }}
     steps:
@@ -176,7 +176,7 @@ jobs:
           path: ./packages/backend/native
       - name: List server-native files
         run: ls -alh ./packages/backend/native
-      - name: Build @affine/reader
+      - name: Build @learnify/reader
         run: yarn workspace @affine/reader build
       - name: Build Server
         run: yarn workspace @affine/server build

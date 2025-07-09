@@ -182,7 +182,7 @@ jobs:
           path: ./packages/backend/native
       - name: List server-native files
         run: ls -alh ./packages/backend/native
-      - name: Build @affine/reader
+      - name: Build @learnify/reader
         run: yarn workspace @affine/reader build
       - name: Build Server
         run: yarn workspace @affine/server build

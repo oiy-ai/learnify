@@ -461,7 +461,7 @@ jobs:
           if-no-files-found: error
 
   build-electron-renderer:
-    name: Build @affine/electron renderer
+    name: Build @learnify/electron renderer
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
