@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   build-web:
-    name: Build @affine/web
+    name: Build @learnify/web
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.flavor }}
     steps:
@@ -53,7 +53,7 @@ jobs:
           if-no-files-found: error
 
   build-admin:
-    name: Build @affine/admin
+    name: Build @learnify/admin
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.flavor }}
     steps:
@@ -85,7 +85,7 @@ jobs:
           if-no-files-found: error
 
   build-mobile:
-    name: Build @affine/mobile
+    name: Build @learnify/mobile
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.flavor }}
     steps:
