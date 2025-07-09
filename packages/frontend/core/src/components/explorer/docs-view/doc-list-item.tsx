@@ -170,7 +170,11 @@ export const DocListItem = ({ ...props }: DocListItemProps) => {
       <WorkbenchLink
         ref={dragRef}
         draggable={false}
-        to={`/${props.docId}`}
+        to={
+          props.rawType === 'flashcards'
+            ? `/flashcard/${props.docId}`
+            : `/${props.docId}`
+        }
         onClick={handleClick}
         data-selected={selectedDocIds.includes(props.docId)}
         className={styles.root}
