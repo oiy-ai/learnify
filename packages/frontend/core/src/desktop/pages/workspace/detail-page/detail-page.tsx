@@ -101,7 +101,9 @@ const DetailPageImpl = memo(function DetailPageImpl() {
   const peekView = useService(PeekViewService).peekView;
 
   const isActiveView = useIsActiveView();
-  const [setActiveBlockSuiteEditor] = useActiveBlocksuiteEditor();
+  // TODO(@eyhn): remove jotai here
+  // eslint-disable-next-line no-unused-vars
+  const [_, setActiveBlockSuiteEditor] = useActiveBlocksuiteEditor();
 
   const enableAI = useEnableAI();
 
@@ -189,7 +191,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
           console.log(`Paragraph ${index}:`, text);
         });
 
-        // 获取所有块的内容
+        // @ts-expect-error 获取所有块的内容
         const allBlocks = doc.blockSuiteDoc.getBlocks();
         console.log('All blocks:', allBlocks);
       }
@@ -316,6 +318,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
         >
           {/* Add a key to force rerender when page changed, to avoid error boundary persisting. */}
           <AffineErrorBoundary key={doc.id}>
+            {/* @ts-expect-error TopTip 组件的 props 类型未声明 */}
             <TopTip pageId={doc.id} workspace={workspace} />
             <Scrollable.Root>
               <Scrollable.Viewport
