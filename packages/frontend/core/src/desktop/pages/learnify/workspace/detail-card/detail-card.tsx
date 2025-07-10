@@ -1,12 +1,10 @@
-import { Button } from '@affine/component';
 import { PageDetailLoading } from '@affine/component/page-detail-skeleton';
 import { useGuard } from '@affine/core/components/guard';
 import { DocService } from '@affine/core/modules/doc';
 import { useI18n } from '@affine/i18n';
-import { ArrowLeftSmallIcon, ArrowRightSmallIcon } from '@blocksuite/icons/rc';
 import { useServices } from '@toeverything/infra';
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { PageNotFound } from '../../../404';
 import { DetailPageWrapper } from '../../../workspace/detail-page/detail-page-wrapper';
@@ -119,8 +117,7 @@ interface ErrorState {
 
 const DetailCardPageImpl = () => {
   const t = useI18n();
-  const navigate = useNavigate();
-  const { pageId, workspaceId } = useParams();
+  const { pageId } = useParams();
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [currentCard, setCurrentCard] = useState<FlashcardData | null>(null);
@@ -216,23 +213,6 @@ const DetailCardPageImpl = () => {
     [showResult]
   );
 
-  // 导航到上一张卡片
-  const handlePrevious = useCallback(() => {
-    // Navigation disabled in error state
-    navigate(`/workspace/${workspaceId}/flashcards`);
-  }, [navigate, workspaceId]);
-
-  // 导航到下一张卡片
-  const handleNext = useCallback(() => {
-    // Navigation disabled in error state
-    navigate(`/workspace/${workspaceId}/flashcards`);
-  }, [navigate, workspaceId]);
-
-  // 返回列表
-  const handleBackToList = useCallback(() => {
-    navigate(`/workspace/${workspaceId}/flashcards`);
-  }, [navigate, workspaceId]);
-
   // 显示加载状态
   if (isLoading) {
     return (
@@ -248,12 +228,6 @@ const DetailCardPageImpl = () => {
   if (error) {
     return (
       <div className={styles.container}>
-        <header className={styles.header}>
-          <Button variant="plain" onClick={handleBackToList}>
-            <ArrowLeftSmallIcon />
-            <span>{t['com.affine.back']?.() || 'Back'}</span>
-          </Button>
-        </header>
         <div className={styles.errorContainer}>
           <div className={styles.errorIcon}>⚠️</div>
           <h2 className={styles.errorTitle}>
@@ -272,13 +246,6 @@ const DetailCardPageImpl = () => {
               </pre>
             </div>
           )}
-          <Button
-            variant="primary"
-            onClick={handleBackToList}
-            className={styles.backButton}
-          >
-            {t['com.affine.flashcard.back-to-list']?.() || 'Back to Cards'}
-          </Button>
         </div>
       </div>
     );
@@ -290,16 +257,6 @@ const DetailCardPageImpl = () => {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <Button variant="plain" onClick={handleBackToList}>
-          <ArrowLeftSmallIcon />
-          <span>{t['com.affine.back']?.() || 'Back'}</span>
-        </Button>
-        <span className={styles.cardCounter}>
-          {/* Card counter disabled in error-only mode */}
-        </span>
-      </header>
-
       <div className={styles.cardContainer}>
         <div className={styles.card}>
           <h2 className={styles.question}>{currentCard.question}</h2>
@@ -338,18 +295,6 @@ const DetailCardPageImpl = () => {
                   'Incorrect. Try again!'}
             </div>
           )}
-        </div>
-
-        <div className={styles.navigation}>
-          <Button variant="plain" onClick={handlePrevious} disabled={true}>
-            <ArrowLeftSmallIcon />
-            {t['com.affine.previous']?.() || 'Previous'}
-          </Button>
-
-          <Button variant="primary" onClick={handleNext} disabled={true}>
-            {t['com.affine.next']?.() || 'Next'}
-            <ArrowRightSmallIcon />
-          </Button>
         </div>
       </div>
     </div>
