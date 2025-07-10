@@ -37,7 +37,7 @@ export const card = style({
   backgroundColor: cssVarV2.layer.background.secondary,
   borderRadius: '12px',
   padding: '48px',
-  boxShadow: cssVarV2.shadow.shadow1,
+  boxShadow: cssVarV2.layer.background.primary,
   border: `1px solid ${cssVarV2.layer.insideBorder.border}`,
 });
 
@@ -73,7 +73,7 @@ export const optionButton = style({
 
   ':hover': {
     backgroundColor: cssVarV2.layer.background.hoverOverlay,
-    borderColor: cssVarV2.button.default.borderHover,
+    borderColor: cssVarV2.button.badgesColor,
   },
 
   ':disabled': {
@@ -82,7 +82,7 @@ export const optionButton = style({
 
   selectors: {
     '&[data-selected="true"]': {
-      borderColor: cssVarV2.button.primary.background,
+      borderColor: cssVarV2.button.primary,
       backgroundColor: cssVarV2.layer.background.hoverOverlay,
     },
     '&[data-correct="true"]': {
@@ -139,4 +139,67 @@ export const navigation = style({
   justifyContent: 'space-between',
   alignItems: 'center',
   gap: '16px',
+});
+
+export const loadingState = style({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '100%',
+});
+
+export const errorContainer = style({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  textAlign: 'center',
+  padding: '48px',
+  maxWidth: '600px',
+  margin: '0 auto',
+});
+
+export const errorIcon = style({
+  fontSize: '64px',
+  marginBottom: '24px',
+});
+
+export const errorTitle = style({
+  fontSize: '24px',
+  fontWeight: 600,
+  color: cssVarV2.text.primary,
+  marginBottom: '16px',
+});
+
+export const errorMessage = style({
+  fontSize: '16px',
+  color: cssVarV2.text.secondary,
+  lineHeight: '1.6',
+  marginBottom: '32px',
+});
+
+export const errorHint = style({
+  marginBottom: '32px',
+  textAlign: 'left',
+  width: '100%',
+  maxWidth: '500px',
+});
+
+export const formatExample = style({
+  backgroundColor: cssVarV2.layer.background.secondary,
+  border: `1px solid ${cssVarV2.layer.insideBorder.border}`,
+  borderRadius: '8px',
+  padding: '16px',
+  marginTop: '12px',
+  fontSize: '14px',
+  fontFamily: 'monospace',
+  color: cssVarV2.text.primary,
+  whiteSpace: 'pre-wrap',
+  overflowX: 'auto',
+});
+
+export const backButton = style({
+  marginTop: '16px',
 });
