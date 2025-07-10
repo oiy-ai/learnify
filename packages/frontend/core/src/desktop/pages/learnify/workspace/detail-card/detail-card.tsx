@@ -1,4 +1,3 @@
- 
 import { Button } from '@affine/component';
 import { PageDetailLoading } from '@affine/component/page-detail-skeleton';
 import { useGuard } from '@affine/core/components/guard';
@@ -6,7 +5,7 @@ import { DocService } from '@affine/core/modules/doc';
 import { useI18n } from '@affine/i18n';
 import { ArrowLeftSmallIcon, ArrowRightSmallIcon } from '@blocksuite/icons/rc';
 import { useServices } from '@toeverything/infra';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { PageNotFound } from '../../../404';
@@ -23,45 +22,6 @@ interface FlashcardData {
   correctAnswer: string;
 }
 
-// Mock data - 模拟卡片数据
-const mockFlashcards: FlashcardData[] = [
-  {
-    id: 'card1',
-    question: 'What is the capital of France?',
-    options: [
-      { key: 'a', text: 'London' },
-      { key: 'b', text: 'Paris' },
-      { key: 'c', text: 'Berlin' },
-      { key: 'd', text: 'Madrid' },
-    ],
-    correctAnswer: 'b',
-  },
-  {
-    id: 'card2',
-    question:
-      'Which programming language is known for its use in web development and has a logo featuring a coffee cup?',
-    options: [
-      { key: 'a', text: 'Python' },
-      { key: 'b', text: 'C++' },
-      { key: 'c', text: 'Java' },
-      { key: 'd', text: 'Ruby' },
-      { key: 'e', text: 'JavaScript' },
-    ],
-    correctAnswer: 'c',
-  },
-  {
-    id: 'card3',
-    question: 'What is the largest planet in our solar system?',
-    options: [
-      { key: 'a', text: 'Earth' },
-      { key: 'b', text: 'Mars' },
-      { key: 'c', text: 'Jupiter' },
-      { key: 'd', text: 'Saturn' },
-    ],
-    correctAnswer: 'c',
-  },
-];
-
 // 解析文档内容为卡片数据
 const parseCardContent = (
   paragraphs: string[],
@@ -69,47 +29,72 @@ const parseCardContent = (
 ): FlashcardData | null => {
   console.log('Parsing card content, paragraphs:', paragraphs);
 
-  // 查找 single-choice 标记
-  const singleChoiceIndex = paragraphs.findIndex(
-    p => p.trim() === 'single-choice'
-  );
-  if (singleChoiceIndex === -1) {
-    console.log('No single-choice marker found');
-    return null;
-  }
-
-  // 题目应该在 single-choice 之后的第一个非空段落
-  let question = '';
+  // 查找标记位置
+  let typeIndex = -1;
   let questionIndex = -1;
+  let optionsIndex = -1;
 
-  for (let i = singleChoiceIndex + 1; i < paragraphs.length; i++) {
-    const text = paragraphs[i].trim();
-    if (text && !text.match(/^[a-f]\)/)) {
-      question = text;
-      questionIndex = i;
-      break;
+  paragraphs.forEach((text, index) => {
+    const trimmed = text.trim();
+    if (trimmed === '[single-choice]') {
+      typeIndex = index;
+    } else if (trimmed === '[Question]') {
+      questionIndex = index;
+    } else if (trimmed === '[Options]') {
+      optionsIndex = index;
     }
-  }
+  });
 
-  if (!question) {
-    console.log('No question found');
+  console.log('Marker indices:', { typeIndex, questionIndex, optionsIndex });
+
+  // 验证标记是否存在且顺序正确
+  if (typeIndex === -1 || questionIndex === -1 || optionsIndex === -1) {
+    console.log('Missing required markers');
     return null;
   }
 
-  // 解析选项 - 从问题之后开始查找
-  const options: Array<{ key: string; text: string }> = [];
+  if (!(typeIndex < questionIndex && questionIndex < optionsIndex)) {
+    console.log('Invalid marker order');
+    return null;
+  }
 
-  for (let i = questionIndex + 1; i < paragraphs.length; i++) {
+  // 提取问题内容（从 [Question] 后到 [Options] 前的所有非空文本）
+  const questionParts: string[] = [];
+  for (let i = questionIndex + 1; i < optionsIndex; i++) {
     const text = paragraphs[i].trim();
-    const match = text.match(/^([a-f])\)\s*(.+)/);
-    if (match) {
-      const [, key, optionText] = match;
-      options.push({ key, text: optionText.trim() });
+    if (text) {
+      questionParts.push(text);
     }
   }
+
+  if (questionParts.length === 0) {
+    console.log('No question content found');
+    return null;
+  }
+
+  // 合并多行问题文本
+  const question = questionParts.join(' ');
+  console.log('Parsed question:', question);
+
+  // 提取选项（从 [Options] 后的所有内容）
+  const options: Array<{ key: string; text: string }> = [];
+  const optionRegex = /^([a-d])\)\s*(.+)/;
+
+  for (let i = optionsIndex + 1; i < paragraphs.length; i++) {
+    const text = paragraphs[i].trim();
+    if (text) {
+      const match = text.match(optionRegex);
+      if (match) {
+        const [, key, optionText] = match;
+        options.push({ key, text: optionText.trim() });
+      }
+    }
+  }
+
+  console.log('Parsed options:', options);
 
   if (options.length < 2) {
-    console.log('Not enough options found:', options);
+    console.log('Not enough options found:', options.length);
     return null;
   }
 
@@ -127,6 +112,11 @@ const parseCardContent = (
   };
 };
 
+interface ErrorState {
+  type: 'FETCH_FAILED' | 'PARSE_FAILED' | 'FORMAT_MISMATCH' | 'NO_CONTENT';
+  message: string;
+}
+
 const DetailCardPageImpl = () => {
   const t = useI18n();
   const navigate = useNavigate();
@@ -134,20 +124,26 @@ const DetailCardPageImpl = () => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [currentCard, setCurrentCard] = useState<FlashcardData | null>(null);
+  const [error, setError] = useState<ErrorState | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // 获取文档服务
   const { docService } = useServices({ DocService });
   const doc = docService.doc;
 
-  // 当前卡片索引
-  const currentCardIndex = useMemo(() => {
-    return mockFlashcards.findIndex(card => card.id === pageId) || 0;
-  }, [pageId]);
-
   // 从文档中解析卡片数据
   useEffect(() => {
+    setIsLoading(true);
+    setError(null);
+
     if (!doc || !doc.blockSuiteDoc) {
-      setCurrentCard(mockFlashcards[currentCardIndex] || mockFlashcards[0]);
+      setError({
+        type: 'FETCH_FAILED',
+        message:
+          t['com.affine.flashcard.error.fetch-failed']?.() ||
+          'Failed to load card content from server',
+      });
+      setIsLoading(false);
       return;
     }
 
@@ -164,19 +160,44 @@ const DetailCardPageImpl = () => {
 
       console.log('Found paragraphs:', paragraphs);
 
+      // 检查是否有内容
+      if (paragraphs.every(p => !p.trim())) {
+        setError({
+          type: 'NO_CONTENT',
+          message:
+            t['com.affine.flashcard.error.no-content']?.() ||
+            'No content found in this card',
+        });
+        setIsLoading(false);
+        return;
+      }
+
       // 解析内容
       const parsedCard = parseCardContent(paragraphs, doc.id);
       if (parsedCard) {
         setCurrentCard(parsedCard);
+        setError(null);
       } else {
-        // 如果解析失败，使用 mock 数据
-        setCurrentCard(mockFlashcards[currentCardIndex] || mockFlashcards[0]);
+        // 格式不匹配错误
+        setError({
+          type: 'FORMAT_MISMATCH',
+          message:
+            t['com.affine.flashcard.error.format-mismatch']?.() ||
+            'Card content format is incorrect. Expected single-choice format.',
+        });
       }
     } catch (error) {
       console.error('Error parsing card content:', error);
-      setCurrentCard(mockFlashcards[currentCardIndex] || mockFlashcards[0]);
+      setError({
+        type: 'PARSE_FAILED',
+        message:
+          t['com.affine.flashcard.error.parse-failed']?.() ||
+          'Failed to parse card content',
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [doc, currentCardIndex]);
+  }, [doc, t]);
 
   // 重置答题状态
   useEffect(() => {
@@ -197,27 +218,74 @@ const DetailCardPageImpl = () => {
 
   // 导航到上一张卡片
   const handlePrevious = useCallback(() => {
-    if (currentCardIndex > 0) {
-      const prevCard = mockFlashcards[currentCardIndex - 1];
-      navigate(`/workspace/${workspaceId}/flashcard/${prevCard.id}`);
-    }
-  }, [currentCardIndex, navigate, workspaceId]);
+    // Navigation disabled in error state
+    navigate(`/workspace/${workspaceId}/flashcards`);
+  }, [navigate, workspaceId]);
 
   // 导航到下一张卡片
   const handleNext = useCallback(() => {
-    if (currentCardIndex < mockFlashcards.length - 1) {
-      const nextCard = mockFlashcards[currentCardIndex + 1];
-      navigate(`/workspace/${workspaceId}/flashcard/${nextCard.id}`);
-    }
-  }, [currentCardIndex, navigate, workspaceId]);
+    // Navigation disabled in error state
+    navigate(`/workspace/${workspaceId}/flashcards`);
+  }, [navigate, workspaceId]);
 
   // 返回列表
   const handleBackToList = useCallback(() => {
     navigate(`/workspace/${workspaceId}/flashcards`);
   }, [navigate, workspaceId]);
 
+  // 显示加载状态
+  if (isLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loadingState}>
+          <PageDetailLoading />
+        </div>
+      </div>
+    );
+  }
+
+  // 显示错误状态
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <header className={styles.header}>
+          <Button variant="plain" onClick={handleBackToList}>
+            <ArrowLeftSmallIcon />
+            <span>{t['com.affine.back']?.() || 'Back'}</span>
+          </Button>
+        </header>
+        <div className={styles.errorContainer}>
+          <div className={styles.errorIcon}>⚠️</div>
+          <h2 className={styles.errorTitle}>
+            {t['com.affine.flashcard.error.title']?.() || 'Unable to Load Card'}
+          </h2>
+          <p className={styles.errorMessage}>{error.message}</p>
+          {error.type === 'FORMAT_MISMATCH' && (
+            <div className={styles.errorHint}>
+              <p>
+                {t['com.affine.flashcard.error.format-hint']?.() ||
+                  'Expected format:'}
+              </p>
+              <pre className={styles.formatExample}>
+                [single-choice] [Question] What is your question? [Options] a)
+                Option A b) Option B c) Option C d) Option D
+              </pre>
+            </div>
+          )}
+          <Button
+            variant="primary"
+            onClick={handleBackToList}
+            className={styles.backButton}
+          >
+            {t['com.affine.flashcard.back-to-list']?.() || 'Back to Cards'}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (!currentCard) {
-    return <div>Loading...</div>;
+    return null;
   }
 
   return (
@@ -228,7 +296,7 @@ const DetailCardPageImpl = () => {
           <span>{t['com.affine.back']?.() || 'Back'}</span>
         </Button>
         <span className={styles.cardCounter}>
-          {currentCardIndex + 1} / {mockFlashcards.length}
+          {/* Card counter disabled in error-only mode */}
         </span>
       </header>
 
@@ -273,20 +341,12 @@ const DetailCardPageImpl = () => {
         </div>
 
         <div className={styles.navigation}>
-          <Button
-            variant="plain"
-            onClick={handlePrevious}
-            disabled={currentCardIndex === 0}
-          >
+          <Button variant="plain" onClick={handlePrevious} disabled={true}>
             <ArrowLeftSmallIcon />
             {t['com.affine.previous']?.() || 'Previous'}
           </Button>
 
-          <Button
-            variant="primary"
-            onClick={handleNext}
-            disabled={currentCardIndex === mockFlashcards.length - 1}
-          >
+          <Button variant="primary" onClick={handleNext} disabled={true}>
             {t['com.affine.next']?.() || 'Next'}
             <ArrowRightSmallIcon />
           </Button>
