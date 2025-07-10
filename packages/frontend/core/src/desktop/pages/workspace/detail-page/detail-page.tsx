@@ -182,18 +182,13 @@ const DetailPageImpl = memo(function DetailPageImpl() {
         const pageBlocks = doc.blockSuiteDoc.getBlocksByFlavour('affine:page');
         console.log('Page blocks:', pageBlocks);
 
-        const paragraphBlocks =
-          doc.blockSuiteDoc.getBlocksByFlavour('affine:paragraph');
-        console.log('Paragraph blocks count:', paragraphBlocks.length);
+        // const blocks = doc.blockSuiteDoc.getAllModels();
+        const blocks = doc.blockSuiteDoc.getBlocksByFlavour('affine:paragraph');
+        console.log('Blocks count:', blocks.length);
 
-        paragraphBlocks.forEach((block, index) => {
-          const text = block.model.text?.toString() || '';
-          console.log(`Paragraph ${index}:`, text);
+        blocks.forEach((block, index) => {
+          console.log(`Block ${index}:`, block.model.text?.toString());
         });
-
-        // @ts-expect-error 获取所有块的内容
-        const allBlocks = doc.blockSuiteDoc.getBlocks();
-        console.log('All blocks:', allBlocks);
       }
       console.log('=== End Document Debug ===');
 
