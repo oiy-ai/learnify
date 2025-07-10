@@ -101,8 +101,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
   const peekView = useService(PeekViewService).peekView;
 
   const isActiveView = useIsActiveView();
-  // TODO(@eyhn): remove jotai here
-  const [_, setActiveBlockSuiteEditor] = useActiveBlocksuiteEditor();
+  const [setActiveBlockSuiteEditor] = useActiveBlocksuiteEditor();
 
   const enableAI = useEnableAI();
 
@@ -171,6 +170,31 @@ const DetailPageImpl = memo(function DetailPageImpl() {
 
   const onLoad = useCallback(
     (editorContainer: AffineEditorContainer) => {
+      // 调试：输出文档内容结构
+      console.log('=== Document Debug Info ===');
+      console.log('Doc ID:', doc.id);
+      console.log('BlockSuite Doc:', doc.blockSuiteDoc);
+
+      // 获取文档内容
+      if (doc.blockSuiteDoc) {
+        const pageBlocks = doc.blockSuiteDoc.getBlocksByFlavour('affine:page');
+        console.log('Page blocks:', pageBlocks);
+
+        const paragraphBlocks =
+          doc.blockSuiteDoc.getBlocksByFlavour('affine:paragraph');
+        console.log('Paragraph blocks count:', paragraphBlocks.length);
+
+        paragraphBlocks.forEach((block, index) => {
+          const text = block.model.text?.toString() || '';
+          console.log(`Paragraph ${index}:`, text);
+        });
+
+        // 获取所有块的内容
+        const allBlocks = doc.blockSuiteDoc.getBlocks();
+        console.log('All blocks:', allBlocks);
+      }
+      console.log('=== End Document Debug ===');
+
       const std = editorContainer.std;
       const disposable = new DisposableGroup();
       if (std) {
@@ -250,7 +274,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
         disposable.dispose();
       };
     },
-    [editor, workbench, peekView]
+    [editor, workbench, peekView, doc]
   );
 
   const [hasScrollTop, setHasScrollTop] = useState(false);
