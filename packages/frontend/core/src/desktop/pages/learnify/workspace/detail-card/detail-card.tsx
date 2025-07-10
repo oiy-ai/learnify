@@ -1,10 +1,16 @@
-/* eslint-disable no-unused-vars */
+ 
 import { Button } from '@affine/component';
+import { PageDetailLoading } from '@affine/component/page-detail-skeleton';
+import { useGuard } from '@affine/core/components/guard';
+import { DocService } from '@affine/core/modules/doc';
 import { useI18n } from '@affine/i18n';
 import { ArrowLeftSmallIcon, ArrowRightSmallIcon } from '@blocksuite/icons/rc';
+import { useServices } from '@toeverything/infra';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { PageNotFound } from '../../../404';
+import { DetailPageWrapper } from '../../../workspace/detail-page/detail-page-wrapper';
 import * as styles from './detail-card.css';
 
 interface FlashcardData {
@@ -57,85 +63,120 @@ const mockFlashcards: FlashcardData[] = [
 ];
 
 // 解析文档内容为卡片数据
-// @ts-ignore
-const parseCardContent = (content: string): FlashcardData | null => {
-  if (!content || !content.includes('single-choice')) {
+const parseCardContent = (
+  paragraphs: string[],
+  docId: string
+): FlashcardData | null => {
+  console.log('Parsing card content, paragraphs:', paragraphs);
+
+  // 查找 single-choice 标记
+  const singleChoiceIndex = paragraphs.findIndex(
+    p => p.trim() === 'single-choice'
+  );
+  if (singleChoiceIndex === -1) {
+    console.log('No single-choice marker found');
     return null;
   }
 
-  const lines = content.split('\n').filter(line => line.trim());
-  const questionStartIndex =
-    lines.findIndex(line => line.includes('single-choice')) + 1;
-
-  if (questionStartIndex === 0 || questionStartIndex >= lines.length) {
-    return null;
-  }
-
-  // 找到问题文本
+  // 题目应该在 single-choice 之后的第一个非空段落
   let question = '';
-  let optionStartIndex = questionStartIndex;
+  let questionIndex = -1;
 
-  for (let i = questionStartIndex; i < lines.length; i++) {
-    if (/^[a-f]\)/.test(lines[i].trim())) {
-      optionStartIndex = i;
+  for (let i = singleChoiceIndex + 1; i < paragraphs.length; i++) {
+    const text = paragraphs[i].trim();
+    if (text && !text.match(/^[a-f]\)/)) {
+      question = text;
+      questionIndex = i;
       break;
     }
-    question += lines[i] + ' ';
   }
 
-  question = question.trim();
+  if (!question) {
+    console.log('No question found');
+    return null;
+  }
 
-  // 解析选项
+  // 解析选项 - 从问题之后开始查找
   const options: Array<{ key: string; text: string }> = [];
-  let correctAnswer = '';
 
-  for (let i = optionStartIndex; i < lines.length; i++) {
-    const line = lines[i].trim();
-    const match = line.match(/^([a-f])\)\s*(.+)/);
+  for (let i = questionIndex + 1; i < paragraphs.length; i++) {
+    const text = paragraphs[i].trim();
+    const match = text.match(/^([a-f])\)\s*(.+)/);
     if (match) {
-      const [, key, text] = match;
-      options.push({ key, text: text.trim() });
-      // 这里暂时将第一个选项设为正确答案，实际应该从文档元数据中获取
-      if (options.length === 1) {
-        correctAnswer = key;
-      }
+      const [, key, optionText] = match;
+      options.push({ key, text: optionText.trim() });
     }
   }
 
   if (options.length < 2) {
+    console.log('Not enough options found:', options);
     return null;
   }
 
+  // TODO: 从文档元数据中获取正确答案
+  // 暂时使用第一个选项作为正确答案
+  const correctAnswer = options[0].key;
+
+  console.log('Parsed card:', { question, options, correctAnswer });
+
   return {
-    id: 'temp-id',
+    id: docId,
     question,
     options,
     correctAnswer,
   };
 };
 
-const DetailCardPage = () => {
+const DetailCardPageImpl = () => {
   const t = useI18n();
   const navigate = useNavigate();
   const { pageId, workspaceId } = useParams();
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [currentCard, setCurrentCard] = useState<FlashcardData | null>(null);
+
+  // 获取文档服务
+  const { docService } = useServices({ DocService });
+  const doc = docService.doc;
 
   // 当前卡片索引
   const currentCardIndex = useMemo(() => {
     return mockFlashcards.findIndex(card => card.id === pageId) || 0;
   }, [pageId]);
 
-  // 当前卡片数据
-  const currentCard = useMemo(() => {
-    // 实际应该从文档服务获取内容并解析
-    // const doc = useService(DocsService).list.doc$(pageId);
-    // const content = doc?.content;
-    // return parseCardContent(content);
+  // 从文档中解析卡片数据
+  useEffect(() => {
+    if (!doc || !doc.blockSuiteDoc) {
+      setCurrentCard(mockFlashcards[currentCardIndex] || mockFlashcards[0]);
+      return;
+    }
 
-    // 现在使用 mock 数据
-    return mockFlashcards[currentCardIndex] || mockFlashcards[0];
-  }, [currentCardIndex]);
+    try {
+      // 获取所有段落块的文本内容
+      const paragraphBlocks =
+        doc.blockSuiteDoc.getBlocksByFlavour('affine:paragraph');
+      const paragraphs: string[] = [];
+
+      paragraphBlocks.forEach(block => {
+        const text = block.model.text?.toString() || '';
+        paragraphs.push(text);
+      });
+
+      console.log('Found paragraphs:', paragraphs);
+
+      // 解析内容
+      const parsedCard = parseCardContent(paragraphs, doc.id);
+      if (parsedCard) {
+        setCurrentCard(parsedCard);
+      } else {
+        // 如果解析失败，使用 mock 数据
+        setCurrentCard(mockFlashcards[currentCardIndex] || mockFlashcards[0]);
+      }
+    } catch (error) {
+      console.error('Error parsing card content:', error);
+      setCurrentCard(mockFlashcards[currentCardIndex] || mockFlashcards[0]);
+    }
+  }, [doc, currentCardIndex]);
 
   // 重置答题状态
   useEffect(() => {
@@ -253,6 +294,23 @@ const DetailCardPage = () => {
       </div>
     </div>
   );
+};
+
+const DetailCardPage = () => {
+  const params = useParams();
+  const pageId = params.pageId;
+  const canAccess = useGuard('Doc_Read', pageId ?? '');
+
+  return pageId ? (
+    <DetailPageWrapper
+      pageId={pageId}
+      canAccess={canAccess}
+      skeleton={<PageDetailLoading />}
+      notFound={<PageNotFound noPermission />}
+    >
+      <DetailCardPageImpl />
+    </DetailPageWrapper>
+  ) : null;
 };
 
 export { DetailCardPage as Component };
