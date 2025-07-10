@@ -88,24 +88,26 @@ const calcCardRatio = (
   }
 
   // 2. 如果是flashcards，需要判断question长度
-  if (summary && summary.startsWith('single-choice')) {
-    const contentStr = summary.replace('single-choice', '').trim();
-    const questionMatch = contentStr.match(/^(.*?)(?=\s*[a-d]\))/);
+  if (summary && summary.startsWith('[single-choice]')) {
+    // 格式: [single-choice] [Question]... [Options]...
+    const questionMatch = summary.match(/\[Question\](.*?)(?=\[Options\])/s);
     const question = questionMatch ? questionMatch[1].trim() : '';
 
-    // 计算question的词数
-    const wordCount = question
-      .split(/\s+/)
-      .filter(word => word.length > 0).length;
+    if (question) {
+      // 计算question的词数
+      const wordCount = question
+        .split(/\s+/)
+        .filter(word => word.length > 0).length;
 
-    // 如果不超过30词，返回0.8, 30-40 词返回0.9, 40-50词返回0.95, 50-60词返回1
-    return wordCount <= 20
-      ? 0.62
-      : wordCount <= 30
-        ? 0.7
-        : wordCount <= 40
-          ? 0.75
-          : 0.82;
+      // 根据词数返回不同的比例
+      return wordCount <= 20
+        ? 0.62
+        : wordCount <= 30
+          ? 0.7
+          : wordCount <= 40
+            ? 0.75
+            : 0.82;
+    }
   }
 
   // 默认情况（flashcards但没有有效的summary）

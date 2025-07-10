@@ -92,20 +92,23 @@ function postprocessFlashcardContent(content: ReactNode): ReactNode {
     return words.slice(0, maxWords).join(' ') + '...';
   };
 
-  if (content.startsWith('single-choice')) {
-    // summary go like this: single-choice questionxxxx a)xxx b)xxx c)xxx d)xxx
-    // we need to extract the question and the options, then return a template with the question and the options
-    const contentStr = content.replace('single-choice', '').trim();
+  if (content.startsWith('[single-choice]')) {
+    // Format: [single-choice] [Question]Find the equation... [Options]a) 选项A b) Option B
+    const afterType = content.replace('[single-choice]', '').trim();
 
-    // Extract question (everything before the first option)
-    const questionMatch = contentStr.match(/^(.*?)(?=\s*[a-d]\))/);
+    // Extract question between [Question] and [Options]
+    const questionMatch = afterType.match(/\[Question\](.*?)(?=\[Options\])/s);
     const rawQuestion = questionMatch ? questionMatch[1].trim() : '';
 
-    // 限制question长度到100个单词
+    // Extract options after [Options]
+    const optionsMatch = afterType.match(/\[Options\](.*)/s);
+    const optionsStr = optionsMatch ? optionsMatch[1].trim() : '';
+
+    // 限制question长度到45个单词
     const question = limitTextToWords(rawQuestion, 45);
 
-    // Extract options by finding all option patterns
-    const optionMatches = [...contentStr.matchAll(/([a-d])\)\s*/g)];
+    // Extract individual options by finding all option patterns
+    const optionMatches = [...optionsStr.matchAll(/([a-d])\)\s*/g)];
     const options: Array<{ label: string; text: string }> = [];
 
     for (let i = 0; i < optionMatches.length; i++) {
@@ -113,9 +116,9 @@ function postprocessFlashcardContent(content: ReactNode): ReactNode {
       const nextMatch = optionMatches[i + 1];
 
       const startIndex = currentMatch.index! + currentMatch[0].length;
-      const endIndex = nextMatch ? nextMatch.index! : contentStr.length;
+      const endIndex = nextMatch ? nextMatch.index! : optionsStr.length;
 
-      const optionText = contentStr.slice(startIndex, endIndex).trim();
+      const optionText = optionsStr.slice(startIndex, endIndex).trim();
 
       options.push({
         label: currentMatch[1],
@@ -129,15 +132,15 @@ function postprocessFlashcardContent(content: ReactNode): ReactNode {
         <FlashcardPreview question={question} options={options} />
       );
     } else {
-      postprocessor = contentStr; // fallback to original content if parsing fails
+      postprocessor = content; // fallback to original content if parsing fails
     }
   }
 
-  if (content.startsWith('multiple-choice')) {
+  if (content.startsWith('[multiple-choice]')) {
     postprocessor = 'BBB';
   }
 
-  if (content.startsWith('fill-in-the-blank')) {
+  if (content.startsWith('[fill-in-the-blank]')) {
     postprocessor = 'CCC';
   }
 
