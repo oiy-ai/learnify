@@ -27,6 +27,7 @@ const parseQuizContent = (
   let typeIndex = -1;
   let questionIndex = -1;
   let optionsIndex = -1;
+  let answerIndex = -1;
 
   paragraphs.forEach((text, index) => {
     const trimmed = text.trim();
@@ -36,10 +37,17 @@ const parseQuizContent = (
       questionIndex = index;
     } else if (trimmed === '[Options]') {
       optionsIndex = index;
+    } else if (trimmed === '[Answer]') {
+      answerIndex = index;
     }
   });
 
-  console.log('Marker indices:', { typeIndex, questionIndex, optionsIndex });
+  console.log('Marker indices:', {
+    typeIndex,
+    questionIndex,
+    optionsIndex,
+    answerIndex,
+  });
 
   if (typeIndex === -1 || questionIndex === -1 || optionsIndex === -1) {
     console.log('Missing required markers');
@@ -70,7 +78,9 @@ const parseQuizContent = (
   const options: Array<{ key: string; text: string }> = [];
   const optionRegex = /^([a-d])\)\s*(.+)/;
 
-  for (let i = optionsIndex + 1; i < paragraphs.length; i++) {
+  const endIndex = answerIndex !== -1 ? answerIndex : paragraphs.length;
+
+  for (let i = optionsIndex + 1; i < endIndex; i++) {
     const text = paragraphs[i].trim();
     if (text) {
       const match = text.match(optionRegex);
@@ -88,7 +98,20 @@ const parseQuizContent = (
     return null;
   }
 
-  const correctAnswer = options[0].key;
+  let correctAnswer = '';
+
+  if (answerIndex !== -1 && answerIndex + 1 < paragraphs.length) {
+    const answerText = paragraphs[answerIndex + 1].trim();
+    if (answerText && /^[a-d]$/.test(answerText)) {
+      correctAnswer = answerText;
+      console.log('Found answer from [Answer] section:', correctAnswer);
+    }
+  }
+
+  if (!correctAnswer) {
+    console.log('No answer found in [Answer] section');
+    return null;
+  }
 
   console.log('Parsed quiz card:', { question, options, correctAnswer });
 
