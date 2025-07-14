@@ -154,7 +154,7 @@ export const CollectionDetail = ({
         />
       </ViewHeader>
       <ViewBody>
-        <FlexWrapper flexDirection="column" alignItems="stretch" width="40%">
+        <FlexWrapper flexDirection="column" alignItems="stretch" width="33%">
           <div className={styles.scrollArea}>
             <MindMapsExplorer disableMultiDelete={!isAdmin && !isOwner} />
           </div>
@@ -162,7 +162,7 @@ export const CollectionDetail = ({
         <FlexWrapper
           flexDirection="column"
           alignItems="stretch"
-          width="60%"
+          width="67%"
           className={styles.rightPanel}
         >
           {selectedDocId ? (
