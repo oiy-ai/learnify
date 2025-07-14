@@ -103,6 +103,7 @@ export const optionKey = style({
 });
 
 export const optionText = style({
+  textAlign: 'center',
   flex: 1,
   color: cssVarV2.text.primary,
   lineHeight: '1.5',
@@ -202,4 +203,45 @@ export const formatExample = style({
 
 export const backButton = style({
   marginTop: '16px',
+});
+
+export const navigationHeader = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: '24px',
+  padding: '0 8px',
+});
+
+export const navButton = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  padding: '8px 16px',
+  backgroundColor: cssVarV2.layer.background.secondary,
+  border: `1px solid ${cssVarV2.layer.insideBorder.border}`,
+  borderRadius: '8px',
+  color: cssVarV2.text.primary,
+  fontSize: '14px',
+  fontWeight: 500,
+  cursor: 'pointer',
+  transition: 'all 0.2s ease',
+
+  ':hover': {
+    backgroundColor: cssVarV2.layer.background.hoverOverlay,
+    borderColor: cssVarV2.button.badgesColor,
+  },
+
+  ':disabled': {
+    cursor: 'not-allowed',
+    opacity: 0.5,
+    color: cssVarV2.text.disable,
+  },
+
+  selectors: {
+    '&:disabled:hover': {
+      backgroundColor: cssVarV2.layer.background.secondary,
+      borderColor: cssVarV2.layer.insideBorder.border,
+    },
+  },
 });

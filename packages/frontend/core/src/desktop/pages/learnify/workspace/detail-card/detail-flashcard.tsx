@@ -95,7 +95,7 @@ export const DetailFlashcard = ({ doc, pageId }: DetailFlashcardProps) => {
     const loadCard = async () => {
       if (!doc || !doc.blockSuiteDoc) {
         setError(
-          t['com.affine.flashcard.error.fetch-failed']?.() ||
+          t['com.learnify.flashcard.error.fetch-failed']?.() ||
             'Failed to load card content from server'
         );
         return;
@@ -118,7 +118,7 @@ export const DetailFlashcard = ({ doc, pageId }: DetailFlashcardProps) => {
 
         if (paragraphs.every(p => !p.trim())) {
           setError(
-            t['com.affine.flashcard.error.no-content']?.() ||
+            t['com.learnify.flashcard.error.no-content']?.() ||
               'No content found in this card'
           );
           return;
@@ -130,14 +130,14 @@ export const DetailFlashcard = ({ doc, pageId }: DetailFlashcardProps) => {
           setError(null);
         } else {
           setError(
-            t['com.affine.flashcard.error.format-mismatch']?.() ||
+            t['com.learnify.flashcard.error.format-mismatch']?.() ||
               'Card content format is incorrect. Expected flashcard format.'
           );
         }
       } catch (error) {
         console.error('Error parsing card content:', error);
         setError(
-          t['com.affine.flashcard.error.parse-failed']?.() ||
+          t['com.learnify.flashcard.error.parse-failed']?.() ||
             'Failed to parse card content'
         );
       }
@@ -157,13 +157,13 @@ export const DetailFlashcard = ({ doc, pageId }: DetailFlashcardProps) => {
       <div className={styles.errorContainer}>
         <div className={styles.errorIcon}>�</div>
         <h2 className={styles.errorTitle}>
-          {t['com.affine.flashcard.error.title']?.() || 'Unable to Load Card'}
+          {t['com.learnify.flashcard.error.title']?.() || 'Unable to Load Card'}
         </h2>
         <p className={styles.errorMessage}>{error}</p>
         {error.includes('format') && (
           <div className={styles.errorHint}>
             <p>
-              {t['com.affine.flashcard.error.format-hint']?.() ||
+              {t['com.learnify.flashcard.error.format-hint']?.() ||
                 'Expected format:'}
             </p>
             <pre className={styles.formatExample}>
@@ -198,7 +198,7 @@ export const DetailFlashcard = ({ doc, pageId }: DetailFlashcardProps) => {
             style={{ maxWidth: '200px' }}
           >
             <span className={styles.optionText}>
-              {t['com.affine.flashcard.show-answer']?.() || 'Show Answer'}
+              {t['com.learnify.flashcard.show-answer']?.() || 'Show Answer'}
             </span>
           </button>
         </div>
@@ -220,7 +220,7 @@ export const DetailFlashcard = ({ doc, pageId }: DetailFlashcardProps) => {
                 color: 'var(--affine-text-primary)',
               }}
             >
-              {t['com.affine.flashcard.answer']?.() || 'Answer:'}
+              {t['com.learnify.flashcard.answer']?.() || 'Answer:'}
             </h3>
             <p
               style={{
@@ -246,7 +246,7 @@ export const DetailFlashcard = ({ doc, pageId }: DetailFlashcardProps) => {
               style={{ maxWidth: '200px' }}
             >
               <span className={styles.optionText}>
-                {t['com.affine.flashcard.hide-answer']?.() || 'Hide Answer'}
+                {t['com.learnify.flashcard.hide-answer']?.() || 'Hide Answer'}
               </span>
             </button>
           </div>

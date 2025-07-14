@@ -3,7 +3,7 @@ import { useGuard } from '@affine/core/components/guard';
 import { DocService } from '@affine/core/modules/doc';
 import { useI18n } from '@affine/i18n';
 import { useServices } from '@toeverything/infra';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { PageNotFound } from '../../../404';
@@ -35,9 +35,33 @@ const DetailCardPageImpl = () => {
   const { pageId } = useParams();
   const [cardType, setCardType] = useState<CardType>('unknown');
   const [isLoading, setIsLoading] = useState(true);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const totalCards = 10; // Mock data for now
 
   const { docService } = useServices({ DocService });
   const doc = docService.doc;
+
+  // Handle keyboard navigation
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft' && currentCardIndex > 0) {
+        setCurrentCardIndex(prev => prev - 1);
+      } else if (
+        event.key === 'ArrowRight' &&
+        currentCardIndex < totalCards - 1
+      ) {
+        setCurrentCardIndex(prev => prev + 1);
+      }
+    },
+    [currentCardIndex, totalCards]
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   useEffect(() => {
     const detectType = async () => {
@@ -113,6 +137,64 @@ const DetailCardPageImpl = () => {
 
   return (
     <div className={styles.container}>
+      <div className={styles.navigationHeader}>
+        <button
+          className={styles.navButton}
+          onClick={() => setCurrentCardIndex(prev => Math.max(0, prev - 1))}
+          disabled={currentCardIndex === 0}
+          aria-label="Previous card"
+          title="Previous card (←)"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12.5 15L7.5 10L12.5 5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span>Previous</span>
+        </button>
+
+        <span className={styles.cardCounter}>
+          Card {currentCardIndex + 1} of {totalCards}
+        </span>
+
+        <button
+          className={styles.navButton}
+          onClick={() =>
+            setCurrentCardIndex(prev => Math.min(totalCards - 1, prev + 1))
+          }
+          disabled={currentCardIndex === totalCards - 1}
+          aria-label="Next card"
+          title="Next card (→)"
+        >
+          <span>Next</span>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M7.5 15L12.5 10L7.5 5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+
       <div className={styles.cardContainer}>
         {cardType === 'quiz' && <DetailQuizCard doc={doc} pageId={pageId} />}
         {cardType === 'flashcard' && (
