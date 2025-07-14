@@ -92,4 +92,12 @@ export const mindMapEditorWrapper = style({
   overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column',
+  position: 'relative',
+});
+
+export const zoomToolbar = style({
+  position: 'absolute',
+  bottom: 16,
+  left: 16,
+  zIndex: 10,
 });

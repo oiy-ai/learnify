@@ -35,6 +35,7 @@ import { DetailPageWrapper } from '../../../workspace/detail-page/detail-page-wr
 import { AllDocSidebarTabs } from '../../../workspace/layouts/all-doc-sidebar-tabs';
 import { MindMapsHeader } from './header';
 import * as styles from './index.css';
+import { ZoomToolbarWrapper } from './zoom-toolbar-wrapper';
 
 export const CollectionDetail = ({
   collection,
@@ -198,19 +199,38 @@ export const CollectionDetail = ({
 // Mind-maps 专用的编辑器包装器，强制使用 edgeless 模式
 const MindMapEditorWrapper = ({ onLoad }: { onLoad: () => void }) => {
   const editorService = useService(EditorService);
+  const editor = editorService.editor;
 
   useEffect(() => {
     // 强制设置为 edgeless 模式
-    const currentMode = editorService.editor.mode$.value;
+    const currentMode = editor.mode$.value;
     if (currentMode !== 'edgeless') {
-      console.log('Switching to edgeless mode for mind-maps preview');
-      editorService.editor.setMode('edgeless');
+      editor.setMode('edgeless');
     }
-  }, [editorService]);
+  }, [editor]);
+
+  const handleEditorLoad = useCallback(
+    (editorContainer: any) => {
+      // 绑定编辑器容器到 EditorService
+      const unbind = editor.bindEditorContainer(editorContainer);
+
+      // 调用原始的 onLoad 回调
+      onLoad();
+
+      // 返回清理函数
+      return () => {
+        unbind();
+      };
+    },
+    [editor, onLoad]
+  );
 
   return (
     <div className={styles.mindMapEditorWrapper}>
-      <PageDetailEditor onLoad={onLoad} readonly />
+      <PageDetailEditor onLoad={handleEditorLoad} readonly />
+      <div className={styles.zoomToolbar}>
+        <ZoomToolbarWrapper />
+      </div>
     </div>
   );
 };
