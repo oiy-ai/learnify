@@ -1,11 +1,19 @@
+import { Checkbox, Tooltip, Wrapper } from '@affine/component';
 import { DocsService } from '@affine/core/modules/doc';
 import { DocDisplayMetaService } from '@affine/core/modules/doc-display-meta';
+import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
 import { useLiveData, useService } from '@toeverything/infra';
-import { useCallback, useContext } from 'react';
+import { type HTMLProps, memo, useCallback, useContext } from 'react';
 
 import { DocExplorerContext } from '../../../explorer/context';
 import * as styles from '../../../explorer/docs-view/doc-list-item.css';
+import { MoreMenuButton } from '../../../explorer/docs-view/more-menu';
+import {
+  CardViewProperties,
+  ListViewProperties,
+} from '../../../explorer/docs-view/properties';
+import { quickActions } from '../../../explorer/quick-actions.constants';
 import { PagePreview } from '../../../learnify/page-list/page-content-preview';
 
 class MixId {
@@ -32,7 +40,9 @@ export const MindMapDocListItem = ({
   groupId,
 }: MindMapDocListItemProps) => {
   const contextValue = useContext(DocExplorerContext);
+  const view = useLiveData(contextValue.view$) ?? 'list';
   const selectMode = useLiveData(contextValue.selectMode$);
+  const selectedDocIds = useLiveData(contextValue.selectedDocIds$);
   const prevCheckAnchorId = useLiveData(contextValue.prevCheckAnchorId$);
 
   const handleMultiSelect = useCallback(
@@ -119,24 +129,117 @@ export const MindMapDocListItem = ({
   return (
     <div
       onClick={handleClick}
-      data-selected={contextValue.selectedDocIds$.value.includes(docId)}
+      data-selected={selectedDocIds.includes(docId)}
       className={styles.root}
       data-testid={`doc-list-item`}
       data-doc-id={docId}
       style={{ cursor: 'pointer' }}
     >
-      <ListViewDoc docId={docId} />
+      {view === 'list' ? (
+        <ListViewDoc docId={docId} groupId={groupId} />
+      ) : (
+        <CardViewDoc docId={docId} groupId={groupId} />
+      )}
     </div>
   );
 };
 
-// 自定义的列表视图组件，不包含导航功能
-const ListViewDoc = ({ docId }: { docId: string }) => {
+// Helper components
+const Select = memo(function Select({
+  id,
+  ...props
+}: HTMLProps<HTMLDivElement>) {
+  const contextValue = useContext(DocExplorerContext);
+  const selectMode = useLiveData(contextValue.selectMode$);
+  const selectedDocIds = useLiveData(contextValue.selectedDocIds$);
+
+  const handleSelectChange = useCallback(() => {
+    id && contextValue.selectedDocIds$?.next([id]);
+  }, [id, contextValue]);
+
+  if (!id) {
+    return null;
+  }
+
+  return (
+    <div
+      data-select-mode={selectMode}
+      data-testid={`doc-list-item-select`}
+      {...props}
+    >
+      <Checkbox
+        checked={selectedDocIds.includes(id)}
+        onChange={handleSelectChange}
+      />
+    </div>
+  );
+});
+
+const DocIcon = memo(function DocIcon({
+  id,
+  ...props
+}: HTMLProps<HTMLDivElement>) {
+  const contextValue = useContext(DocExplorerContext);
+  const showDocIcon = useLiveData(contextValue.showDocIcon$);
+  const docDisplayMetaService = useService(DocDisplayMetaService);
+  const Icon = useLiveData(id ? docDisplayMetaService.icon$(id) : null);
+
+  if (!showDocIcon || !Icon || !id) {
+    return null;
+  }
+
+  return (
+    <div {...props}>
+      <Icon />
+    </div>
+  );
+});
+
+const DocTitle = memo(function DocTitle({
+  id,
+  ...props
+}: HTMLProps<HTMLDivElement>) {
+  const docDisplayMetaService = useService(DocDisplayMetaService);
+  const title = useLiveData(docDisplayMetaService.title$(id));
+
+  if (!id) return null;
+
+  return <div {...props}>{title}</div>;
+});
+
+const DocPreview = memo(function DocPreview({
+  id,
+  loading,
+  rawType,
+  ...props
+}: HTMLProps<HTMLDivElement> & {
+  loading?: React.ReactNode;
+  rawType?: 'flashcards' | 'mind-maps';
+}) {
+  const contextValue = useContext(DocExplorerContext);
+  const showDocPreview = useLiveData(contextValue.showDocPreview$);
+
+  if (!id || !showDocPreview) return null;
+
+  return (
+    <div {...props}>
+      <PagePreview pageId={id} fallback={loading} rawType={rawType} />
+    </div>
+  );
+});
+
+const listMoreMenuContentOptions = {
+  side: 'bottom',
+  align: 'end',
+  sideOffset: 12,
+  alignOffset: -4,
+} as const;
+
+// 列表视图组件
+const ListViewDoc = ({ docId }: MindMapDocListItemProps) => {
+  const t = useI18n();
   const docsService = useService(DocsService);
   const doc = useLiveData(docsService.list.doc$(docId));
-  const docDisplayMetaService = useService(DocDisplayMetaService);
-  const Icon = useLiveData(docDisplayMetaService.icon$(docId));
-  const title = useLiveData(docDisplayMetaService.title$(docId));
 
   if (!doc) {
     return null;
@@ -144,17 +247,89 @@ const ListViewDoc = ({ docId }: { docId: string }) => {
 
   return (
     <li className={styles.listViewRoot}>
-      <div className={styles.listIcon}>
-        <Icon />
-      </div>
+      <Select id={docId} className={styles.listSelect} />
+      <DocIcon id={docId} className={styles.listIcon} />
       <div className={styles.listBrief}>
-        <div className={styles.listTitle} data-testid="doc-list-item-title">
-          {title}
-        </div>
-        <div className={styles.listPreview}>
-          <PagePreview pageId={docId} rawType="mind-maps" />
-        </div>
+        <DocTitle
+          id={docId}
+          className={styles.listTitle}
+          data-testid="doc-list-item-title"
+        />
+        <DocPreview
+          id={docId}
+          className={styles.listPreview}
+          loading={<Wrapper height={20} width={10} />}
+          rawType="mind-maps"
+        />
       </div>
+      <div className={styles.listSpace} />
+      <ListViewProperties docId={docId} />
+      {quickActions.map(action => {
+        return (
+          <Tooltip key={action.key} content={t.t(action.name)}>
+            <action.Component doc={doc} />
+          </Tooltip>
+        );
+      })}
+      <MoreMenuButton
+        docId={docId}
+        contentOptions={listMoreMenuContentOptions}
+      />
+    </li>
+  );
+};
+
+const cardMoreMenuContentOptions = {
+  side: 'bottom',
+  align: 'end',
+  sideOffset: 12,
+  alignOffset: -4,
+} as const;
+
+// 卡片视图组件
+const CardViewDoc = ({ docId }: MindMapDocListItemProps) => {
+  const t = useI18n();
+  const contextValue = useContext(DocExplorerContext);
+  const selectMode = useLiveData(contextValue.selectMode$);
+  const docsService = useService(DocsService);
+  const doc = useLiveData(docsService.list.doc$(docId));
+
+  if (!doc) {
+    return null;
+  }
+
+  return (
+    <li className={styles.cardViewRoot}>
+      <header className={styles.cardViewHeader}>
+        <DocIcon id={docId} className={styles.cardViewIcon} />
+        <DocTitle
+          id={docId}
+          className={styles.cardViewTitle}
+          data-testid="doc-list-item-title"
+        />
+        {quickActions.map(action => {
+          return (
+            <Tooltip key={action.key} content={t.t(action.name)}>
+              <action.Component size="16" doc={doc} />
+            </Tooltip>
+          );
+        })}
+        {selectMode ? (
+          <Select id={docId} className={styles.cardViewCheckbox} />
+        ) : (
+          <MoreMenuButton
+            docId={docId}
+            contentOptions={cardMoreMenuContentOptions}
+            iconProps={{ size: '16' }}
+          />
+        )}
+      </header>
+      <DocPreview
+        id={docId}
+        className={styles.cardPreviewContainer}
+        rawType="mind-maps"
+      />
+      <CardViewProperties docId={docId} />
     </li>
   );
 };
