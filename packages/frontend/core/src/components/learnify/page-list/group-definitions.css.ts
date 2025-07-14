@@ -80,5 +80,27 @@ export const flashcardOption = style({
     '&:hover': {
       borderColor: cssVarV2.layer.insideBorder.blackBorder,
     },
+    '&:disabled': {
+      cursor: 'not-allowed',
+      opacity: 0.8,
+    },
+    '&[data-correct="true"]': {
+      borderColor: cssVarV2('status/success'),
+      backgroundColor: cssVarV2('layer/background/success'),
+    },
+    '&[data-wrong="true"]': {
+      borderColor: cssVarV2('status/error'),
+      backgroundColor: cssVarV2('layer/background/error'),
+    },
+    '&[data-selected="true"]:not([data-correct="true"]):not([data-wrong="true"])':
+      {
+        borderColor: cssVarV2.layer.insideBorder.blackBorder,
+      },
   },
+});
+
+export const resultIcon = style({
+  marginLeft: '4px',
+  fontSize: '14px',
+  fontWeight: 'bold',
 });

@@ -1,7 +1,13 @@
 import { DocsSearchService } from '@affine/core/modules/docs-search';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { LiveData, useLiveData, useService } from '@toeverything/infra';
-import { type ReactNode, useEffect, useMemo } from 'react';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import * as styles from './group-definitions.css';
 
@@ -15,18 +21,56 @@ interface PagePreviewProps {
 interface FlashcardPreviewProps {
   question: string;
   options: Array<{ label: string; text: string }>;
+  correctAnswer?: string;
 }
 
-const FlashcardPreview = ({ question, options }: FlashcardPreviewProps) => {
+const FlashcardPreview = ({
+  question,
+  options,
+  correctAnswer,
+}: FlashcardPreviewProps) => {
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [showResult, setShowResult] = useState(false);
+
+  const handleSelectAnswer = useCallback(
+    (optionLabel: string, e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (showResult) return;
+
+      setSelectedAnswer(optionLabel);
+      setShowResult(true);
+    },
+    [showResult]
+  );
+
   return (
     <div className={styles.flashcardContainer}>
       <div className={styles.flashcardQuestion}>{question}</div>
       <div className={styles.flashcardOptionsContainer}>
-        {options.map((option, index) => (
-          <button key={index} className={styles.flashcardOption}>
-            {option.label.toUpperCase()}) {option.text}
-          </button>
-        ))}
+        {options.map((option, index) => {
+          const isCorrect = correctAnswer && option.label === correctAnswer;
+          const isSelected = option.label === selectedAnswer;
+          const showCorrect = showResult && isCorrect;
+          const showWrong = showResult && isSelected && !isCorrect;
+
+          return (
+            <button
+              key={index}
+              className={styles.flashcardOption}
+              onClick={e => handleSelectAnswer(option.label, e)}
+              disabled={showResult}
+              data-correct={showCorrect}
+              data-wrong={showWrong}
+              data-selected={isSelected}
+            >
+              {option.label.toUpperCase()}) {option.text}
+              {showCorrect && <span className={styles.resultIcon}>✓</span>}
+              {showWrong && <span className={styles.resultIcon}>✗</span>}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -93,16 +137,20 @@ function postprocessFlashcardContent(content: ReactNode): ReactNode {
   };
 
   if (content.startsWith('[single-choice]')) {
-    // Format: [single-choice] [Question]Find the equation... [Options]a) 选项A b) Option B
+    // Format: [single-choice] [Question]Find the equation... [Options]a) 选项A b) Option B [Answer]d
     const afterType = content.replace('[single-choice]', '').trim();
 
     // Extract question between [Question] and [Options]
     const questionMatch = afterType.match(/\[Question\](.*?)(?=\[Options\])/s);
     const rawQuestion = questionMatch ? questionMatch[1].trim() : '';
 
-    // Extract options after [Options]
-    const optionsMatch = afterType.match(/\[Options\](.*)/s);
+    // Extract options section
+    const optionsMatch = afterType.match(/\[Options\](.*?)(?=\[Answer\]|$)/s);
     const optionsStr = optionsMatch ? optionsMatch[1].trim() : '';
+
+    // Extract answer after [Answer]
+    const answerMatch = afterType.match(/\[Answer\]\s*([a-d])/);
+    const correctAnswer = answerMatch ? answerMatch[1] : undefined;
 
     // 限制question长度到45个单词
     const question = limitTextToWords(rawQuestion, 45);
@@ -129,7 +177,11 @@ function postprocessFlashcardContent(content: ReactNode): ReactNode {
     // Return flashcard component with question and option buttons
     if (question && options.length > 0) {
       postprocessor = (
-        <FlashcardPreview question={question} options={options} />
+        <FlashcardPreview
+          question={question}
+          options={options}
+          correctAnswer={correctAnswer}
+        />
       );
     } else {
       postprocessor = content; // fallback to original content if parsing fails
