@@ -210,18 +210,6 @@ export const DetailQuizCard = ({ doc, pageId }: DetailQuizCardProps) => {
           {t['com.affine.flashcard.error.title']?.() || 'Unable to Load Card'}
         </h2>
         <p className={styles.errorMessage}>{error}</p>
-        {error.includes('format') && (
-          <div className={styles.errorHint}>
-            <p>
-              {t['com.affine.flashcard.error.format-hint']?.() ||
-                'Expected format:'}
-            </p>
-            <pre className={styles.formatExample}>
-              [single-choice] [Question] What is your question? [Options] a)
-              Option A b) Option B c) Option C d) Option D
-            </pre>
-          </div>
-        )}
       </div>
     );
   }
@@ -259,15 +247,6 @@ export const DetailQuizCard = ({ doc, pageId }: DetailQuizCardProps) => {
           );
         })}
       </div>
-
-      {showResult && (
-        <div className={styles.resultMessage}>
-          {selectedAnswer === currentCard.correctAnswer
-            ? t['com.affine.flashcard.correct']?.() || 'Correct!'
-            : t['com.affine.flashcard.incorrect']?.() ||
-              'Incorrect. Try again!'}
-        </div>
-      )}
     </div>
   );
 };
