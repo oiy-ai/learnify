@@ -73,7 +73,6 @@ export const optionButton = style({
 
   ':hover': {
     backgroundColor: cssVarV2.layer.background.hoverOverlay,
-    borderColor: cssVarV2.button.badgesColor,
   },
 
   ':disabled': {
@@ -229,7 +228,7 @@ export const navButton = style({
 
   ':hover': {
     backgroundColor: cssVarV2.layer.background.hoverOverlay,
-    borderColor: cssVarV2.button.badgesColor,
+    borderColor: cssVarV2.layer.insideBorder.border,
   },
 
   ':disabled': {
