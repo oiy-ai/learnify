@@ -4,6 +4,7 @@ import { WithDisposable } from '@blocksuite/global/lit';
 import { MinusIcon, PlusIcon, ViewBarIcon } from '@blocksuite/icons/lit';
 import type { BlockStdScope } from '@blocksuite/std';
 import {
+  type GfxController,
   GfxControllerIdentifier,
   ZOOM_MAX,
   ZOOM_MIN,
@@ -90,7 +91,7 @@ export class EdgelessZoomToolbar extends WithDisposable(LitElement) {
   }
 
   get gfx() {
-    return this.std.get(GfxControllerIdentifier);
+    return this.gfxController || this.std.get(GfxControllerIdentifier);
   }
 
   get edgelessTool() {
@@ -142,10 +143,18 @@ export class EdgelessZoomToolbar extends WithDisposable(LitElement) {
         this.requestUpdate();
       })
     );
+
+    // 自动触发一次 Fit to Screen
+    if (this.gfx.fitToScreen) {
+      // 延迟执行以确保视图完全渲染
+      setTimeout(() => {
+        this.gfx.fitToScreen();
+      }, 100);
+    }
   }
 
   override render() {
-    if (this.std.store.readonly) {
+    if (this.hideOnReadonly && this.std.store.readonly) {
       return nothing;
     }
 
@@ -210,4 +219,10 @@ export class EdgelessZoomToolbar extends WithDisposable(LitElement) {
 
   @property({ attribute: false })
   accessor std!: BlockStdScope;
+
+  @property({ attribute: false })
+  accessor gfxController: GfxController | undefined;
+
+  @property({ attribute: false })
+  accessor hideOnReadonly: boolean = true;
 }
