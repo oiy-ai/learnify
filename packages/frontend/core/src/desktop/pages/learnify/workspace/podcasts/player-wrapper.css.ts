@@ -6,10 +6,11 @@ export const playerWrapper = style({
   flexDirection: 'column',
   height: '100%',
   width: '100%',
-  gap: '8px',
+  gap: '12px',
   padding: '24px',
   backgroundColor: 'var(--affine-background-primary-color)',
   overflow: 'hidden',
+  borderRadius: 16,
 });
 
 export const playerContainer = style({
@@ -113,9 +114,15 @@ export const subtitleContainer = style({
 });
 
 export const subtitleHeader = style({
-  fontSize: '16px',
+  paddingLeft: 2,
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  fontSize: 'var(--affine-font-base)',
   fontWeight: 600,
-  color: 'var(--affine-text-primary-color)',
+  color: cssVarV2('text/tertiary'),
+  height: 30,
+  borderBottom: `1px solid ${cssVarV2('layer/insideBorder/border')}`,
   margin: 0,
 });
 
@@ -169,14 +176,14 @@ export const currentSubtitle = style({
   backgroundColor: 'var(--affine-background-overlay-panel-color)',
   border: '2px solid var(--affine-primary-color)',
   marginTop: '16px',
+});
 
-  '& p': {
-    margin: 0,
-    fontSize: '16px',
-    lineHeight: 1.6,
-    color: 'var(--affine-text-primary-color)',
-    textAlign: 'center',
-  },
+export const currentSubtitleText = style({
+  margin: 0,
+  fontSize: '16px',
+  lineHeight: 1.6,
+  color: 'var(--affine-text-primary-color)',
+  textAlign: 'center',
 });
 
 export const connectButton = style({
