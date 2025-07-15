@@ -1,3 +1,4 @@
+import { cssVarV2 } from '@toeverything/theme/v2';
 import { style } from '@vanilla-extract/css';
 
 export const playerWrapper = style({
@@ -128,13 +129,13 @@ export const subtitleList = style({
 });
 
 export const subtitleItem = style({
+  fontSize: 24,
   display: 'flex',
   gap: '12px',
   padding: '12px',
   borderRadius: '8px',
   cursor: 'pointer',
   transition: 'all 0.2s ease',
-  backgroundColor: 'var(--affine-background-secondary-color)',
 
   ':hover': {
     backgroundColor: 'var(--affine-hover-color)',
@@ -142,23 +143,22 @@ export const subtitleItem = style({
 });
 
 export const activeSubtitle = style({
-  backgroundColor: 'var(--affine-primary-color)',
-  color: 'var(--affine-white)',
-
+  color: cssVarV2.button.primary,
   ':hover': {
-    backgroundColor: 'var(--affine-primary-color)',
+    backgroundColor: 'var(--affine-hover-color)',
   },
 });
 
 export const subtitleTime = style({
-  fontSize: '12px',
+  alignSelf: 'center',
+  fontSize: 'var(--affine-font-sm)',
   fontWeight: 500,
   minWidth: '50px',
   opacity: 0.8,
 });
 
 export const subtitleText = style({
-  fontSize: '14px',
+  fontSize: 20,
   lineHeight: 1.5,
   flex: 1,
 });
