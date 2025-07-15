@@ -32,9 +32,15 @@ export const listViewRoot = style({
   overflow: 'hidden',
   containerName: 'list-view-root',
   containerType: 'size',
+  border: '2px solid transparent',
+  transition: 'border-color 0.2s ease',
   selectors: {
     '&:hover': {
       backgroundColor: cssVarV2.layer.background.hoverOverlay,
+    },
+    [`${root}[data-selected="true"] &`]: {
+      borderColor: cssVarV2.button.primary,
+      borderRadius: 8,
     },
   },
 });
