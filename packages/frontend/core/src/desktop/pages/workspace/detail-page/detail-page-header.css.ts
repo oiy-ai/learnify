@@ -5,6 +5,7 @@ export const root = style({
   position: 'relative',
   height: '100%',
   width: '100%',
+  marginLeft: 16,
 });
 
 export const header = style({

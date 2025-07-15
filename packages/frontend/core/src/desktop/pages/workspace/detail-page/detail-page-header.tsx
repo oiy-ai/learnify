@@ -12,7 +12,7 @@ import { JournalTodayButton } from '@affine/core/blocksuite/block-suite-header/j
 import { PageHeaderMenuButton } from '@affine/core/blocksuite/block-suite-header/menu';
 import { DetailPageHeaderPresentButton } from '@affine/core/blocksuite/block-suite-header/present/detail-header-present-button';
 import { BlocksuiteHeaderTitle } from '@affine/core/blocksuite/block-suite-header/title';
-import { EditorModeSwitch } from '@affine/core/blocksuite/block-suite-mode-switch';
+// import { EditorModeSwitch } from '@affine/core/blocksuite/block-suite-mode-switch';
 import { useRegisterCopyLinkCommands } from '@affine/core/components/hooks/affine/use-register-copy-link-commands';
 import { HeaderDivider } from '@affine/core/components/pure/header';
 import { DocService } from '@affine/core/modules/doc';
@@ -104,7 +104,7 @@ export function JournalPageHeader({ page, workspace }: PageHeaderProps) {
     <Header className={styles.header} ref={containerRef}>
       <ViewTitle title={title} />
       <ViewIcon icon="journal" />
-      <EditorModeSwitch />
+      {/* <EditorModeSwitch /> */}
       <div className={styles.journalWeekPicker}>
         <JournalWeekDatePicker page={page} />
       </div>
@@ -157,7 +157,7 @@ export function NormalPageHeader({ page, workspace }: PageHeaderProps) {
     <Header className={styles.header} ref={containerRef}>
       <ViewTitle title={title} />
       <ViewIcon icon={currentMode ?? 'page'} />
-      <EditorModeSwitch />
+      {/* <EditorModeSwitch /> */}
       <BlocksuiteHeaderTitle inputHandleRef={titleInputHandleRef} />
       <TemplateMark />
       <div className={styles.iconButtonContainer}>
@@ -191,6 +191,7 @@ export function NormalPageHeader({ page, workspace }: PageHeaderProps) {
 
 export function DetailPageHeader(
   props: PageHeaderProps & {
+    // eslint-disable-next-line no-unused-vars
     onDragging?: (dragging: boolean) => void;
   }
 ) {
