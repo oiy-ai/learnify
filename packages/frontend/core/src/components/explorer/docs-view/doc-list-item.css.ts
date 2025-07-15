@@ -115,7 +115,7 @@ export const listBrief = style({
   flexDirection: 'column',
   justifyContent: 'center',
   marginLeft: 4,
-  minWidth: 200,
+  minWidth: 120,
 });
 export const listSpace = style({
   width: 0,
