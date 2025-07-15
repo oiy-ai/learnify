@@ -79,7 +79,7 @@ export const placeholderText = style({
 });
 
 export const rightPanel = style({
-  margin: '16px',
+  margin: '16px 16px 16px 0',
   border: `1px solid ${cssVarV2.layer.insideBorder.border}`,
   borderRadius: 16,
   backgroundColor: cssVarV2.layer.background.primary,
