@@ -6,7 +6,7 @@ export const playerWrapper = style({
   flexDirection: 'column',
   height: '100%',
   width: '100%',
-  gap: '24px',
+  gap: '8px',
   padding: '24px',
   backgroundColor: 'var(--affine-background-primary-color)',
   overflow: 'hidden',
@@ -177,4 +177,9 @@ export const currentSubtitle = style({
     color: 'var(--affine-text-primary-color)',
     textAlign: 'center',
   },
+});
+
+export const connectButton = style({
+  height: 36,
+  width: '100%',
 });
