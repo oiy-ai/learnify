@@ -6,14 +6,12 @@ import {
 } from '@affine/core/components/explorer/context';
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
 import { useGuard } from '@affine/core/components/guard';
-import { MindMapsExplorer } from '@affine/core/components/learnify/mind-maps/explorer/mind-maps-list';
-import { PageDetailEditor } from '@affine/core/components/page-detail-editor';
+import { PodcastsExplorer } from '@affine/core/components/learnify/podcasts/explorer/podcasts-list';
 import {
   type Collection,
   CollectionService,
 } from '@affine/core/modules/collection';
 import { CollectionRulesService } from '@affine/core/modules/collection-rules';
-import { EditorService } from '@affine/core/modules/editor';
 import { GlobalContextService } from '@affine/core/modules/global-context';
 import { WorkspacePermissionService } from '@affine/core/modules/permissions';
 import { WorkspaceService } from '@affine/core/modules/workspace';
@@ -33,8 +31,9 @@ import {
 import { PageNotFound } from '../../../404';
 import { DetailPageWrapper } from '../../../workspace/detail-page/detail-page-wrapper';
 import { AllDocSidebarTabs } from '../../../workspace/layouts/all-doc-sidebar-tabs';
-import { MindMapsHeader } from './header';
+import { PodcastsHeader } from './header';
 import * as styles from './index.css';
+import { PlayerWrapper } from './player-wrapper';
 
 export const CollectionDetail = ({
   collection,
@@ -53,8 +52,8 @@ export const CollectionDetail = ({
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
 
   const handleEditorLoad = useCallback(() => {
-    // 编辑器加载完成后的回调
-    console.log('Editor loaded for mind-maps preview');
+    // 播放器加载完成后的回调
+    console.log('Player loaded for podcasts');
   }, []);
 
   // 监听选中的文档ID变化
@@ -148,21 +147,21 @@ export const CollectionDetail = ({
   return (
     <DocExplorerContext.Provider value={explorerContextValue}>
       <ViewHeader>
-        <MindMapsHeader
+        <PodcastsHeader
           displayPreference={displayPreference}
           onDisplayPreferenceChange={handleDisplayPreferenceChange}
         />
       </ViewHeader>
       <ViewBody>
-        <FlexWrapper flexDirection="column" alignItems="stretch" width="40%">
+        <FlexWrapper flexDirection="column" alignItems="stretch" width="55%">
           <div className={styles.scrollArea}>
-            <MindMapsExplorer disableMultiDelete={!isAdmin && !isOwner} />
+            <PodcastsExplorer disableMultiDelete={!isAdmin && !isOwner} />
           </div>
         </FlexWrapper>
         <FlexWrapper
           flexDirection="column"
           alignItems="stretch"
-          width="60%"
+          width="45%"
           className={styles.rightPanel}
         >
           {selectedDocId ? (
@@ -170,21 +169,21 @@ export const CollectionDetail = ({
               pageId={selectedDocId}
               canAccess={canAccess}
               skeleton={
-                <div className={styles.editorPlaceholder}>加载中...</div>
+                <div className={styles.editorPlaceholder}>播客加载中...</div>
               }
               notFound={
                 <div className={styles.editorPlaceholder}>
-                  文档未找到或无权限访问
+                  播客未找到或无权限访问
                 </div>
               }
             >
-              <MindMapEditorWrapper onLoad={handleEditorLoad} />
+              <PlayerWrapper onLoad={handleEditorLoad} />
             </DetailPageWrapper>
           ) : (
             <div className={styles.editorPlaceholder}>
               <div className={styles.placeholderContent}>
                 <div className={styles.placeholderText}>
-                  请选择一个文档来查看
+                  请选择一个播客来收听
                 </div>
               </div>
             </div>
@@ -192,26 +191,6 @@ export const CollectionDetail = ({
         </FlexWrapper>
       </ViewBody>
     </DocExplorerContext.Provider>
-  );
-};
-
-// Mind-maps 专用的编辑器包装器，强制使用 edgeless 模式
-const MindMapEditorWrapper = ({ onLoad }: { onLoad: () => void }) => {
-  const editorService = useService(EditorService);
-
-  useEffect(() => {
-    // 强制设置为 edgeless 模式
-    const currentMode = editorService.editor.mode$.value;
-    if (currentMode !== 'edgeless') {
-      console.log('Switching to edgeless mode for mind-maps preview');
-      editorService.editor.setMode('edgeless');
-    }
-  }, [editorService]);
-
-  return (
-    <div className={styles.mindMapEditorWrapper}>
-      <PageDetailEditor onLoad={onLoad} readonly />
-    </div>
   );
 };
 

@@ -4,7 +4,7 @@ import { ExplorerNavigation } from '@affine/core/components/explorer/header/navi
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
 import { Header } from '@affine/core/components/pure/header';
 
-export const MindMapsHeader = ({
+export const PodcastsHeader = ({
   displayPreference,
   onDisplayPreferenceChange,
 }: {
@@ -24,7 +24,7 @@ export const MindMapsHeader = ({
           />
         </FlexWrapper>
       }
-      left={<ExplorerNavigation active="mind-maps" />}
+      left={<ExplorerNavigation active="podcasts" />}
     />
   );
 };

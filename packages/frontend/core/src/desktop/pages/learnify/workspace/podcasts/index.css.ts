@@ -79,17 +79,34 @@ export const placeholderText = style({
 });
 
 export const rightPanel = style({
-  margin: '16px',
+  margin: '16px 16px 16px 0',
   border: `1px solid ${cssVarV2.layer.insideBorder.border}`,
   borderRadius: 16,
   backgroundColor: cssVarV2.layer.background.primary,
 });
 
-export const mindMapEditorWrapper = style({
+export const podcastEditorWrapper = style({
   width: '100%',
   height: '100%',
   borderRadius: 16,
   overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column',
+  position: 'relative',
+});
+
+export const zoomToolbar = style({
+  position: 'absolute',
+  bottom: 16,
+  left: 16,
+  zIndex: 10,
+});
+
+export const editButton = style({
+  position: 'absolute',
+  bottom: 20,
+  right: 16,
+  zIndex: 10,
+
+  borderRadius: 8,
 });
