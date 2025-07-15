@@ -52,10 +52,10 @@ export const CollectionDetail = ({
   );
   const collectionRulesService = useService(CollectionRulesService);
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+  const [hasAutoSelected, setHasAutoSelected] = useState(false);
 
   const handleEditorLoad = useCallback(() => {
     // 编辑器加载完成后的回调
-    console.log('Editor loaded for mind-maps preview');
   }, []);
 
   // 监听选中的文档ID变化
@@ -63,27 +63,15 @@ export const CollectionDetail = ({
 
   useEffect(() => {
     // 当有文档被选中时，设置第一个选中的文档为编辑器显示的文档
-    console.log('Selected doc IDs changed:', selectedDocIds);
     if (selectedDocIds.length > 0) {
-      const newSelectedDocId = selectedDocIds[0];
-      console.log('Setting selected doc ID to:', newSelectedDocId);
-      setSelectedDocId(newSelectedDocId);
+      setSelectedDocId(selectedDocIds[0]);
     } else {
-      // 如果没有选中的文档，清除当前选择
       setSelectedDocId(null);
     }
   }, [selectedDocIds]);
 
   // 检查文档访问权限
   const canAccess = useGuard('Doc_Read', selectedDocId ?? '');
-
-  // 添加调试信息
-  useEffect(() => {
-    if (selectedDocId) {
-      console.log('Selected document:', selectedDocId);
-      console.log('Can access document:', canAccess);
-    }
-  }, [selectedDocId, canAccess]);
 
   const permissionService = useService(WorkspacePermissionService);
   const isAdmin = useLiveData(permissionService.permission.isAdmin$);
@@ -129,6 +117,19 @@ export const CollectionDetail = ({
       .subscribe({
         next: result => {
           explorerContextValue.groups$.next(result.groups);
+
+          // Auto-select first document if none selected
+          if (
+            !hasAutoSelected &&
+            selectedDocIds.length === 0 &&
+            result.groups.length > 0
+          ) {
+            const firstGroup = result.groups[0];
+            if (firstGroup.items && firstGroup.items.length > 0) {
+              setHasAutoSelected(true);
+              explorerContextValue.selectedDocIds$.next([firstGroup.items[0]]);
+            }
+          }
         },
         error: error => {
           console.error(error);
@@ -141,9 +142,12 @@ export const CollectionDetail = ({
     allowList,
     collectionRulesService,
     explorerContextValue.groups$,
+    explorerContextValue.selectedDocIds$,
     groupBy,
     orderBy,
     rules.filters,
+    selectedDocIds,
+    hasAutoSelected,
   ]);
 
   return (
