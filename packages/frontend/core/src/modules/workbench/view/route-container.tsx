@@ -48,6 +48,8 @@ export const RouteContainer = () => {
   const workbench = useService(WorkbenchService).workbench;
   const view = useService(ViewService).view;
   const sidebarOpen = useLiveData(workbench.sidebarOpen$);
+  const sidebarTabs = useLiveData(view.sidebarTabs$);
+  const hasSidebarTabs = sidebarTabs.length > 0;
   const handleToggleSidebar = useCallback(() => {
     workbench.toggleSidebar();
   }, [workbench]);
@@ -65,7 +67,7 @@ export const RouteContainer = () => {
           viewId={view.id}
           className={styles.viewHeaderContainer}
         />
-        {!BUILD_CONFIG.isElectron && viewPosition.isLast && (
+        {!BUILD_CONFIG.isElectron && viewPosition.isLast && hasSidebarTabs && (
           <ToggleButton
             show={!sidebarOpen}
             className={styles.rightSidebarButton}
