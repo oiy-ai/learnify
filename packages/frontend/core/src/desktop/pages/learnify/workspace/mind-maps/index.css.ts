@@ -101,3 +101,12 @@ export const zoomToolbar = style({
   left: 16,
   zIndex: 10,
 });
+
+export const editButton = style({
+  position: 'absolute',
+  bottom: 20,
+  right: 16,
+  zIndex: 10,
+
+  borderRadius: 8,
+});

@@ -1,4 +1,4 @@
-import { FlexWrapper } from '@affine/component';
+import { Button, FlexWrapper } from '@affine/component';
 import { EmptyCollectionDetail } from '@affine/core/components/affine/empty/collection-detail';
 import {
   createDocExplorerContext,
@@ -18,7 +18,7 @@ import { GlobalContextService } from '@affine/core/modules/global-context';
 import { WorkspacePermissionService } from '@affine/core/modules/permissions';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
-import { ViewLayersIcon } from '@blocksuite/icons/rc';
+import { EditIcon, ViewLayersIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService, useServices } from '@toeverything/infra';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -200,6 +200,9 @@ export const CollectionDetail = ({
 const MindMapEditorWrapper = ({ onLoad }: { onLoad: () => void }) => {
   const editorService = useService(EditorService);
   const editor = editorService.editor;
+  const workspace = useService(WorkspaceService).workspace;
+  const { jumpToPage } = useNavigateHelper();
+  const currentDocId = editor.doc.id;
 
   useEffect(() => {
     // 强制设置为 edgeless 模式
@@ -225,11 +228,22 @@ const MindMapEditorWrapper = ({ onLoad }: { onLoad: () => void }) => {
     [editor, onLoad]
   );
 
+  const handleEditClick = useCallback(() => {
+    if (currentDocId) {
+      jumpToPage(workspace.id, currentDocId);
+    }
+  }, [currentDocId, jumpToPage, workspace.id]);
+
   return (
     <div className={styles.mindMapEditorWrapper}>
       <PageDetailEditor onLoad={handleEditorLoad} readonly />
       <div className={styles.zoomToolbar}>
         <ZoomToolbarWrapper />
+      </div>
+      <div className={styles.editButton}>
+        <Button size="default" prefix={<EditIcon />} onClick={handleEditClick}>
+          编辑
+        </Button>
       </div>
     </div>
   );
