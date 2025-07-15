@@ -32,7 +32,6 @@ import {
 } from '../../../../../modules/workbench';
 import { PageNotFound } from '../../../404';
 import { DetailPageWrapper } from '../../../workspace/detail-page/detail-page-wrapper';
-import { AllDocSidebarTabs } from '../../../workspace/layouts/all-doc-sidebar-tabs';
 import { MindMapsHeader } from './header';
 import * as styles from './index.css';
 import { ZoomToolbarWrapper } from './zoom-toolbar-wrapper';
@@ -296,7 +295,6 @@ export const Component = function CollectionPage() {
     <>
       <ViewIcon icon="collection" />
       <ViewTitle title={name ?? t['Untitled']()} />
-      <AllDocSidebarTabs />
       {inner}
     </>
   );

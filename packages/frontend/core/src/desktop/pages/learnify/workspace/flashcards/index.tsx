@@ -28,7 +28,6 @@ import {
   ViewTitle,
 } from '../../../../../modules/workbench';
 import { PageNotFound } from '../../../404';
-import { AllDocSidebarTabs } from '../../../workspace/layouts/all-doc-sidebar-tabs';
 import { FlashcardsHeader } from './header';
 import * as styles from './index.css';
 
@@ -177,7 +176,6 @@ export const Component = function CollectionPage() {
     <>
       <ViewIcon icon="collection" />
       <ViewTitle title={name ?? t['Untitled']()} />
-      <AllDocSidebarTabs />
       {inner}
     </>
   );
