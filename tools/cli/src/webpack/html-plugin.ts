@@ -248,6 +248,7 @@ export function createHTMLPlugins(
         meta: {
           'env:isSelfHosted': 'true',
           'env:publicPath': '/',
+          'env:enableAI': 'true',
         },
         filename: 'selfhost.html',
         templateParameters: {

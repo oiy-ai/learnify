@@ -4,6 +4,7 @@ import {
   ServerFeature,
 } from '@affine/graphql';
 
+import { SELFHOST_SERVER_FEATURES } from './selfhost-config';
 import type { ServerConfig, ServerMetadata } from './types';
 
 export const BUILD_IN_SERVERS: (ServerMetadata & { config: ServerConfig })[] =
@@ -17,9 +18,9 @@ export const BUILD_IN_SERVERS: (ServerMetadata & { config: ServerConfig })[] =
           // since we never build desktop app in selfhosted mode, so it's fine
           config: {
             serverName: 'Learnify Cloud',
-            features: [],
             oauthProviders: [],
             type: ServerDeploymentType.Selfhosted,
+            features: SELFHOST_SERVER_FEATURES,
             credentialsRequirement: {
               password: {
                 minLength: 8,
