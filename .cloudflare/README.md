@@ -1,59 +1,86 @@
-# Containers Starter
+# Learnify Cloudflare 部署指南
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/containers-template)
+本目录包含 Learnify 项目在 Cloudflare Containers 上的部署配置和脚本。
 
-![Containers Template Preview](https://imagedelivery.net/_yJ02hpOMj_EnGvsU2aygw/5aba1fb7-b937-46fd-fa67-138221082200/public)
+## 📋 前置要求
 
-<!-- dash-content-start -->
+在开始部署之前，请确保：
 
-This is a [Container](https://developers.cloudflare.com/containers/) starter template.
+1. **安装必要工具**
 
-It demonstrates basic Container coniguration, launching and routing to individual container, load balancing over multiple container, running basic hooks on container status changes.
+   - Docker
+   - Node.js 和 npm
+   - Wrangler CLI (`npm install -g wrangler`)
 
-<!-- dash-content-end -->
+2. **配置环境变量**
+   在项目根目录创建 `.env` 文件，包含以下变量：
+   ```bash
+   CLOUDFLARE_API_TOKEN=your_cloudflare_api_token
+   CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
+   ```
 
-Outside of this repo, you can start a new project with this template using [C3](https://developers.cloudflare.com/pages/get-started/c3/) (the `create-cloudflare` CLI):
+## 🚀 部署流程
 
-```bash
-npm create cloudflare@latest -- --template=cloudflare/templates/containers-template
-```
+### Beta 环境部署
 
-## Getting Started
-
-First, run:
-
-```bash
-npm install
-# or
-yarn install
-# or
-pnpm install
-# or
-bun install
-```
-
-Then run the development server (using the package manager of your choice):
+使用提供的脚本自动部署到 Beta 环境：
 
 ```bash
-npm run dev
+# 确保在项目根目录
+cd /path/to/learnify
+
+# 运行部署脚本
+./.cloudflare/deploy-beta.sh
 ```
 
-Open [http://localhost:8787](http://localhost:8787) with your browser to see the result.
+### 部署步骤说明
 
-You can start editing your Worker by modifying `src/index.ts` and you can start
-editing your Container by editing the content of `container_src`.
+脚本会自动执行以下步骤：
 
-## Deploying To Production
+1. **环境检查** - 验证 `.env` 文件是否存在
+2. **镜像拉取** - 从 GitHub Container Registry 拉取最新的 beta 镜像
+3. **镜像标记** - 为镜像添加 Cloudflare 仓库标签
+4. **镜像推送** - 将镜像推送到 Cloudflare 容器仓库
+5. **服务部署** - 部署到 Cloudflare Containers
 
-| Command          | Action                                |
-| :--------------- | :------------------------------------ |
-| `npm run deploy` | Deploy your application to Cloudflare |
+## 🌐 访问地址
 
-## Learn More
+部署完成后，可以通过以下地址访问：
 
-To learn more about Containers, take a look at the following resources:
+- **Beta 环境**: https://learnify-beta.xsun.workers.dev
 
-- [Container Documentation](https://developers.cloudflare.com/containers/) - learn about Containers
-- [Container Class](https://github.com/cloudflare/containers) - learn about the Container helper class
+## 📁 文件结构
 
-Your feedback and contributions are welcome!
+```
+.cloudflare/
+├── README.md          # 本文件
+├── deploy-beta.sh     # Beta 环境部署脚本
+└── ...               # 其他配置文件
+```
+
+## 🔧 故障排除
+
+### 常见问题
+
+1. **`.env` 文件不存在**
+
+   - 确保在项目根目录创建 `.env` 文件
+   - 填写正确的 Cloudflare API Token 和 Account ID
+
+2. **Docker 权限问题**
+
+   - 确保 Docker 服务正在运行
+   - 检查 Docker 权限设置
+
+3. **Wrangler 认证问题**
+   - 运行 `wrangler login` 进行身份验证
+   - 检查 API Token 权限
+
+## 📞 支持
+
+如果遇到部署问题，请检查：
+
+1. Cloudflare API Token 权限
+2. Docker 镜像是否存在
+3. 网络连接状态
+4. Wrangler CLI 配置
