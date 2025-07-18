@@ -112,13 +112,12 @@ jobs:
             --project=${{ env.GCP_PROJECT }} \
             --platform=managed \
             --port=3010 \
-            --memory=2Gi \
-            --cpu=1 \
-            --min-instances=1 \
+            --memory=512Mi \
+            --cpu=0.5 \
+            --min-instances=0 \
             --max-instances=1 \
-            --concurrency=80 \
-            --timeout=300 \
-            --cpu-boost \
+            --concurrency=40 \
+            --timeout=180 \
             --service-account=ghcr-sync@learnify-463605.iam.gserviceaccount.com \
             --set-env-vars="AFFINE_SERVER_PORT=3010,REDIS_SERVER_PORT=6379,REDIS_SERVER_TLS=true,REDIS_SERVER_DATABASE=0,AFFINE_INDEXER_ENABLED=false,AFFINE_SERVER_HTTPS=true" \
             --set-secrets="REDIS_SERVER_HOST=${SECRET_PREFIX}_REDIS_HOST:latest,REDIS_SERVER_USERNAME=${SECRET_PREFIX}_REDIS_USERNAME:latest,REDIS_SERVER_PASSWORD=${SECRET_PREFIX}_REDIS_PASSWORD:latest,DATABASE_URL=${SECRET_PREFIX}_DB_URL:latest,AFFINE_SERVER_HOST=${SECRET_PREFIX}_SERVER_URL:latest,AFFINE_SERVER_EXTERNAL_URL=${SECRET_PREFIX}_SERVER_URL:latest" \
