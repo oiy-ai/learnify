@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
+    "deploy": "WRANGLER_LOG=debug wrangler deploy",
+    "dev": "WRANGLER_LOG=debug wrangler dev",
     "start": "wrangler dev",
     "cf-typegen": "wrangler types"
   },
