@@ -1,0 +1,78 @@
+name: Deploy to Cloudflare Containers
+
+on:
+  workflow_call:
+    inputs:
+      flavor:
+        type: string
+        required: true
+        description: 'The flavor to deploy (canary, beta)'
+  workflow_dispatch:
+    inputs:
+      flavor:
+        type: choice
+        required: true
+        description: 'The flavor to deploy'
+        options:
+          - canary
+          - beta
+
+permissions:
+  contents: 'read'
+  id-token: 'write'
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Containers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up environment variables
+        run: |
+          echo "RELEASE_FLAVOR=${{ inputs.flavor }}" >> "$GITHUB_ENV"
+          echo "CF_ACCOUNT_ID=${{ secrets.CF_ACCOUNT_ID }}" >> "$GITHUB_ENV"
+          echo "CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}" >> "$GITHUB_ENV"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install Wrangler
+        run: npm install -g wrangler@latest
+
+      - name: Configure Wrangler
+        run: |
+          # 根据 flavor 设置不同的配置
+          if [ "${{ inputs.flavor }}" = "canary" ]; then
+            echo "Deploying canary version"
+            # 可以在这里添加 canary 特定的配置
+          else
+            echo "Deploying beta version"
+            # 可以在这里添加 beta 特定的配置
+          fi
+
+      - name: Deploy to Cloudflare Containers
+        run: |
+          cd .cloudflare
+
+          # 设置 Cloudflare 认证
+          echo "CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}" > .env
+          echo "CF_ACCOUNT_ID=${{ secrets.CF_ACCOUNT_ID }}" >> .env
+
+          # 根据 flavor 选择配置文件
+          if [ "${{ inputs.flavor }}" = "canary" ]; then
+            echo "Deploying canary version using wrangler.canary.toml"
+            wrangler deploy --config wrangler.canary.toml
+          else
+            echo "Deploying beta version using wrangler.beta.toml"
+            wrangler deploy --config wrangler.beta.toml
+          fi
+
+      - name: Verify deployment
+        run: |
+          echo "Deployment completed! Checking service status..."
+          # 这里可以添加验证部署状态的命令
+          # 例如检查容器是否正常运行等

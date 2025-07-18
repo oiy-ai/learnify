@@ -18,10 +18,18 @@ jobs:
     with:
       flavor: ${{ github.ref_name == 'dev' && 'beta' || 'canary' }}
 
-  # deploy-to-cloud-run:
-  #   name: Deploy to Cloud Run
+  deploy-to-cloud-run:
+    name: Deploy to Cloud Run
+    needs: build-image
+    uses: ./.github/workflows/deploy-to-cloud-run.yml
+    with:
+      flavor: ${{ github.ref_name == 'dev' && 'beta' || 'canary' }}
+    secrets: inherit
+
+  # deploy-to-cloudflare:
+  #   name: Deploy to Cloudflare Containers
   #   needs: build-image
-  #   uses: ./.github/workflows/deploy-to-cloud-run.yml
+  #   uses: ./.github/workflows/deploy-to-cloudflare.yml
   #   with:
   #     flavor: ${{ github.ref_name == 'dev' && 'beta' || 'canary' }}
   #   secrets: inherit
