@@ -116,7 +116,7 @@ jobs:
             --cpu=0.5 \
             --min-instances=0 \
             --max-instances=1 \
-            --concurrency=40 \
+            --concurrency=1 \
             --timeout=180 \
             --service-account=ghcr-sync@learnify-463605.iam.gserviceaccount.com \
             --set-env-vars="AFFINE_SERVER_PORT=3010,REDIS_SERVER_PORT=6379,REDIS_SERVER_TLS=true,REDIS_SERVER_DATABASE=0,AFFINE_INDEXER_ENABLED=false,AFFINE_SERVER_HTTPS=true" \
