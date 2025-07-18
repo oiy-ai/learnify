@@ -3,8 +3,8 @@
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "learnify-cloudflare",
+  "$schema": "./wrangler.config-schema.json",
+  "name": "learnify-beta",
   "main": "src/index.ts",
   "compatibility_date": "2025-05-23",
   "compatibility_flags": ["nodejs_compat"],
@@ -13,23 +13,24 @@
   },
   "containers": [
     {
-      "class_name": "MyContainer",
-      "image": "./Dockerfile",
-      "max_instances": 10,
-      "name": "hello-containers",
+      "class_name": "LearnifyContainer",
+      "image": "registry.cloudflare.com/b5ee1671e54d7c7fcf17e90b9ca7741a/learnify-graphql:beta",
+      "max_instances": 1,
+      "name": "learnify-beta",
+      "instance_type": "standard",
     },
   ],
   "durable_objects": {
     "bindings": [
       {
-        "class_name": "MyContainer",
-        "name": "MY_CONTAINER",
+        "class_name": "LearnifyContainer",
+        "name": "LEARNIFY_CONTAINER",
       },
     ],
   },
   "migrations": [
     {
-      "new_sqlite_classes": ["MyContainer"],
+      "new_sqlite_classes": ["LearnifyContainer"],
       "tag": "v1",
     },
   ],
@@ -50,7 +51,20 @@
    * Environment Variables
    * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
    */
-  // "vars": { "MY_VARIABLE": "production_value" },
+  "vars": {
+    // TODO: Add environment variables before deploying
+    "AFFINE_SERVER_PORT": "...",
+    "AFFINE_SERVER_HTTPS": "...",
+    "AFFINE_INDEXER_ENABLED": "...",
+    "AFFINE_REVISION": "...",
+    "DATABASE_URL": "...",
+    "REDIS_SERVER_HOST": "...",
+    "REDIS_SERVER_PORT": "...",
+    "REDIS_SERVER_USERNAME": "...",
+    "REDIS_SERVER_PASSWORD": "...",
+    "REDIS_SERVER_TLS": "...",
+    "REDIS_SERVER_DATABASE": "...",
+  },
   /**
    * Note: Use secrets to store sensitive data.
    * https://developers.cloudflare.com/workers/configuration/secrets/
