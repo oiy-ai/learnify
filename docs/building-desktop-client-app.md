@@ -37,7 +37,7 @@ On Windows, you must enable symbolic links this code repo. See [#### Windows](./
 
 ## Build, package & make the desktop client app
 
-> repos/AFFiNE/.github/workflows/release-desktop.yml contains real order to build the desktop client app, but here we will explain the steps in a more detailed way. Up-to date.
+> repos/Learnify/.github/workflows/release-desktop.yml contains real order to build the desktop client app, but here we will explain the steps in a more detailed way. Up-to date.
 
 ### 0. Build the native modules
 

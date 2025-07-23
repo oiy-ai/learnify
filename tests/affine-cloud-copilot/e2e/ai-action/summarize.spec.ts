@@ -17,7 +17,7 @@ test.describe('AIAction/Summarize', () => {
       'AFFiNE is a workspace with fully merged docs'
     );
     const { answer, responses } = await summarize();
-    await expect(answer).toHaveText(/AFFiNE/, { timeout: 10000 });
+    await expect(answer).toHaveText(/Learnify/, { timeout: 10000 });
     expect(responses).toEqual(new Set(['insert-below', 'replace-selection']));
   });
 
@@ -35,7 +35,7 @@ test.describe('AIAction/Summarize', () => {
       }
     );
     const { answer, responses } = await summarize();
-    await expect(answer).toHaveText(/AFFiNE/, { timeout: 10000 });
+    await expect(answer).toHaveText(/Learnify/, { timeout: 10000 });
     expect(responses).toEqual(new Set(['insert-below']));
   });
 
@@ -53,7 +53,7 @@ test.describe('AIAction/Summarize', () => {
       }
     );
     const { answer, responses } = await summarize();
-    await expect(answer).toHaveText(/AFFiNE/, { timeout: 10000 });
+    await expect(answer).toHaveText(/Learnify/, { timeout: 10000 });
     expect(responses).toEqual(new Set(['insert-below']));
   });
 
@@ -66,7 +66,7 @@ test.describe('AIAction/Summarize', () => {
       'AFFiNE is a workspace with fully merged docs'
     );
     const { answer } = await summarize();
-    await expect(answer).toHaveText(/AFFiNE/, { timeout: 10000 });
+    await expect(answer).toHaveText(/Learnify/, { timeout: 10000 });
     const replace = answer.getByTestId('answer-replace');
     await replace.click();
     await utils.chatPanel.waitForHistory(page, [
@@ -79,7 +79,7 @@ test.describe('AIAction/Summarize', () => {
       prompt,
       actionName,
     } = await utils.chatPanel.getLatestAIActionMessage(page);
-    await expect(panelAnswer).toHaveText(/AFFiNE/);
+    await expect(panelAnswer).toHaveText(/Learnify/);
     await expect(prompt).toHaveText(/Summary the follow text/);
     await expect(actionName).toHaveText(/Summary/);
   });

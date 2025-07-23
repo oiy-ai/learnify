@@ -17,7 +17,7 @@ test.describe('AIAction/WriteAnArticleAboutThis', () => {
       'AFFiNE is a workspace with fully merged docs'
     );
     const { answer, responses } = await writeArticle();
-    await expect(answer).toHaveText(/AFFiNE/);
+    await expect(answer).toHaveText(/Learnify/);
     expect(responses).toEqual(new Set(['insert-below', 'replace-selection']));
   });
 
@@ -35,7 +35,7 @@ test.describe('AIAction/WriteAnArticleAboutThis', () => {
       }
     );
     const { answer, responses } = await writeArticle();
-    await expect(answer).toHaveText(/AFFiNE/);
+    await expect(answer).toHaveText(/Learnify/);
     expect(responses).toEqual(new Set(['insert-below']));
   });
 
@@ -53,7 +53,7 @@ test.describe('AIAction/WriteAnArticleAboutThis', () => {
       }
     );
     const { answer, responses } = await writeArticle();
-    await expect(answer).toHaveText(/AFFiNE/);
+    await expect(answer).toHaveText(/Learnify/);
     expect(responses).toEqual(new Set(['insert-below']));
   });
 
@@ -66,7 +66,7 @@ test.describe('AIAction/WriteAnArticleAboutThis', () => {
       'AFFiNE is a workspace with fully merged docs'
     );
     const { answer } = await writeArticle();
-    await expect(answer).toHaveText(/AFFiNE/);
+    await expect(answer).toHaveText(/Learnify/);
     const replace = answer.getByTestId('answer-replace');
     await replace.click();
     await utils.chatPanel.waitForHistory(page, [
@@ -79,7 +79,7 @@ test.describe('AIAction/WriteAnArticleAboutThis', () => {
       prompt,
       actionName,
     } = await utils.chatPanel.getLatestAIActionMessage(page);
-    await expect(panelAnswer).toHaveText(/AFFiNE/);
+    await expect(panelAnswer).toHaveText(/Learnify/);
     await expect(prompt).toHaveText(/Write an article about this/);
     await expect(actionName).toHaveText(/Write an article about this/);
   });

@@ -22,7 +22,7 @@ test.describe('AIAction/GenerateHeadings', () => {
       answer.locator('h2').isVisible(),
       answer.locator('h3').isVisible(),
     ]);
-    await expect(answer).toHaveText(/AFFiNE/, { timeout: 10000 });
+    await expect(answer).toHaveText(/Learnify/, { timeout: 10000 });
     expect(responses).toEqual(new Set(['insert-above', 'replace-selection']));
   });
 
@@ -46,7 +46,7 @@ test.describe('AIAction/GenerateHeadings', () => {
       answer.locator('h2').isVisible(),
       answer.locator('h3').isVisible(),
     ]);
-    await expect(answer).toHaveText(/AFFiNE/, { timeout: 10000 });
+    await expect(answer).toHaveText(/Learnify/, { timeout: 10000 });
     expect(responses).toEqual(new Set(['insert-below']));
   });
 
@@ -70,7 +70,7 @@ test.describe('AIAction/GenerateHeadings', () => {
       answer.locator('h2').isVisible(),
       answer.locator('h3').isVisible(),
     ]);
-    await expect(answer).toHaveText(/AFFiNE/, { timeout: 10000 });
+    await expect(answer).toHaveText(/Learnify/, { timeout: 10000 });
     expect(responses).toEqual(new Set(['insert-below']));
   });
 
@@ -83,7 +83,7 @@ test.describe('AIAction/GenerateHeadings', () => {
       'AFFiNE is a workspace with fully merged docs'
     );
     const { answer } = await generateHeadings();
-    await expect(answer).toHaveText(/AFFiNE/, { timeout: 10000 });
+    await expect(answer).toHaveText(/Learnify/, { timeout: 10000 });
     const replace = answer.getByTestId('answer-replace');
     await replace.click();
     await utils.chatPanel.waitForHistory(page, [
@@ -96,7 +96,7 @@ test.describe('AIAction/GenerateHeadings', () => {
       prompt,
       actionName,
     } = await utils.chatPanel.getLatestAIActionMessage(page);
-    await expect(panelAnswer).toHaveText(/AFFiNE/);
+    await expect(panelAnswer).toHaveText(/Learnify/);
     await Promise.race([
       panelAnswer.locator('h1').isVisible(),
       panelAnswer.locator('h2').isVisible(),

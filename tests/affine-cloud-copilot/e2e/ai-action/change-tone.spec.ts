@@ -17,7 +17,7 @@ test.describe('AIAction/ChangeTone', () => {
       'AFFiNE is a great note-taking app'
     );
     const { answer, responses } = await changeTone('informal');
-    await expect(answer).toHaveText(/AFFiNE/, { timeout: 10000 });
+    await expect(answer).toHaveText(/Learnify/, { timeout: 10000 });
     expect(responses).toEqual(new Set(['insert-below', 'replace-selection']));
   });
 
@@ -36,7 +36,7 @@ test.describe('AIAction/ChangeTone', () => {
     );
 
     const { answer, responses } = await changeTone('informal');
-    await expect(answer).toHaveText(/AFFiNE/, { timeout: 10000 });
+    await expect(answer).toHaveText(/Learnify/, { timeout: 10000 });
     expect(responses).toEqual(new Set(['insert-below']));
   });
 
@@ -55,7 +55,7 @@ test.describe('AIAction/ChangeTone', () => {
     );
 
     const { answer, responses } = await changeTone('informal');
-    await expect(answer).toHaveText(/AFFiNE/, { timeout: 10000 });
+    await expect(answer).toHaveText(/Learnify/, { timeout: 10000 });
     expect(responses).toEqual(new Set(['insert-below']));
   });
 
@@ -80,7 +80,7 @@ test.describe('AIAction/ChangeTone', () => {
       prompt,
       actionName,
     } = await utils.chatPanel.getLatestAIActionMessage(page);
-    await expect(panelAnswer).toHaveText(/AFFiNE/);
+    await expect(panelAnswer).toHaveText(/Learnify/);
     await expect(prompt).toHaveText(/Change tone/);
     await expect(actionName).toHaveText(/Change tone/);
   });

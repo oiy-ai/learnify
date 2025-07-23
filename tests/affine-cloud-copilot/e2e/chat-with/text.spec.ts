@@ -66,7 +66,7 @@ test.describe('AIChatWith/Text', () => {
     );
     const { answer } = await generateHeadings();
     await answer.locator('h1').isVisible();
-    await expect(answer).toHaveText(/AFFiNE/, { timeout: 10000 });
+    await expect(answer).toHaveText(/Learnify/, { timeout: 10000 });
 
     const insertAbove = answer.getByTestId('answer-insert-above');
     await insertAbove.click();
