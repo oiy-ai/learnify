@@ -1,6 +1,6 @@
-import { Checkbox } from '@affine/component';
+import { Checkbox, useConfirmModal } from '@affine/component';
 import { SourcesStore } from '@affine/core/modules/learnify';
-import { Trans } from '@affine/i18n';
+import { Trans, useI18n } from '@affine/i18n';
 import { ExportToPdfIcon, ImageIcon, LinkIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useMemo, useState } from 'react';
@@ -59,11 +59,13 @@ const SourceCard = ({
 };
 
 export const NavigationPanelSources = () => {
+  const t = useI18n();
   const sourcesStore = useService(SourcesStore);
   const sources = useLiveData(sourcesStore.sources$);
   const [checkedSources, setCheckedSources] = useState<Record<string, boolean>>(
     {}
   );
+  const { openConfirmModal } = useConfirmModal();
 
   const selectedSourceIds = useMemo(() => {
     return Object.keys(checkedSources).filter(id => checkedSources[id]);
@@ -83,16 +85,34 @@ export const NavigationPanelSources = () => {
     setCheckedSources({});
   }, []);
 
-  const handleDeleteSources = useCallback(async () => {
+  const handleDeleteSources = useCallback(() => {
     console.log('NavigationPanelSources: handleDeleteSources called', {
       selectedSourceIds,
     });
-    // Delete all selected sources (including their blobs)
-    await Promise.all(
-      selectedSourceIds.map(id => sourcesStore.removeSource(id))
-    );
-    setCheckedSources({});
-  }, [selectedSourceIds, sourcesStore]);
+
+    openConfirmModal({
+      title: t['com.affine.moveToTrash.confirmModal.title.multiple']({
+        number: selectedSourceIds.length.toString(),
+      }),
+      description: t[
+        'com.affine.moveToTrash.confirmModal.description.multiple'
+      ]({
+        number: selectedSourceIds.length.toString(),
+      }),
+      cancelText: t['com.affine.confirmModal.button.cancel'](),
+      confirmText: t.Delete(),
+      confirmButtonOptions: {
+        variant: 'error',
+      },
+      onConfirm: async () => {
+        // Delete all selected sources (including their blobs)
+        await Promise.all(
+          selectedSourceIds.map(id => sourcesStore.removeSource(id))
+        );
+        setCheckedSources({});
+      },
+    });
+  }, [selectedSourceIds, sourcesStore, openConfirmModal, t]);
 
   // If no sources uploaded yet, show a helpful message
   if (!sources || sources.length === 0) {
@@ -132,7 +152,7 @@ export const NavigationPanelSources = () => {
       </div>
       <ListFloatingToolbar
         open={hasSelection}
-        onDelete={() => void handleDeleteSources()}
+        onDelete={handleDeleteSources}
         onClose={handleCloseFloatingToolbar}
         content={
           <Trans
