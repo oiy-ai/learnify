@@ -1,9 +1,11 @@
 import { Checkbox } from '@affine/component';
 import { SourcesStore } from '@affine/core/modules/learnify';
+import { Trans } from '@affine/i18n';
 import { ExportToPdfIcon, ImageIcon, LinkIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
+import { ListFloatingToolbar } from '../../../page-list/components/list-floating-toolbar';
 import * as styles from './index.css';
 
 interface SourceCardProps {
@@ -63,6 +65,12 @@ export const NavigationPanelSources = () => {
     {}
   );
 
+  const selectedSourceIds = useMemo(() => {
+    return Object.keys(checkedSources).filter(id => checkedSources[id]);
+  }, [checkedSources]);
+
+  const hasSelection = selectedSourceIds.length > 0;
+
   const handleCheckedChange = (id: string, checked: boolean) => {
     setCheckedSources(prev => ({
       ...prev,
@@ -70,17 +78,36 @@ export const NavigationPanelSources = () => {
     }));
   };
 
+  const handleCloseFloatingToolbar = useCallback(() => {
+    console.log('NavigationPanelSources: handleCloseFloatingToolbar called');
+    setCheckedSources({});
+  }, []);
+
+  const handleDeleteSources = useCallback(async () => {
+    console.log('NavigationPanelSources: handleDeleteSources called', {
+      selectedSourceIds,
+    });
+    // Delete all selected sources (including their blobs)
+    await Promise.all(
+      selectedSourceIds.map(id => sourcesStore.removeSource(id))
+    );
+    setCheckedSources({});
+  }, [selectedSourceIds, sourcesStore]);
+
   // If no sources uploaded yet, show a helpful message
   if (!sources || sources.length === 0) {
     return (
       <div className={styles.sourcesContainer}>
-        <div style={{ 
-          padding: '24px', 
-          textAlign: 'center', 
-          color: 'var(--affine-text-secondary-color)',
-          fontSize: '14px'
-        }}>
-          No reference materials uploaded yet.<br />
+        <div
+          style={{
+            padding: '24px',
+            textAlign: 'center',
+            color: 'var(--affine-text-secondary-color)',
+            fontSize: '14px',
+          }}
+        >
+          No reference materials uploaded yet.
+          <br />
           Use the upload button above to add PDFs, images, or other files.
         </div>
       </div>
@@ -88,19 +115,37 @@ export const NavigationPanelSources = () => {
   }
 
   return (
-    <div className={styles.sourcesContainer}>
-      {sources.map(source => (
-        <SourceCard
-          key={source.id}
-          id={source.id}
-          name={source.name}
-          category={source.category}
-          url={source.url}
-          description={source.description}
-          checked={checkedSources[source.id] || false}
-          onCheckedChange={handleCheckedChange}
-        />
-      ))}
-    </div>
+    <>
+      <div className={styles.sourcesContainer}>
+        {sources.map(source => (
+          <SourceCard
+            key={source.id}
+            id={source.id}
+            name={source.name}
+            category={source.category}
+            url={source.url}
+            description={source.description}
+            checked={checkedSources[source.id] || false}
+            onCheckedChange={handleCheckedChange}
+          />
+        ))}
+      </div>
+      <ListFloatingToolbar
+        open={hasSelection}
+        onDelete={() => void handleDeleteSources()}
+        onClose={handleCloseFloatingToolbar}
+        content={
+          <Trans
+            i18nKey="com.affine.page.toolbar.selected"
+            count={selectedSourceIds.length}
+          >
+            <div style={{ color: 'var(--affine-text-secondary)' }}>
+              {{ count: selectedSourceIds.length } as any}
+            </div>
+            selected
+          </Trans>
+        }
+      />
+    </>
   );
 };
