@@ -2058,7 +2058,7 @@
   "com.affine.migration-all-docs-notification.error": "Migration failed: {{errorMessage}}",
   "com.affine.migration-all-docs-notification.button": "Migrate data",
   "com.learnify.notes.header": "Notes",
-  "com.learnify.mind-map.header": "MindMap",
+  "com.learnify.mind-map.header": "MindMaps",
   "com.learnify.quiz-cards.header": "Quiz Cards",
   "com.learnify.flashcards.header": "Flashcards",
   "com.learnify.podcasts.header": "Podcasts",
