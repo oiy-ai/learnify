@@ -12,6 +12,7 @@ export const sourcesContainer = style({
   display: 'flex',
   flexDirection: 'column',
   gap: 16,
+  width: '95%',
 });
 
 export const sourcesHeader = style({
@@ -38,12 +39,16 @@ export const sourceInfo = style({
   flexDirection: 'column',
   gap: 4,
   flex: 1,
+  minWidth: 0, // This ensures the flex item can shrink below its content size
 });
 
 export const sourceName = style({
   fontSize: cssVar('fontSm'),
   fontWeight: 500,
   color: cssVarV2('text/primary'),
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
 
 export const sourceDescription = style({
