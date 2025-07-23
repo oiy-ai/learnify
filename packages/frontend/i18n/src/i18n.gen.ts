@@ -1688,7 +1688,7 @@ export function useAFFiNEI18N(): {
       */
     ["com.learnify.collection.emptyCollection"](): string;
     /**
-      * `Collection is a smart folder where you can manually add docs or automatically add docs through rules.`
+      * `Please upload materials first, then Learnify will generate everything automatically.`
       */
     ["com.learnify.collection.emptyCollectionDescription"](): string;
     /**
@@ -1916,7 +1916,7 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.editCollection.updateCollection"](): string;
     /**
-      * `Collection is a smart folder where you can manually add docs or automatically add docs through rules.`
+      * `Please upload materials first, then Learnify will generate everything automatically.`
       */
     ["com.affine.editCollectionName.createTips"](): string;
     /**
@@ -1944,7 +1944,7 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.empty.collection-detail.action.add-rule"](): string;
     /**
-      * `Collection is a smart folder where you can manually add docs or automatically add docs through rules.`
+      * `Please upload materials first, then Learnify will generate everything automatically.`
       */
     ["com.affine.empty.collection-detail.description"](): string;
     /**
