@@ -1,4 +1,6 @@
-import { IconButton, Popover } from '@affine/component';
+import { IconButton, notify, Popover } from '@affine/component';
+import { WorkspaceService } from '@affine/core/modules/workspace';
+import { SourcesStore } from '@affine/core/modules/learnify/stores/sources-store';
 import { useI18n } from '@affine/i18n';
 import { openFilesWith } from '@blocksuite/affine/shared/utils';
 import {
@@ -7,6 +9,7 @@ import {
   ImageIcon,
   UploadIcon,
 } from '@blocksuite/icons/rc';
+import { useService } from '@toeverything/infra';
 import clsx from 'clsx';
 import type React from 'react';
 import { useCallback, useState } from 'react';
@@ -30,19 +33,79 @@ export function UploadButton({
 }: UploadButtonProps) {
   const t = useI18n();
   const [open, setOpen] = useState(false);
+  const workspace = useService(WorkspaceService).workspace;
+  const sourcesStore = useService(SourcesStore);
 
   const handleUploadFiles = useCallback(
-    async (acceptType?: 'Images' | 'Any') => {
-      const files = await openFilesWith(acceptType, true);
-      if (files && files.length > 0) {
-        // Convert File[] to FileList
-        const dataTransfer = new DataTransfer();
-        files.forEach(file => dataTransfer.items.add(file));
-        await onUpload?.(dataTransfer.files);
+    async (acceptType?: 'Images' | 'Any', fileType?: string) => {
+      console.log(`[UploadButton] Opening file picker for ${fileType || acceptType}`);
+      try {
+        const files = await openFilesWith(acceptType, true);
+        if (files && files.length > 0) {
+          console.log(`[UploadButton] ${files.length} files selected`);
+          
+          // Store files in workspace blob storage
+          for (const file of files) {
+            console.log(`[UploadButton] Processing file: ${file.name}, Size: ${file.size}, Type: ${file.type}`);
+            
+            // Generate unique blob ID
+            const blobId = `learnify-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+            
+            try {
+              // Convert file to Uint8Array
+              const arrayBuffer = await file.arrayBuffer();
+              const data = new Uint8Array(arrayBuffer);
+              
+              // Store in blob storage
+              await workspace.engine.blob.set({
+                key: blobId,
+                data: data,
+                mime: file.type || 'application/octet-stream'
+              });
+              
+              console.log(`[UploadButton] File stored successfully with blobId: ${blobId}`);
+              
+              // Store metadata in sources collection
+              const category = fileType === 'PDF' ? 'pdf' : 
+                              fileType === 'Image' || file.type.startsWith('image/') ? 'image' : 
+                              'attachment';
+              
+              sourcesStore.addSource({
+                blobId,
+                name: file.name,
+                category,
+                description: `Uploaded ${fileType || 'file'}: ${file.name}`,
+                mimeType: file.type,
+                size: file.size,
+              });
+              
+              notify.success({
+                title: 'Upload successful',
+                message: `${file.name} uploaded successfully`,
+              });
+            } catch (error) {
+              console.error(`[UploadButton] Error storing file ${file.name}:`, error);
+              notify.error({
+                title: 'Upload failed',
+                message: `Failed to upload ${file.name}`,
+              });
+            }
+          }
+          
+          // Convert File[] to FileList for backward compatibility
+          const dataTransfer = new DataTransfer();
+          files.forEach(file => dataTransfer.items.add(file));
+          await onUpload?.(dataTransfer.files);
+        } else {
+          console.log('[UploadButton] No files selected');
+        }
+        setOpen(false);
+      } catch (error) {
+        console.error('[UploadButton] Error in file selection:', error);
+        setOpen(false);
       }
-      setOpen(false);
     },
-    [onUpload]
+    [onUpload, workspace, sourcesStore]
   );
 
   return (
@@ -54,7 +117,7 @@ export function UploadButton({
           <div
             className={dialogStyles.menuItem}
             onClick={() => {
-              handleUploadFiles('Images').catch(console.error);
+              handleUploadFiles('Images', 'Image').catch(console.error);
             }}
           >
             <ImageIcon className={dialogStyles.menuIcon} />
@@ -68,7 +131,7 @@ export function UploadButton({
           <div
             className={dialogStyles.menuItem}
             onClick={() => {
-              handleUploadFiles('Any').catch(console.error);
+              handleUploadFiles('Any', 'PDF').catch(console.error);
             }}
           >
             <ExportToPdfIcon className={dialogStyles.menuIcon} />
@@ -82,7 +145,7 @@ export function UploadButton({
           <div
             className={dialogStyles.menuItem}
             onClick={() => {
-              handleUploadFiles('Any').catch(console.error);
+              handleUploadFiles('Any', 'Attachment').catch(console.error);
             }}
           >
             <AttachmentIcon className={dialogStyles.menuIcon} />

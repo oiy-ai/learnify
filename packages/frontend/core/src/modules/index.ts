@@ -31,6 +31,7 @@ import { configureImportClipperModule } from './import-clipper';
 import { configureImportTemplateModule } from './import-template';
 import { configureIntegrationModule } from './integration';
 import { configureJournalModule } from './journal';
+import { configureLearnifyModule } from './learnify';
 import { configureLifecycleModule } from './lifecycle';
 import { configureMediaModule } from './media';
 import { configureNavigationModule } from './navigation';
@@ -118,4 +119,5 @@ export function configureCommonModules(framework: Framework) {
   configureWorkspacePropertyModule(framework);
   configureCollectionRulesModule(framework);
   configureIndexerEmbeddingModule(framework);
+  configureLearnifyModule(framework);
 }

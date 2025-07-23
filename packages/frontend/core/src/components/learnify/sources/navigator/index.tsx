@@ -1,9 +1,10 @@
 import { Checkbox } from '@affine/component';
+import { SourcesStore } from '@affine/core/modules/learnify';
 import { ExportToPdfIcon, ImageIcon, LinkIcon } from '@blocksuite/icons/rc';
+import { useLiveData, useService } from '@toeverything/infra';
 import { useState } from 'react';
 
 import * as styles from './index.css';
-import { mockSources } from './mock-data';
 
 interface SourceCardProps {
   id: string;
@@ -56,6 +57,8 @@ const SourceCard = ({
 };
 
 export const NavigationPanelSources = () => {
+  const sourcesStore = useService(SourcesStore);
+  const sources = useLiveData(sourcesStore.sources$);
   const [checkedSources, setCheckedSources] = useState<Record<string, boolean>>(
     {}
   );
@@ -67,9 +70,26 @@ export const NavigationPanelSources = () => {
     }));
   };
 
+  // If no sources uploaded yet, show a helpful message
+  if (!sources || sources.length === 0) {
+    return (
+      <div className={styles.sourcesContainer}>
+        <div style={{ 
+          padding: '24px', 
+          textAlign: 'center', 
+          color: 'var(--affine-text-secondary-color)',
+          fontSize: '14px'
+        }}>
+          No reference materials uploaded yet.<br />
+          Use the upload button above to add PDFs, images, or other files.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.sourcesContainer}>
-      {mockSources.map(source => (
+      {sources.map(source => (
         <SourceCard
           key={source.id}
           id={source.id}
