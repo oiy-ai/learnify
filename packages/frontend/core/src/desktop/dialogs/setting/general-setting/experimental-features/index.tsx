@@ -29,12 +29,12 @@ const ExperimentalFeaturesPrompt = ({
   const t = useI18n();
   const [checked, setChecked] = useState(false);
 
-  const onChange: (
-    event: React.ChangeEvent<HTMLInputElement>,
-    checked: boolean
-  ) => void = useCallback((_, checked) => {
-    setChecked(checked);
-  }, []);
+  const onChange = useCallback(
+    (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+      setChecked(checked);
+    },
+    []
+  );
 
   return (
     <div className={styles.promptRoot} data-testid="experimental-prompt">
@@ -102,7 +102,7 @@ const FeedbackIcon = ({ type }: { type: Flag['feedbackType'] }) => {
 const feedbackLink: Record<NonNullable<Flag['feedbackType']>, string> = {
   discord: BUILD_CONFIG.discordUrl,
   email: 'mailto:support@toeverything.info',
-  github: 'https://github.com/toeverything/AFFiNE/issues',
+  github: 'https://github.com/a1exsun/learnify/issues',
 };
 
 const ExperimentalFeaturesItem = ({

@@ -7,7 +7,7 @@ export const mobileTableViewWrapper = css({
   paddingBottom: '4px',
   /**
    * Disable horizontal scrolling to prevent crashes on iOS Safari
-   * See https://github.com/toeverything/AFFiNE/pull/12203
+   * See https://github.com/a1exsun/learnify/pull/12203
    * and https://github.com/toeverything/blocksuite/pull/8784
    */
   overflowX: 'hidden',

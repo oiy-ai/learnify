@@ -31,7 +31,7 @@ export class AffineLink extends WithDisposable(ShadowlessElement) {
   // The link has been identified.
   private _identified: boolean = false;
 
-  // see https://github.com/toeverything/AFFiNE/issues/1540
+  // see https://github.com/a1exsun/learnify/issues/1540
   private readonly _onMouseUp = () => {
     const anchorElement = this.querySelector('a');
     if (!anchorElement || !anchorElement.isContentEditable) return;

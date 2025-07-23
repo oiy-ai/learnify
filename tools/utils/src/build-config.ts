@@ -61,14 +61,14 @@ export function getBuildConfig(
       return {
         ...this.stable,
         appBuildType: 'beta' as const,
-        changelogUrl: 'https://github.com/toeverything/AFFiNE/releases',
+        changelogUrl: 'https://github.com/a1exsun/learnify/releases',
       };
     },
     get internal() {
       return {
         ...this.stable,
         appBuildType: 'internal' as const,
-        changelogUrl: 'https://github.com/toeverything/AFFiNE/releases',
+        changelogUrl: 'https://github.com/a1exsun/learnify/releases',
       };
     },
     // canary will be aggressive and enable all features
@@ -76,7 +76,7 @@ export function getBuildConfig(
       return {
         ...this.stable,
         appBuildType: 'canary' as const,
-        changelogUrl: 'https://github.com/toeverything/AFFiNE/releases',
+        changelogUrl: 'https://github.com/a1exsun/learnify/releases',
       };
     },
   };

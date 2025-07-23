@@ -367,7 +367,7 @@ test('bookmark card should show banner in edgeless mode', async ({ page }) => {
   await initEmptyEdgelessState(page);
   await switchEditorMode(page);
 
-  const url = 'https://github.com/toeverything/AFFiNE/pull/11796';
+  const url = 'https://github.com/a1exsun/learnify/pull/11796';
 
   await page.locator('edgeless-link-tool-button').click();
   await page.locator('.embed-card-modal-input').fill(url);
@@ -493,7 +493,7 @@ test.describe('embed github card', () => {
     await initEmptyEdgelessState(page);
     await switchEditorMode(page);
     await clickView(page, [0, 0]);
-    const url = 'https://github.com/toeverything/AFFiNE/pull/11796';
+    const url = 'https://github.com/a1exsun/learnify/pull/11796';
 
     await pasteContent(page, {
       'text/plain': url,
@@ -507,7 +507,7 @@ test.describe('embed github card', () => {
 test('drag a card from canvas to note should not change the style of the card', async ({
   page,
 }) => {
-  const url = 'https://github.com/toeverything/AFFiNE/pull/12660';
+  const url = 'https://github.com/a1exsun/learnify/pull/12660';
 
   await edgelessCommonSetup(page);
   await createNote(page, [-100, -300]);
