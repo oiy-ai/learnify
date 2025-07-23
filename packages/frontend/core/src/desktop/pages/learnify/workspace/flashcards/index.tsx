@@ -1,10 +1,10 @@
 import { FlexWrapper } from '@affine/component';
-import { EmptyCollectionDetail } from '@affine/core/components/affine/empty/collection-detail';
 import {
   createDocExplorerContext,
   DocExplorerContext,
 } from '@affine/core/components/explorer/context';
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
+import { EmptyFlashcardDetail } from '@affine/core/components/learnify/empty/flashcard-detail';
 import { CardsExplorer } from '@affine/core/components/learnify/flashcards/explorer/cards-list';
 import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
 import {
@@ -14,13 +14,10 @@ import {
 import { CollectionRulesService } from '@affine/core/modules/collection-rules';
 import { GlobalContextService } from '@affine/core/modules/global-context';
 import { WorkspacePermissionService } from '@affine/core/modules/permissions';
-import { WorkspaceService } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
-import { ViewLayersIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService, useServices } from '@toeverything/infra';
 import { useCallback, useEffect, useState } from 'react';
 
-import { useNavigateHelper } from '../../../../../components/hooks/use-navigate-helper';
 import {
   useIsActiveView,
   ViewBody,
@@ -167,7 +164,7 @@ export const Component = function CollectionPage() {
   }
   const inner =
     info?.allowList.length === 0 && info?.rules.filters.length === 0 ? (
-      <Placeholder collection={collection} />
+      <Placeholder />
     ) : (
       <CollectionDetail collection={collection} />
     );
@@ -181,64 +178,43 @@ export const Component = function CollectionPage() {
   );
 };
 
-const Placeholder = ({ collection }: { collection: Collection }) => {
-  const workspace = useService(WorkspaceService).workspace;
-  const { jumpToCollections } = useNavigateHelper();
-  const t = useI18n();
-  const name = useLiveData(collection?.name$);
+const Placeholder = () => {
+  const [explorerContextValue] = useState(() =>
+    createDocExplorerContext({
+      view: 'masonry',
+      groupBy: {
+        type: 'system',
+        key: 'tags',
+      },
+      displayProperties: [
+        'system:updatedAt',
+        'system:updatedBy',
+        'system:tags',
+      ],
+    })
+  );
 
-  const handleJumpToCollections = useCallback(() => {
-    jumpToCollections(workspace.id);
-  }, [jumpToCollections, workspace]);
+  const displayPreference = useLiveData(
+    explorerContextValue.displayPreference$
+  );
+
+  const handleDisplayPreferenceChange = useCallback(
+    (displayPreference: ExplorerDisplayPreference) => {
+      explorerContextValue.displayPreference$.next(displayPreference);
+    },
+    [explorerContextValue]
+  );
 
   return (
     <>
       <ViewHeader>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            fontSize: 'var(--affine-font-xs)',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              cursor: 'pointer',
-              color: 'var(--affine-text-secondary-color)',
-              ['WebkitAppRegion' as string]: 'no-drag',
-            }}
-            onClick={handleJumpToCollections}
-          >
-            <ViewLayersIcon
-              style={{ color: 'var(--affine-icon-color)' }}
-              fontSize={14}
-            />
-            {t['com.affine.collection.allCollections']()}
-            <div>/</div>
-          </div>
-          <div
-            data-testid="collection-name"
-            style={{
-              fontWeight: 600,
-              color: 'var(--affine-text-primary-color)',
-              ['WebkitAppRegion' as string]: 'no-drag',
-            }}
-          >
-            {name ?? t['Untitled']()}
-          </div>
-          <div style={{ flex: 1 }} />
-        </div>
+        <FlashcardsHeader
+          displayPreference={displayPreference}
+          onDisplayPreferenceChange={handleDisplayPreferenceChange}
+        />
       </ViewHeader>
       <ViewBody>
-        {/* TODO: No Flashcards */}
-        <EmptyCollectionDetail
-          collection={collection}
-          style={{ height: '100%' }}
-        />
+        <EmptyFlashcardDetail style={{ height: '100%' }} />
       </ViewBody>
     </>
   );
