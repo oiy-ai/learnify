@@ -7,6 +7,7 @@ import {
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
 import { useGuard } from '@affine/core/components/guard';
 import { PodcastsExplorer } from '@affine/core/components/learnify/podcasts/explorer/podcasts-list';
+import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
 import {
   type Collection,
   CollectionService,
@@ -205,8 +206,7 @@ export const Component = function CollectionPage() {
   const globalContext = globalContextService.globalContext;
   const t = useI18n();
   const collection = useLiveData(
-    // TODO 改为更正式的方案
-    collectionService.collection$('rSgD3v_qUdHm-K5AKcyq7')
+    collectionService.collection$(LEARNIFY_COLLECTIONS.PODCASTS)
   );
   const name = useLiveData(collection?.name$);
   const isActiveView = useIsActiveView();

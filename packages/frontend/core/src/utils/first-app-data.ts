@@ -6,6 +6,7 @@ import { DEFAULT_WORKSPACE_NAME } from '@affine/env/constant';
 import onboardingUrl from '@affine/templates/onboarding.zip';
 import { ZipTransformer } from '@blocksuite/affine/widgets/linked-doc';
 
+import { LEARNIFY_COLLECTIONS } from '../constants/learnify-collections';
 import { CollectionService } from '../modules/collection';
 import { DocsService } from '../modules/doc';
 import { OrganizeService } from '../modules/organize';
@@ -63,12 +64,24 @@ export async function buildShowcaseWorkspace(
 
   // create default collection for learnify mind maps
   const collectionService = workspace.scope.get(CollectionService);
-  const collectionId = collectionService.createCollection({
+  collectionService.createCollection({
+    id: LEARNIFY_COLLECTIONS.MIND_MAPS,
     name: 'learnify-mind-maps',
     rules: { filters: [] },
-    allowList: []
+    allowList: [],
   });
-  logger.info('Created learnify-mind-maps collection', collectionId);
+  collectionService.createCollection({
+    id: LEARNIFY_COLLECTIONS.PODCASTS,
+    name: 'learnify-podcasts',
+    rules: { filters: [] },
+    allowList: [],
+  });
+  collectionService.createCollection({
+    id: LEARNIFY_COLLECTIONS.FLASHCARDS,
+    name: 'learnify-flashcards',
+    rules: { filters: [] },
+    allowList: [],
+  });
 
   dispose();
 

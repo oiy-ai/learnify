@@ -108,8 +108,8 @@ export class CollectionStore extends Store {
     );
   }
 
-  createCollection(info: Partial<Omit<CollectionInfo, 'id'>>) {
-    const id = nanoid();
+  createCollection(info: Partial<Omit<CollectionInfo, 'id'>> & { id?: string }) {
+    const id = info.id ?? nanoid();
     let yArray = this.rootYDoc.getMap('setting').get('collections') as
       | YArray<any>
       | undefined;

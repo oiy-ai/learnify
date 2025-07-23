@@ -56,7 +56,7 @@ export class CollectionService extends Service {
     });
   }
 
-  createCollection(collectionInfo: Partial<Omit<CollectionInfo, 'id'>>) {
+  createCollection(collectionInfo: Partial<Omit<CollectionInfo, 'id'>> & { id?: string }) {
     return this.store.createCollection(collectionInfo);
   }
 

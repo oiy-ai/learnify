@@ -6,6 +6,7 @@ import {
 } from '@affine/core/components/explorer/context';
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
 import { CardsExplorer } from '@affine/core/components/learnify/flashcards/explorer/cards-list';
+import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
 import {
   type Collection,
   CollectionService,
@@ -141,8 +142,7 @@ export const Component = function CollectionPage() {
   const globalContext = globalContextService.globalContext;
   const t = useI18n();
   const collection = useLiveData(
-    // TODO 改为更正式的方案
-    collectionService.collection$('ux9-nJjWd-mH09V6d8IiU')
+    collectionService.collection$(LEARNIFY_COLLECTIONS.FLASHCARDS)
   );
   const name = useLiveData(collection?.name$);
   const isActiveView = useIsActiveView();
