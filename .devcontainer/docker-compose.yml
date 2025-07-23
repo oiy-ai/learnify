@@ -6,21 +6,19 @@ services:
     volumes:
       - ../..:/workspaces:cached
     command: sleep infinity
-    network_mode: service:db
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: postgresql://affine:affine@db:5432/affine
+      DATABASE_URL: postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_URL}:${DB_PORT}/${DB_DATABASE}
       REDIS_SERVER_HOST: redis
       AFFINE_INDEXER_SEARCH_ENDPOINT: http://indexer:9308
+      MAILER_HOST: ${MAILER_HOST}
+      MAILER_PORT: ${MAILER_PORT}
+      MAILER_USER: ${MAILER_USER}
+      MAILER_PASSWORD: ${MAILER_PASSWORD}
+      MAILER_SENDER: ${MAILER_SENDER}
+      MAILER_IGNORE_TLS: ${MAILER_IGNORE_TLS}
 
-  db:
-    image: pgvector/pgvector:pg16
-    restart: unless-stopped
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: affine
-      POSTGRES_USER: affine
-      POSTGRES_DB: affine
   redis:
     image: redis
 
@@ -38,5 +36,4 @@ services:
       - manticoresearch_data:/var/lib/manticore
 
 volumes:
-  postgres-data:
   manticoresearch_data:
