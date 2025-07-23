@@ -8,5 +8,4 @@ yarn install
 yarn affine @affine/server-native build
 yarn affine @affine/reader build
 
-# Create database
-yarn affine @affine/server prisma migrate reset -f
+# Note: Database migration is now manual - run 'yarn affine @affine/server prisma migrate reset -f' when needed
