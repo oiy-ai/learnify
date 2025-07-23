@@ -1,8 +1,9 @@
+import { UserFeatureService } from '@affine/core/modules/cloud';
 import type { Collection } from '@affine/core/modules/collection';
 import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { useI18n } from '@affine/i18n';
 import { AllDocsIcon } from '@blocksuite/icons/rc';
-import { useService } from '@toeverything/infra';
+import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback } from 'react';
 
 import { ActionButton } from './action-button';
@@ -41,6 +42,8 @@ export const EmptyCollectionDetail = ({
 const Actions = ({ collection }: { collection: Collection }) => {
   const t = useI18n();
   const workspaceDialogService = useService(WorkspaceDialogService);
+  const userFeatureService = useService(UserFeatureService);
+  const isAFFiNEAdmin = useLiveData(userFeatureService.userFeature.isAdmin$);
 
   const openAddDocs = useCallback(() => {
     workspaceDialogService.open('collection-editor', {
@@ -58,9 +61,11 @@ const Actions = ({ collection }: { collection: Collection }) => {
 
   return (
     <div className={actionGroup}>
-      <ActionButton prefix={<AllDocsIcon />} onClick={openAddDocs}>
-        {t['com.affine.empty.collection-detail.action.add-doc']()}
-      </ActionButton>
+      {isAFFiNEAdmin && (
+        <ActionButton prefix={<AllDocsIcon />} onClick={openAddDocs}>
+          {t['com.affine.empty.collection-detail.action.add-doc']()}
+        </ActionButton>
+      )}
 
       {/* <ActionButton prefix={<FilterIcon />} onClick={openAddRules}>
         {t['com.affine.empty.collection-detail.action.add-rule']()}
