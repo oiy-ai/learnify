@@ -1,12 +1,18 @@
-import { IconButton } from '@affine/component';
-import { useAsyncCallback } from '@affine/core/components/hooks/affine-async-hooks';
+import { IconButton, Popover } from '@affine/component';
 import { useI18n } from '@affine/i18n';
-import { UploadIcon } from '@blocksuite/icons/rc';
+import { openFilesWith } from '@blocksuite/affine/shared/utils';
+import {
+  AttachmentIcon,
+  ExportToPdfIcon,
+  ImageIcon,
+  UploadIcon,
+} from '@blocksuite/icons/rc';
 import clsx from 'clsx';
 import type React from 'react';
-import { type MouseEvent, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import * as styles from './index.css';
+import * as dialogStyles from './upload-dialog.css';
 
 interface UploadButtonProps {
   className?: string;
@@ -23,48 +29,88 @@ export function UploadButton({
   onUpload,
 }: UploadButtonProps) {
   const t = useI18n();
+  const [open, setOpen] = useState(false);
 
-  const handleUpload = useAsyncCallback(
-    // eslint-disable-next-line no-unused-vars
-    async (_e?: MouseEvent) => {
-      // 创建文件输入元素
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.multiple = true;
-      input.accept = '*/*';
-
-      input.onchange = async () => {
-        if (input.files && input.files.length > 0) {
-          await onUpload?.(input.files);
-          // TODO: Add appropriate tracking for upload
-        }
-      };
-
-      input.click();
-      // TODO: Add appropriate tracking for upload trigger
+  const handleUploadFiles = useCallback(
+    async (acceptType?: 'Images' | 'Any') => {
+      const files = await openFilesWith(acceptType, true);
+      if (files && files.length > 0) {
+        // Convert File[] to FileList
+        const dataTransfer = new DataTransfer();
+        files.forEach(file => dataTransfer.items.add(file));
+        await onUpload?.(dataTransfer.files);
+      }
+      setOpen(false);
     },
     [onUpload]
   );
 
-  const onClickUpload = useCallback(
-    (e?: MouseEvent) => {
-      handleUpload(e);
-    },
-    [handleUpload]
-  );
-
   return (
-    <IconButton
-      tooltip={t['Upload']()}
-      tooltipOptions={sideBottom}
-      data-testid="sidebar-upload-button"
-      style={style}
-      className={clsx([styles.root, className])}
-      size={16}
-      onClick={onClickUpload}
-      onAuxClick={onClickUpload}
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+      content={
+        <div className={dialogStyles.menuContent}>
+          <div
+            className={dialogStyles.menuItem}
+            onClick={() => {
+              handleUploadFiles('Images').catch(console.error);
+            }}
+          >
+            <ImageIcon className={dialogStyles.menuIcon} />
+            <div className={dialogStyles.menuItemContent}>
+              <div className={dialogStyles.menuItemTitle}>{t['Image']()}</div>
+              <div className={dialogStyles.menuItemDescription}>
+                Insert an image.
+              </div>
+            </div>
+          </div>
+          <div
+            className={dialogStyles.menuItem}
+            onClick={() => {
+              handleUploadFiles('Any').catch(console.error);
+            }}
+          >
+            <ExportToPdfIcon className={dialogStyles.menuIcon} />
+            <div className={dialogStyles.menuItemContent}>
+              <div className={dialogStyles.menuItemTitle}>PDF</div>
+              <div className={dialogStyles.menuItemDescription}>
+                Upload a PDF to document.
+              </div>
+            </div>
+          </div>
+          <div
+            className={dialogStyles.menuItem}
+            onClick={() => {
+              handleUploadFiles('Any').catch(console.error);
+            }}
+          >
+            <AttachmentIcon className={dialogStyles.menuIcon} />
+            <div className={dialogStyles.menuItemContent}>
+              <div className={dialogStyles.menuItemTitle}>Attachment</div>
+              <div className={dialogStyles.menuItemDescription}>
+                Attach a file to document.
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+      contentOptions={{
+        side: 'bottom',
+        align: 'start',
+        sideOffset: 8,
+      }}
     >
-      <UploadIcon />
-    </IconButton>
+      <IconButton
+        tooltip={t['Upload']()}
+        tooltipOptions={sideBottom}
+        data-testid="sidebar-upload-button"
+        style={style}
+        className={clsx([styles.root, className])}
+        size={16}
+      >
+        <UploadIcon />
+      </IconButton>
+    </Popover>
   );
 }
