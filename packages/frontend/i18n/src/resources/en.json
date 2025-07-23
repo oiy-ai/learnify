@@ -2072,6 +2072,8 @@
   "com.learnify.flashcard.error.parse-failed": "Failed to parse card content",
   "com.learnify.empty.collection-detail.title": "You haven't uploaded any materials yet.",
   "com.learnify.collection.emptyCollection": "You haven't uploaded any materials yet.",
+  "com.learnify.empty.mind-map-detail.title": "No mind maps yet",
+  "com.learnify.empty.mind-map-detail.description": "Upload materials first, then Learnify will automatically generate mind maps to help you visualize concepts.",
   "error.INTERNAL_SERVER_ERROR": "An internal error occurred.",
   "error.NETWORK_ERROR": "Network error.",
   "error.TOO_MANY_REQUEST": "Too many requests.",
