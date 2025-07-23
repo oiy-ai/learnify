@@ -11,12 +11,12 @@ const items = [
   //   testId: 'workspace-docs-button',
   //   to: '/all',
   // },
-  {
-    value: 'collections',
-    label: 'com.affine.collections.header',
-    testId: 'workspace-collections-button',
-    to: '/collection',
-  },
+  // {
+  //   value: 'collections',
+  //   label: 'com.affine.collections.header',
+  //   testId: 'workspace-collections-button',
+  //   to: '/collection',
+  // },
   // {
   //   value: 'tags',
   //   label: 'Tags',
