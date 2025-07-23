@@ -1,7 +1,7 @@
 import type { Collection } from '@affine/core/modules/collection';
 import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { useI18n } from '@affine/i18n';
-import { AllDocsIcon, FilterIcon } from '@blocksuite/icons/rc';
+import { AllDocsIcon } from '@blocksuite/icons/rc';
 import { useService } from '@toeverything/infra';
 import { useCallback } from 'react';
 
@@ -49,12 +49,12 @@ const Actions = ({ collection }: { collection: Collection }) => {
     });
   }, [collection, workspaceDialogService]);
 
-  const openAddRules = useCallback(() => {
-    workspaceDialogService.open('collection-editor', {
-      collectionId: collection.id,
-      mode: 'rule',
-    });
-  }, [collection, workspaceDialogService]);
+  // const openAddRules = useCallback(() => {
+  //   workspaceDialogService.open('collection-editor', {
+  //     collectionId: collection.id,
+  //     mode: 'rule',
+  //   });
+  // }, [collection, workspaceDialogService]);
 
   return (
     <div className={actionGroup}>
@@ -62,9 +62,9 @@ const Actions = ({ collection }: { collection: Collection }) => {
         {t['com.affine.empty.collection-detail.action.add-doc']()}
       </ActionButton>
 
-      <ActionButton prefix={<FilterIcon />} onClick={openAddRules}>
+      {/* <ActionButton prefix={<FilterIcon />} onClick={openAddRules}>
         {t['com.affine.empty.collection-detail.action.add-rule']()}
-      </ActionButton>
+      </ActionButton> */}
     </div>
   );
 };
