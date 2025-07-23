@@ -190,7 +190,8 @@
     "import/no-import-assign": "error",
     "import/no-self-import": "error",
     "react/no-array-index-key": "allow",
-    "unicorn/no-useless-spread": "allow"
+    "unicorn/no-useless-spread": "allow",
+    "unicorn/prefer-array-flat-map": "off"
   },
   "overrides": [
     {
