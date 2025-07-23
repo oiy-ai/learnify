@@ -34,6 +34,7 @@ export const root = style({
 });
 export const popoverContent = style({
   willChange: 'transform opacity',
+  zIndex: 9999,
   selectors: {
     '&[data-state="open"]': {
       animation: `${slideDownAndFade} 0.2s ease-in-out`,
