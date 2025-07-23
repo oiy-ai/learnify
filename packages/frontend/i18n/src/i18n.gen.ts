@@ -1686,11 +1686,11 @@ export function useAFFiNEI18N(): {
     /**
       * `Empty collection`
       */
-    ["com.affine.collection.emptyCollection"](): string;
+    ["com.learnify.collection.emptyCollection"](): string;
     /**
       * `Collection is a smart folder where you can manually add docs or automatically add docs through rules.`
       */
-    ["com.affine.collection.emptyCollectionDescription"](): string;
+    ["com.learnify.collection.emptyCollectionDescription"](): string;
     /**
       * `HELP INFO`
       */
@@ -1950,7 +1950,7 @@ export function useAFFiNEI18N(): {
     /**
       * `Empty collection`
       */
-    ["com.affine.empty.collection-detail.title"](): string;
+    ["com.learnify.empty.collection-detail.title"](): string;
     /**
       * `Add collection`
       */

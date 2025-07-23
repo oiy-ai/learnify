@@ -18,7 +18,7 @@ export const Empty = ({
   const t = useI18n();
   return (
     <EmptyNodeChildren ref={dropTargetRef}>
-      {t['com.affine.collection.emptyCollection']()}
+      {t['com.learnify.collection.emptyCollection']()}
     </EmptyNodeChildren>
   );
 };

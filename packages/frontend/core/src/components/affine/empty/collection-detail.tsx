@@ -26,7 +26,7 @@ export const EmptyCollectionDetail = ({
     <EmptyLayout
       illustrationLight={collectionDetailLight}
       illustrationDark={collectionDetailDark}
-      title={t['com.affine.empty.collection-detail.title']()}
+      title={t['com.learnify.empty.collection-detail.title']()}
       description={t['com.affine.empty.collection-detail.description']()}
       action={
         BUILD_CONFIG.isMobileEdition ? null : (

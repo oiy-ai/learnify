@@ -2070,6 +2070,8 @@
   "com.learnify.flashcard.error.format-hint": "Expected format:",
   "com.learnify.flashcard.error.format-mismatch": "Card content format is incorrect. Expected flashcard format.",
   "com.learnify.flashcard.error.parse-failed": "Failed to parse card content",
+  "com.learnify.empty.collection-detail.title": "You haven't uploaded any materials yet.",
+  "com.learnify.collection.emptyCollection": "You haven't uploaded any materials yet.",
   "error.INTERNAL_SERVER_ERROR": "An internal error occurred.",
   "error.NETWORK_ERROR": "Network error.",
   "error.TOO_MANY_REQUEST": "Too many requests.",

@@ -24,7 +24,7 @@ export const CollectionRenameSubMenu = ({
 
 const CollectionDesc = () => {
   const t = useI18n();
-  return t['com.affine.collection.emptyCollectionDescription']();
+  return t['com.learnify.collection.emptyCollectionDescription']();
 };
 
 export const CollectionRenameDialog = ({
