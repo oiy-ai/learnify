@@ -20,9 +20,14 @@ export const attachmentSlashMenuConfig: SlashMenuConfig = {
       when: ({ model }) =>
         model.store.schema.flavourSchemaMap.has('affine:attachment'),
       action: ({ std, model }) => {
+        console.log('[SlashMenu] Attachment menu item clicked - opening file picker');
         (async () => {
           const file = await openSingleFileWith();
-          if (!file) return;
+          if (!file) {
+            console.log('[SlashMenu] Attachment file picker cancelled');
+            return;
+          }
+          console.log('[SlashMenu] Attachment file selected:', file.name, 'Size:', file.size, 'Type:', file.type);
 
           await addSiblingAttachmentBlocks(std, [file], model);
           if (model.text?.length === 0) {
@@ -43,9 +48,14 @@ export const attachmentSlashMenuConfig: SlashMenuConfig = {
       when: ({ model }) =>
         model.store.schema.flavourSchemaMap.has('affine:attachment'),
       action: ({ std, model }) => {
+        console.log('[SlashMenu] PDF menu item clicked - opening file picker for PDF');
         (async () => {
           const file = await openSingleFileWith();
-          if (!file) return;
+          if (!file) {
+            console.log('[SlashMenu] PDF file picker cancelled');
+            return;
+          }
+          console.log('[SlashMenu] PDF file selected:', file.name, 'Size:', file.size, 'Type:', file.type);
 
           await addSiblingAttachmentBlocks(std, [file], model);
           if (model.text?.length === 0) {

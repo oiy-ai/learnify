@@ -39,6 +39,7 @@ const showSlashMenu = debounce(
 
     const inlineEditor = getInlineEditorByModel(context.std, context.model);
     if (!inlineEditor) return;
+    console.log('[SlashMenu] Creating SlashMenu popover instance');
     const slashMenu = new SlashMenu(inlineEditor, abortController);
     disposables.add(() => slashMenu.remove());
     slashMenu.context = context;
@@ -47,6 +48,7 @@ const showSlashMenu = debounce(
       context,
       configItemTransform
     );
+    console.log('[SlashMenu] SlashMenu items built:', slashMenu.items.length, 'items');
 
     // FIXME(Flrande): It is not a best practice,
     // but merely a temporary measure for reusing previous components.
@@ -130,6 +132,7 @@ export class AffineSlashMenuWidget extends WidgetComponent {
       if (!text.endsWith(AFFINE_SLASH_MENU_TRIGGER_KEY)) return;
 
       closeSlashMenu();
+      console.log('[SlashMenu] Triggering slash menu popup - user typed "/"');
       showSlashMenu({
         context: {
           model,

@@ -63,6 +63,7 @@ export class SlashMenu extends WithDisposable(LitElement) {
   }
 
   private readonly _handleClickItem = (item: SlashMenuActionItem) => {
+    console.log('[SlashMenu] Menu item clicked:', item.name);
     // Need to remove the search string
     // We must to do clean the slash string before we do the action
     // Otherwise, the action may change the model and cause the slash string to be changed
@@ -74,6 +75,7 @@ export class SlashMenu extends WithDisposable(LitElement) {
     this.inlineEditor
       .waitForUpdate()
       .then(() => {
+        console.log('[SlashMenu] Executing action for:', item.name);
         item.action(this.context);
         this._telemetry?.track('SelectSlashMenuItem', {
           page: this._editorMode ?? undefined,
