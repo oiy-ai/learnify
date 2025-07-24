@@ -11,8 +11,8 @@ export const checkbox = style({
 export const sourcesContainer = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: 16,
-  width: '95%',
+  gap: 4,
+  width: 'calc(100% - 6px)',
 });
 
 export const sourcesHeader = style({
@@ -25,6 +25,13 @@ export const sourceCard = style({
   display: 'flex',
   alignItems: 'center',
   gap: 8,
+  padding: 8,
+  borderRadius: 8,
+  cursor: 'pointer',
+  transition: 'background-color 0.2s ease',
+  ':hover': {
+    backgroundColor: cssVarV2('layer/background/hoverOverlay'),
+  },
 });
 
 export const sourceIcon = style({
