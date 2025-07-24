@@ -275,6 +275,12 @@ export class PeekViewEntity extends Entity {
       this.workbenchService.workbench.openDoc(active.info.docRef);
     }
 
+    console.log('[PeekView] Opening peek view:', {
+      type: resolvedInfo.type,
+      info: resolvedInfo,
+      target
+    });
+    
     this._active$.next({ target, info: resolvedInfo });
     this._show$.next({
       value: true,
@@ -302,6 +308,11 @@ export class PeekViewEntity extends Entity {
   };
 
   close = (animation = true) => {
+    console.log('[PeekView] Closing peek view:', {
+      active: this._active$.value,
+      animation
+    });
+    
     this._show$.next({
       value: false,
       animation,
