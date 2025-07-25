@@ -1,6 +1,6 @@
-import { DocsService } from '@affine/core/modules/doc';
-import { WorkspaceService } from '@affine/core/modules/workspace';
-import { LiveData, Service } from '@toeverything/infra';
+import type { DocsService } from '@affine/core/modules/doc';
+import type { WorkspaceService } from '@affine/core/modules/workspace';
+import { LiveData, Store } from '@toeverything/infra';
 
 export interface SourceItem {
   id: string;
@@ -17,11 +17,13 @@ export interface SourceItem {
 
 const SOURCES_STORAGE_KEY = 'learnify:sources';
 
-export class SourcesStore extends Service {
+export class SourcesStore extends Store {
   sources$ = new LiveData<SourceItem[]>([]);
 
   constructor(
+    // eslint-disable-next-line no-unused-vars
     private readonly workspaceService: WorkspaceService,
+    // eslint-disable-next-line no-unused-vars
     private readonly docsService: DocsService
   ) {
     super();
@@ -40,11 +42,11 @@ export class SourcesStore extends Service {
       // Use the known document ID for learnify-list-of-materials
       const docId = 'Y3sx62lSB5Incw4BMyEFC';
       const { doc, release } = this.docsService.open(docId);
-      
+
       await doc.waitForSyncReady();
       const sources = this.extractSourcesFromDocument(doc);
       this.sources$.next(sources);
-      
+
       release();
     } catch {
       // Silently fail if document not found
@@ -54,23 +56,23 @@ export class SourcesStore extends Service {
   private extractSourcesFromDocument(doc: any): SourceItem[] {
     const sources: SourceItem[] = [];
     const blockSuiteDoc = doc.blockSuiteDoc;
-    
+
     // Get the note block which contains all content
     const noteBlocks = blockSuiteDoc.getBlocksByFlavour('affine:note');
     if (noteBlocks.length === 0) return sources;
-    
+
     const noteBlock = noteBlocks[0];
     if (!noteBlock.model?.children) return sources;
-    
+
     // Process children in order
     noteBlock.model.children.forEach((child: any) => {
       const flavour = child.flavour;
-      
+
       // Skip text paragraphs and other non-media blocks
       if (flavour === 'affine:paragraph' || flavour === 'affine:list') {
         return;
       }
-      
+
       // Handle attachment blocks (PDFs and other files)
       if (flavour === 'affine:attachment') {
         const category = this.determineAttachmentCategory(child);
@@ -86,7 +88,7 @@ export class SourcesStore extends Service {
           workspaceId: this.workspaceService.workspace.id,
         });
       }
-      
+
       // Handle image blocks
       else if (flavour === 'affine:image') {
         sources.push({
@@ -101,7 +103,7 @@ export class SourcesStore extends Service {
           workspaceId: this.workspaceService.workspace.id,
         });
       }
-      
+
       // Handle bookmark blocks (videos)
       else if (flavour === 'affine:bookmark') {
         sources.push({
@@ -117,14 +119,16 @@ export class SourcesStore extends Service {
         });
       }
     });
-    
+
     return sources;
   }
 
-  private determineAttachmentCategory(attachment: any): 'pdf' | 'image' | 'link' | 'attachment' {
+  private determineAttachmentCategory(
+    attachment: any
+  ): 'pdf' | 'image' | 'link' | 'attachment' {
     const type = attachment.type || '';
     const name = attachment.name || '';
-    
+
     if (type === 'application/pdf' || name.endsWith('.pdf')) {
       return 'pdf';
     } else if (type.startsWith('image/')) {
@@ -132,7 +136,7 @@ export class SourcesStore extends Service {
     } else if (type.startsWith('video/')) {
       return 'attachment'; // Videos as attachments
     }
-    
+
     return 'attachment';
   }
 
