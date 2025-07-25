@@ -78,12 +78,14 @@ export class SourcesStore extends Store {
         const category = this.determineAttachmentCategory(child);
         sources.push({
           id: `source-${child.id}`,
-          blobId: child.sourceId || child.id,
-          name: child.name || `Unnamed ${category}`,
+          blobId: child._props?.sourceId || child.sourceId || child.id,
+          name: child._props?.name || child.name || `Unnamed ${category}`,
           category,
-          description: child.caption || `${category} file`,
-          mimeType: child.type || 'application/octet-stream',
-          size: child.size,
+          description:
+            child._props?.caption || child.caption || `${category} file`,
+          mimeType:
+            child._props?.type || child.type || 'application/octet-stream',
+          size: child._props?.size || child.size,
           uploadDate: Date.now(),
           workspaceId: this.workspaceService.workspace.id,
         });
@@ -93,12 +95,12 @@ export class SourcesStore extends Store {
       else if (flavour === 'affine:image') {
         sources.push({
           id: `source-${child.id}`,
-          blobId: child.sourceId || child.id,
-          name: child.caption || 'Image',
+          blobId: child._props?.sourceId || child.sourceId || child.id,
+          name: 'Image',
           category: 'image',
-          description: child.caption || 'Image file',
+          description: 'Image file',
           mimeType: 'image/*',
-          size: child.size,
+          size: child._props?.size || child.size,
           uploadDate: Date.now(),
           workspaceId: this.workspaceService.workspace.id,
         });
@@ -109,10 +111,11 @@ export class SourcesStore extends Store {
         sources.push({
           id: `bookmark-${child.id}`,
           blobId: child.id,
-          name: child.title || 'Video Link',
+          name: child._props?.title || child.title || 'Video Link',
           category: 'link',
-          url: child.url,
-          description: child.description || 'Video link',
+          url: child._props?.url || child.url,
+          description:
+            child._props?.description || child.description || 'Video link',
           mimeType: 'text/html',
           uploadDate: Date.now(),
           workspaceId: this.workspaceService.workspace.id,
@@ -126,10 +129,10 @@ export class SourcesStore extends Store {
   private determineAttachmentCategory(
     attachment: any
   ): 'pdf' | 'image' | 'link' | 'attachment' {
-    const type = attachment.type || '';
-    const name = attachment.name || '';
+    const type = attachment._props?.type || attachment.type || '';
+    const name = attachment._props?.name || attachment.name || '';
 
-    if (type === 'application/pdf' || name.endsWith('.pdf')) {
+    if (type === 'application/pdf' || name.toLowerCase().endsWith('.pdf')) {
       return 'pdf';
     } else if (type.startsWith('image/')) {
       return 'image';
