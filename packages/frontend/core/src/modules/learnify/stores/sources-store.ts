@@ -1,3 +1,4 @@
+import { DocsService } from '@affine/core/modules/doc';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { LiveData, Service } from '@toeverything/infra';
 
@@ -19,9 +20,14 @@ const SOURCES_STORAGE_KEY = 'learnify:sources';
 export class SourcesStore extends Service {
   sources$ = new LiveData<SourceItem[]>([]);
 
-  constructor(private readonly workspaceService: WorkspaceService) {
+  constructor(
+    private readonly workspaceService: WorkspaceService,
+    private readonly docsService: DocsService
+  ) {
     super();
-    this.loadSources();
+    this.loadSourcesFromDocument().catch(() => {
+      // Silently fail
+    });
   }
 
   private get storageKey() {
@@ -29,16 +35,105 @@ export class SourcesStore extends Service {
     return `${SOURCES_STORAGE_KEY}:${workspaceId}`;
   }
 
-  private loadSources() {
+  private async loadSourcesFromDocument() {
     try {
-      const stored = localStorage.getItem(this.storageKey);
-      if (stored) {
-        const sources = JSON.parse(stored) as SourceItem[];
-        this.sources$.next(sources);
-      }
-    } catch (error) {
-      console.error('[SourcesStore] Failed to load sources:', error);
+      // Use the known document ID for learnify-list-of-materials
+      const docId = 'Y3sx62lSB5Incw4BMyEFC';
+      const { doc, release } = this.docsService.open(docId);
+      
+      await doc.waitForSyncReady();
+      const sources = this.extractSourcesFromDocument(doc);
+      this.sources$.next(sources);
+      
+      release();
+    } catch {
+      // Silently fail if document not found
     }
+  }
+
+  private extractSourcesFromDocument(doc: any): SourceItem[] {
+    const sources: SourceItem[] = [];
+    const blockSuiteDoc = doc.blockSuiteDoc;
+    
+    // Get the note block which contains all content
+    const noteBlocks = blockSuiteDoc.getBlocksByFlavour('affine:note');
+    if (noteBlocks.length === 0) return sources;
+    
+    const noteBlock = noteBlocks[0];
+    if (!noteBlock.model?.children) return sources;
+    
+    // Process children in order
+    noteBlock.model.children.forEach((child: any) => {
+      const flavour = child.flavour;
+      
+      // Skip text paragraphs and other non-media blocks
+      if (flavour === 'affine:paragraph' || flavour === 'affine:list') {
+        return;
+      }
+      
+      // Handle attachment blocks (PDFs and other files)
+      if (flavour === 'affine:attachment') {
+        const category = this.determineAttachmentCategory(child);
+        sources.push({
+          id: `source-${child.id}`,
+          blobId: child.sourceId || child.id,
+          name: child.name || `Unnamed ${category}`,
+          category,
+          description: child.caption || `${category} file`,
+          mimeType: child.type || 'application/octet-stream',
+          size: child.size,
+          uploadDate: Date.now(),
+          workspaceId: this.workspaceService.workspace.id,
+        });
+      }
+      
+      // Handle image blocks
+      else if (flavour === 'affine:image') {
+        sources.push({
+          id: `source-${child.id}`,
+          blobId: child.sourceId || child.id,
+          name: child.caption || 'Image',
+          category: 'image',
+          description: child.caption || 'Image file',
+          mimeType: 'image/*',
+          size: child.size,
+          uploadDate: Date.now(),
+          workspaceId: this.workspaceService.workspace.id,
+        });
+      }
+      
+      // Handle bookmark blocks (videos)
+      else if (flavour === 'affine:bookmark') {
+        sources.push({
+          id: `bookmark-${child.id}`,
+          blobId: child.id,
+          name: child.title || 'Video Link',
+          category: 'link',
+          url: child.url,
+          description: child.description || 'Video link',
+          mimeType: 'text/html',
+          uploadDate: Date.now(),
+          workspaceId: this.workspaceService.workspace.id,
+        });
+      }
+    });
+    
+    return sources;
+  }
+
+  private determineAttachmentCategory(attachment: any): 'pdf' | 'image' | 'link' | 'attachment' {
+    const type = attachment.type || '';
+    const name = attachment.name || '';
+    
+    if (type === 'application/pdf' || name.endsWith('.pdf')) {
+      return 'pdf';
+    } else if (type.startsWith('image/')) {
+      return 'image';
+    } else if (type.startsWith('video/')) {
+      return 'attachment'; // Videos as attachments
+    }
+    
+    return 'attachment';
   }
 
   private saveSources() {
@@ -77,6 +172,11 @@ export class SourcesStore extends Service {
 
   getAllSources() {
     return this.sources$.value;
+  }
+
+  // Refresh sources from document
+  async refreshSources() {
+    await this.loadSourcesFromDocument();
   }
 
   // Get sources from all documents in workspace
