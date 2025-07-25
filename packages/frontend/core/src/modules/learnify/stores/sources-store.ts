@@ -1,5 +1,4 @@
-import type { WorkspaceService } from '@affine/core/modules/workspace';
-import type { WorkspaceFlavoursService } from '@affine/core/modules/workspace/services/flavours';
+import { WorkspaceService } from '@affine/core/modules/workspace';
 import { LiveData, Service } from '@toeverything/infra';
 
 export interface SourceItem {
@@ -20,12 +19,7 @@ const SOURCES_STORAGE_KEY = 'learnify:sources';
 export class SourcesStore extends Service {
   sources$ = new LiveData<SourceItem[]>([]);
 
-  constructor(
-    // eslint-disable-next-line no-unused-vars
-    private readonly workspaceService: WorkspaceService,
-    // eslint-disable-next-line no-unused-vars
-    private readonly workspaceFlavoursService: WorkspaceFlavoursService
-  ) {
+  constructor(private readonly workspaceService: WorkspaceService) {
     super();
     this.loadSources();
   }
@@ -71,35 +65,7 @@ export class SourcesStore extends Service {
     return newSource;
   }
 
-  async removeSource(id: string) {
-    const source = this.getSource(id);
-    if (!source) {
-      console.warn(`[SourcesStore] Source not found: ${id}`);
-      return;
-    }
-
-    // Delete the blob from storage if it exists
-    if (source.blobId) {
-      try {
-        const flavours = this.workspaceFlavoursService.flavours$.value;
-        const provider = flavours.find(
-          f => f.flavour === this.workspaceService.workspace.flavour
-        );
-        if (provider) {
-          await provider.deleteBlob(
-            this.workspaceService.workspace.id,
-            source.blobId,
-            true // permanent deletion
-          );
-          console.log(`[SourcesStore] Deleted blob: ${source.blobId}`);
-        }
-      } catch (error) {
-        console.error('[SourcesStore] Failed to delete blob:', error);
-        // Continue with source removal even if blob deletion fails
-      }
-    }
-
-    // Remove from the list
+  removeSource(id: string) {
     const currentSources = this.sources$.value;
     this.sources$.next(currentSources.filter(s => s.id !== id));
     this.saveSources();
