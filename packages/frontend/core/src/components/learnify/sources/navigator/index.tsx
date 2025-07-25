@@ -1,9 +1,14 @@
 import { Checkbox, useConfirmModal } from '@affine/component';
 import { SourcesStore } from '@affine/core/modules/learnify';
 import { Trans, useI18n } from '@affine/i18n';
-import { ExportToPdfIcon, ImageIcon, LinkIcon } from '@blocksuite/icons/rc';
+import {
+  AttachmentIcon,
+  ExportToPdfIcon,
+  ImageIcon,
+  LinkIcon,
+} from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ListFloatingToolbar } from '../../../page-list/components/list-floating-toolbar';
 import * as styles from './index.css';
@@ -34,7 +39,10 @@ const SourceCard = ({
       case 'image':
         return <ImageIcon className={styles.sourceIcon} />;
       case 'link':
+        // Video links
         return <LinkIcon className={styles.sourceIcon} />;
+      case 'attachment':
+        return <AttachmentIcon className={styles.sourceIcon} />;
       default:
         return null;
     }
@@ -67,6 +75,13 @@ export const NavigationPanelSources = () => {
   );
   const { openConfirmModal } = useConfirmModal();
 
+  // Refresh sources when component mounts
+  useEffect(() => {
+    sourcesStore.refreshSources().catch(() => {
+      // Silently fail
+    });
+  }, [sourcesStore]);
+
   const selectedSourceIds = useMemo(() => {
     return Object.keys(checkedSources).filter(id => checkedSources[id]);
   }, [checkedSources]);
@@ -81,15 +96,10 @@ export const NavigationPanelSources = () => {
   };
 
   const handleCloseFloatingToolbar = useCallback(() => {
-    console.log('NavigationPanelSources: handleCloseFloatingToolbar called');
     setCheckedSources({});
   }, []);
 
   const handleDeleteSources = useCallback(() => {
-    console.log('NavigationPanelSources: handleDeleteSources called', {
-      selectedSourceIds,
-    });
-
     openConfirmModal({
       title: t['com.affine.moveToTrash.confirmModal.title.multiple']({
         number: selectedSourceIds.length.toString(),
