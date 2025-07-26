@@ -5,6 +5,8 @@ services:
     image: mcr.microsoft.com/devcontainers/base:bookworm
     volumes:
       - ../..:/workspaces:cached
+      # 挂载独立的 node_modules volume，避免与宿主机的 node_modules 混淆
+      - node_modules_data:/workspaces/learnify/node_modules
     command: sleep infinity
     env_file:
       - .env
@@ -37,3 +39,5 @@ services:
 
 volumes:
   manticoresearch_data:
+  # 新增的 node_modules volume，用于存储容器独立的 node_modules
+  node_modules_data:
