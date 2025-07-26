@@ -22,15 +22,11 @@ export function SidebarScrollableContainer({
   children,
   className,
 }: SidebarContainerProps) {
-  const [setContainer, hasScrollTop] = useHasScrollTop();
+  const [setContainer] = useHasScrollTop();
   return (
     <ScrollArea.Root
       className={clsx([styles.scrollableContainerRoot, className])}
     >
-      <div
-        data-has-scroll-top={hasScrollTop}
-        className={styles.scrollTopBorder}
-      />
       <ScrollArea.Viewport
         className={clsx([styles.scrollableViewport])}
         ref={setContainer}

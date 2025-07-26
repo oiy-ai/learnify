@@ -32,7 +32,7 @@ export const scrollTopBorder = style({
 });
 export const scrollableViewport = style({
   height: '100%',
-  marginTop: '4px',
+  marginTop: '0px',
   // safe area to avoid bottom clipping
   paddingBottom: 8,
 });
