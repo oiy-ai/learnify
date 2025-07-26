@@ -1,13 +1,11 @@
 import type { AttachmentBlockModel } from '@blocksuite/affine/model';
 import { NoteDisplayMode } from '@blocksuite/affine/model';
 import type { Store } from '@blocksuite/affine/store';
-import { Text } from '@blocksuite/affine/store';
 import { LiveData, Service } from '@toeverything/infra';
 import { Observable } from 'rxjs';
 
+import { LEARNIFY_DOCUMENTS } from '../../../../constants/learnify-documents';
 import type { DocsService } from '../../../../modules/doc';
-
-const MATERIALS_DOC_ID = 'learnify-list-of-materials';
 
 export interface MaterialItem {
   id: string;
@@ -32,37 +30,20 @@ export class MaterialsDocService extends Service {
     });
 
     this.disposables.push(() => subscription.unsubscribe());
-
-    // Ensure materials doc exists when service is initialized
-    this.ensureMaterialsDoc().catch(error => {
-      console.error(
-        '[MaterialsDocService] Failed to ensure materials doc:',
-        error
-      );
-    });
   }
 
-  private async ensureMaterialsDoc(): Promise<Store> {
-    const docRecord = this.docsService.list.doc$(MATERIALS_DOC_ID).value;
+  private async getMaterialsDoc(): Promise<Store | null> {
+    const docRecord = this.docsService.list.doc$(
+      LEARNIFY_DOCUMENTS.MATERIALS
+    ).value;
 
     if (!docRecord) {
-      // Create the materials doc if it doesn't exist
-      const newDoc = this.docsService.createDoc({
-        id: MATERIALS_DOC_ID,
-        docProps: {
-          page: { title: new Text('Learnify Materials') },
-          note: { displayMode: NoteDisplayMode.DocOnly },
-          paragraph: {
-            text: new Text(
-              'This document contains all uploaded materials for Learnify.'
-            ),
-          },
-        },
-      });
-      newDoc.setProperty('isLearnifyMaterials', true);
+      return null;
     }
 
-    const { doc, release } = this.docsService.open(MATERIALS_DOC_ID);
+    const { doc, release } = this.docsService.open(
+      LEARNIFY_DOCUMENTS.MATERIALS
+    );
     this.disposables.push(release);
     await doc.waitForSyncReady();
 
@@ -70,7 +51,10 @@ export class MaterialsDocService extends Service {
   }
 
   async getMaterials(): Promise<MaterialItem[]> {
-    const doc = await this.ensureMaterialsDoc();
+    const doc = await this.getMaterialsDoc();
+    if (!doc) {
+      return [];
+    }
 
     const attachmentBlocks = doc.getBlocksByFlavour('affine:attachment');
 
@@ -111,7 +95,10 @@ export class MaterialsDocService extends Service {
     blobId: string;
     description?: string;
   }): Promise<void> {
-    const doc = await this.ensureMaterialsDoc();
+    const doc = await this.getMaterialsDoc();
+    if (!doc) {
+      throw new Error('Materials document not found');
+    }
 
     // Get the first note block to add attachment
     const noteBlocks = doc.getBlocksByFlavour('affine:note');
@@ -141,7 +128,10 @@ export class MaterialsDocService extends Service {
   }
 
   async removeMaterial(attachmentId: string): Promise<void> {
-    const doc = await this.ensureMaterialsDoc();
+    const doc = await this.getMaterialsDoc();
+    if (!doc) {
+      throw new Error('Materials document not found');
+    }
     const attachmentBlocks = doc.getBlocksByFlavour('affine:attachment');
     const attachmentBlock = attachmentBlocks.find(
       block => block.id === attachmentId
@@ -161,8 +151,14 @@ export class MaterialsDocService extends Service {
 
   watchMaterials(): Observable<MaterialItem[]> {
     return new Observable(subscriber => {
-      this.ensureMaterialsDoc()
+      this.getMaterialsDoc()
         .then(doc => {
+          if (!doc) {
+            // If doc doesn't exist, just emit empty array
+            subscriber.next([]);
+            return;
+          }
+
           // Initial emit
           this.getMaterials()
             .then(materials => {
@@ -192,7 +188,7 @@ export class MaterialsDocService extends Service {
           };
         })
         .catch(() => {
-          // If doc creation fails, emit empty array
+          // If error accessing doc, emit empty array
           subscriber.next([]);
         });
     });
