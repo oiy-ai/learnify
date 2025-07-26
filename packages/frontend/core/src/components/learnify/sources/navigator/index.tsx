@@ -1,6 +1,4 @@
 import { Checkbox, useConfirmModal } from '@affine/component';
-import type { SourceItem } from '@affine/core/modules/learnify';
-import { SourcesStore } from '@affine/core/modules/learnify';
 import { Trans, useI18n } from '@affine/i18n';
 import {
   AttachmentIcon,
@@ -9,11 +7,13 @@ import {
   LinkIcon,
 } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { ListFloatingToolbar } from '../../../page-list/components/list-floating-toolbar';
 import { ImageViewerModal } from '../image-viewer-modal';
 import { PDFViewerModal } from '../pdf-viewer-modal';
+import type { MaterialItem } from '../services/materials-doc';
+import { MaterialsDocService } from '../services/materials-doc';
 import * as styles from './index.css';
 
 interface SourceCardProps {
@@ -74,23 +74,18 @@ const SourceCard = ({
 
 export const NavigationPanelSources = () => {
   const t = useI18n();
-  const sourcesStore = useService(SourcesStore);
-  const sources = useLiveData(sourcesStore.sources$);
+  const materialsService = useService(MaterialsDocService);
+  const materials = useLiveData(materialsService.materials$);
   const [checkedSources, setCheckedSources] = useState<Record<string, boolean>>(
     {}
   );
   const { openConfirmModal } = useConfirmModal();
-  const [pdfModalSource, setPdfModalSource] = useState<SourceItem | null>(null);
-  const [imageModalSource, setImageModalSource] = useState<SourceItem | null>(
+  const [pdfModalSource, setPdfModalSource] = useState<MaterialItem | null>(
     null
   );
-
-  // Refresh sources when component mounts
-  useEffect(() => {
-    sourcesStore.refreshSources().catch(() => {
-      // Silently fail
-    });
-  }, [sourcesStore]);
+  const [imageModalSource, setImageModalSource] = useState<MaterialItem | null>(
+    null
+  );
 
   const selectedSourceIds = useMemo(() => {
     return Object.keys(checkedSources).filter(id => checkedSources[id]);
@@ -125,23 +120,24 @@ export const NavigationPanelSources = () => {
         variant: 'error',
       },
       onConfirm: async () => {
-        // Delete all selected sources (including their blobs)
+        // Delete all selected materials
         await Promise.all(
-          selectedSourceIds.map(id => sourcesStore.removeSource(id))
+          selectedSourceIds.map(id => materialsService.removeMaterial(id))
         );
         setCheckedSources({});
       },
     });
-  }, [selectedSourceIds, sourcesStore, openConfirmModal, t]);
+  }, [selectedSourceIds, materialsService, openConfirmModal, t]);
 
   const handleClick = useCallback(
     (sourceId: string) => {
-      const source = sources?.find(s => s.id === sourceId);
+      const source = materials?.find(s => s.id === sourceId);
       if (!source) return;
 
-      if (source.category === 'link' && source.url) {
-        // Open link in new tab
-        window.open(source.url, '_blank');
+      if (source.category === 'link') {
+        // For video links, we'd need to store URL in attachment metadata
+        // For now, just show a message
+        console.log('Video links not yet supported in this implementation');
       } else if (source.category === 'pdf') {
         // Open PDF viewer modal
         setPdfModalSource(source);
@@ -150,11 +146,11 @@ export const NavigationPanelSources = () => {
         setImageModalSource(source);
       }
     },
-    [sources]
+    [materials]
   );
 
-  // If no sources uploaded yet, show a helpful message
-  if (!sources || sources.length === 0) {
+  // If no materials uploaded yet, show a helpful message
+  if (!materials || materials.length === 0) {
     return (
       <div className={styles.sourcesContainer}>
         <div
@@ -176,13 +172,13 @@ export const NavigationPanelSources = () => {
   return (
     <>
       <div className={styles.sourcesContainer}>
-        {sources.map(source => (
+        {materials.map(source => (
           <SourceCard
             key={source.id}
             id={source.id}
             name={source.name}
             category={source.category}
-            url={source.url}
+            url={undefined}
             description={source.description}
             checked={checkedSources[source.id] || false}
             onCheckedChange={handleCheckedChange}
