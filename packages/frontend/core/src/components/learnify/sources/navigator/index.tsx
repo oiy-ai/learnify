@@ -1,4 +1,5 @@
 import { Checkbox, useConfirmModal } from '@affine/component';
+import type { SourceItem } from '@affine/core/modules/learnify';
 import { SourcesStore } from '@affine/core/modules/learnify';
 import { Trans, useI18n } from '@affine/i18n';
 import {
@@ -11,6 +12,7 @@ import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ListFloatingToolbar } from '../../../page-list/components/list-floating-toolbar';
+import { PDFViewerModal } from '../pdf-viewer-modal';
 import * as styles from './index.css';
 
 interface SourceCardProps {
@@ -22,6 +24,8 @@ interface SourceCardProps {
   description: string;
   // eslint-disable-next-line no-unused-vars
   onCheckedChange: (id: string, checked: boolean) => void;
+  // eslint-disable-next-line no-unused-vars
+  onDoubleClick?: (id: string) => void;
 }
 
 const SourceCard = ({
@@ -31,6 +35,7 @@ const SourceCard = ({
   checked,
   description,
   onCheckedChange,
+  onDoubleClick,
 }: SourceCardProps) => {
   const getIcon = () => {
     switch (category) {
@@ -49,7 +54,10 @@ const SourceCard = ({
   };
 
   return (
-    <div className={styles.sourceCard}>
+    <div
+      className={styles.sourceCard}
+      onDoubleClick={() => onDoubleClick?.(id)}
+    >
       <Checkbox
         className={styles.checkbox}
         checked={checked}
@@ -74,6 +82,7 @@ export const NavigationPanelSources = () => {
     {}
   );
   const { openConfirmModal } = useConfirmModal();
+  const [pdfModalSource, setPdfModalSource] = useState<SourceItem | null>(null);
 
   // Refresh sources when component mounts
   useEffect(() => {
@@ -124,6 +133,22 @@ export const NavigationPanelSources = () => {
     });
   }, [selectedSourceIds, sourcesStore, openConfirmModal, t]);
 
+  const handleDoubleClick = useCallback(
+    (sourceId: string) => {
+      const source = sources?.find(s => s.id === sourceId);
+      if (!source) return;
+
+      if (source.category === 'link' && source.url) {
+        // Open link in new tab
+        window.open(source.url, '_blank');
+      } else if (source.category === 'pdf') {
+        // Open PDF viewer modal
+        setPdfModalSource(source);
+      }
+    },
+    [sources]
+  );
+
   // If no sources uploaded yet, show a helpful message
   if (!sources || sources.length === 0) {
     return (
@@ -157,6 +182,7 @@ export const NavigationPanelSources = () => {
             description={source.description}
             checked={checkedSources[source.id] || false}
             onCheckedChange={handleCheckedChange}
+            onDoubleClick={handleDoubleClick}
           />
         ))}
       </div>
@@ -176,6 +202,17 @@ export const NavigationPanelSources = () => {
           </Trans>
         }
       />
+      {pdfModalSource && (
+        <PDFViewerModal
+          source={pdfModalSource}
+          open={!!pdfModalSource}
+          onOpenChange={open => {
+            if (!open) {
+              setPdfModalSource(null);
+            }
+          }}
+        />
+      )}
     </>
   );
 };
