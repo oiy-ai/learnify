@@ -762,6 +762,7 @@ __metadata:
     "@faker-js/faker": "npm:^9.3.0"
     "@istanbuljs/schema": "npm:^0.1.3"
     "@magic-works/i18n-codegen": "npm:^0.6.1"
+    "@oxlint/darwin-arm64": "npm:^1.8.0"
     "@playwright/test": "npm:=1.52.0"
     "@smarttools/eslint-plugin-rxjs": "npm:^1.0.8"
     "@taplo/cli": "npm:^0.7.0"
@@ -788,7 +789,7 @@ __metadata:
     husky: "npm:^9.1.7"
     lint-staged: "npm:^16.0.0"
     msw: "npm:^2.6.8"
-    oxlint: "npm:^1.1.0"
+    oxlint: "npm:^1.8.0"
     prettier: "npm:^3.4.2"
     semver: "npm:^7.6.3"
     serve: "npm:^14.2.4"
@@ -10711,9 +10712,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oxlint/darwin-arm64@npm:1.8.0":
+"@oxlint/darwin-arm64@npm:1.8.0, @oxlint/darwin-arm64@npm:^1.8.0":
   version: 1.8.0
   resolution: "@oxlint/darwin-arm64@npm:1.8.0"
+  checksum: 10/76d5b31e35d3a5e84f4c94eb750c7a74b327e4eb3489c7953fcb6c131bdeb0ab6dc5620b86682e30f81a0bf94ab163216e6df28ae07e335ec33a56258b223907
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
@@ -27977,7 +27979,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"oxlint@npm:^1.1.0":
+"oxlint@npm:^1.8.0":
   version: 1.8.0
   resolution: "oxlint@npm:1.8.0"
   dependencies:
