@@ -1,13 +1,13 @@
 import { Modal } from '@affine/component';
-import type { SourceItem } from '@affine/core/modules/learnify';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { useService } from '@toeverything/infra';
 import { useEffect, useState } from 'react';
 
 import * as styles from './image-viewer-modal.css';
+import type { MaterialItem } from './services/materials-doc';
 
 interface ImageViewerModalProps {
-  source: SourceItem;
+  source: MaterialItem;
   open: boolean;
   onOpenChange: () => void;
 }
@@ -54,7 +54,7 @@ export const ImageViewerModal = ({
       }
       setImageUrl(null);
     };
-  }, [open, source.blobId, workspaceService]);
+  }, [open, source.blobId, workspaceService, imageUrl]);
 
   return (
     <Modal

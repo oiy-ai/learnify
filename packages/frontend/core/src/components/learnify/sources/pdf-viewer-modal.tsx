@@ -1,15 +1,15 @@
 import { Modal } from '@affine/component';
 import { AttachmentViewer } from '@affine/core/blocksuite/attachment-viewer';
 import { DocsService } from '@affine/core/modules/doc';
-import type { SourceItem } from '@affine/core/modules/learnify';
 import type { AttachmentBlockModel } from '@blocksuite/affine/model';
 import { useService } from '@toeverything/infra';
 import { useEffect, useState } from 'react';
 
 import * as styles from './pdf-viewer-modal.css';
+import type { MaterialItem } from './services/materials-doc';
 
 interface PDFViewerModalProps {
-  source: SourceItem;
+  source: MaterialItem;
   open: boolean;
   onOpenChange: () => void;
 }
@@ -26,27 +26,21 @@ export const PDFViewerModal = ({
   useEffect(() => {
     if (!open || !source.blobId) return;
 
-    // Try to find the attachment block in the document
+    // Try to find the attachment block in the materials document
     const findAttachmentBlock = async () => {
       try {
-        // The source document ID
-        // cspell:disable-next-line
-        const docId = 'Y3sx62lSB5Incw4BMyEFC';
+        // The materials document ID
+        const docId = 'learnify-list-of-materials';
         const { doc, release } = docsService.open(docId);
 
         await doc.waitForSyncReady();
         const blocksuiteDoc = doc.blockSuiteDoc;
 
-        // Find the attachment block with matching sourceId
-        const blocks = blocksuiteDoc.getBlocksByFlavour('affine:attachment');
+        // Find the attachment block with matching ID
+        const block = blocksuiteDoc.getBlock(source.id);
 
-        for (const block of blocks) {
-          const model = block.model as AttachmentBlockModel;
-
-          if (model.props.sourceId === source.blobId) {
-            setAttachmentModel(model);
-            break;
-          }
+        if (block?.flavour === 'affine:attachment') {
+          setAttachmentModel(block.model as AttachmentBlockModel);
         }
 
         release();
@@ -62,7 +56,7 @@ export const PDFViewerModal = ({
     return () => {
       setAttachmentModel(null);
     };
-  }, [open, source.blobId, docsService]);
+  }, [open, source.blobId, source.id, docsService]);
 
   return (
     <Modal
