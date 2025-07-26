@@ -1,6 +1,7 @@
 import { configureQuotaModule } from '@affine/core/modules/quota';
 import { type Framework } from '@toeverything/infra';
 
+import { configureLearnifySourcesModule } from '../components/learnify/sources';
 import {
   configureAIButtonModule,
   configureAIModelSwitchModule,
@@ -118,4 +119,5 @@ export function configureCommonModules(framework: Framework) {
   configureWorkspacePropertyModule(framework);
   configureCollectionRulesModule(framework);
   configureIndexerEmbeddingModule(framework);
+  configureLearnifySourcesModule(framework);
 }
