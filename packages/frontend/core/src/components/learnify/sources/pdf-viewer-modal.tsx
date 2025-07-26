@@ -5,6 +5,7 @@ import type { AttachmentBlockModel } from '@blocksuite/affine/model';
 import { useService } from '@toeverything/infra';
 import { useEffect, useState } from 'react';
 
+import { LEARNIFY_DOCUMENTS } from '../../../constants/learnify-documents';
 import * as styles from './pdf-viewer-modal.css';
 import type { MaterialItem } from './services/materials-doc';
 
@@ -30,7 +31,7 @@ export const PDFViewerModal = ({
     const findAttachmentBlock = async () => {
       try {
         // The materials document ID
-        const docId = 'learnify-list-of-materials';
+        const docId = LEARNIFY_DOCUMENTS.MATERIALS;
         const { doc, release } = docsService.open(docId);
 
         await doc.waitForSyncReady();
