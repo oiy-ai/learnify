@@ -25,7 +25,7 @@ interface SourceCardProps {
   // eslint-disable-next-line no-unused-vars
   onCheckedChange: (id: string, checked: boolean) => void;
   // eslint-disable-next-line no-unused-vars
-  onDoubleClick?: (id: string) => void;
+  onClick?: (id: string) => void;
 }
 
 const SourceCard = ({
@@ -35,7 +35,7 @@ const SourceCard = ({
   checked,
   description,
   onCheckedChange,
-  onDoubleClick,
+  onClick,
 }: SourceCardProps) => {
   const getIcon = () => {
     switch (category) {
@@ -54,10 +54,7 @@ const SourceCard = ({
   };
 
   return (
-    <div
-      className={styles.sourceCard}
-      onDoubleClick={() => onDoubleClick?.(id)}
-    >
+    <div className={styles.sourceCard} onClick={() => onClick?.(id)}>
       <Checkbox
         className={styles.checkbox}
         checked={checked}
@@ -133,7 +130,7 @@ export const NavigationPanelSources = () => {
     });
   }, [selectedSourceIds, sourcesStore, openConfirmModal, t]);
 
-  const handleDoubleClick = useCallback(
+  const handleClick = useCallback(
     (sourceId: string) => {
       const source = sources?.find(s => s.id === sourceId);
       if (!source) return;
@@ -182,7 +179,7 @@ export const NavigationPanelSources = () => {
             description={source.description}
             checked={checkedSources[source.id] || false}
             onCheckedChange={handleCheckedChange}
-            onDoubleClick={handleDoubleClick}
+            onClick={handleClick}
           />
         ))}
       </div>
@@ -206,10 +203,8 @@ export const NavigationPanelSources = () => {
         <PDFViewerModal
           source={pdfModalSource}
           open={!!pdfModalSource}
-          onOpenChange={open => {
-            if (!open) {
-              setPdfModalSource(null);
-            }
+          onOpenChange={() => {
+            setPdfModalSource(null);
           }}
         />
       )}
