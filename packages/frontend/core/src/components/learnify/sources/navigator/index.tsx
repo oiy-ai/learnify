@@ -12,6 +12,7 @@ import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ListFloatingToolbar } from '../../../page-list/components/list-floating-toolbar';
+import { ImageViewerModal } from '../image-viewer-modal';
 import { PDFViewerModal } from '../pdf-viewer-modal';
 import * as styles from './index.css';
 
@@ -80,6 +81,9 @@ export const NavigationPanelSources = () => {
   );
   const { openConfirmModal } = useConfirmModal();
   const [pdfModalSource, setPdfModalSource] = useState<SourceItem | null>(null);
+  const [imageModalSource, setImageModalSource] = useState<SourceItem | null>(
+    null
+  );
 
   // Refresh sources when component mounts
   useEffect(() => {
@@ -141,6 +145,9 @@ export const NavigationPanelSources = () => {
       } else if (source.category === 'pdf') {
         // Open PDF viewer modal
         setPdfModalSource(source);
+      } else if (source.category === 'image') {
+        // Open image viewer modal
+        setImageModalSource(source);
       }
     },
     [sources]
@@ -205,6 +212,15 @@ export const NavigationPanelSources = () => {
           open={!!pdfModalSource}
           onOpenChange={() => {
             setPdfModalSource(null);
+          }}
+        />
+      )}
+      {imageModalSource && (
+        <ImageViewerModal
+          source={imageModalSource}
+          open={!!imageModalSource}
+          onOpenChange={() => {
+            setImageModalSource(null);
           }}
         />
       )}
