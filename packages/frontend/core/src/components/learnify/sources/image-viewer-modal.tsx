@@ -24,6 +24,8 @@ export const ImageViewerModal = ({
   useEffect(() => {
     if (!open || !source.blobId) return;
 
+    let currentUrl: string | null = null;
+
     const loadImage = async () => {
       try {
         setLoading(true);
@@ -35,6 +37,7 @@ export const ImageViewerModal = ({
         if (blobData) {
           const blob = new Blob([blobData.data], { type: blobData.mime });
           const url = URL.createObjectURL(blob);
+          currentUrl = url;
           setImageUrl(url);
         }
       } catch (err) {
@@ -49,12 +52,12 @@ export const ImageViewerModal = ({
     });
 
     return () => {
-      if (imageUrl) {
-        URL.revokeObjectURL(imageUrl);
+      if (currentUrl) {
+        URL.revokeObjectURL(currentUrl);
       }
       setImageUrl(null);
     };
-  }, [open, source.blobId, workspaceService, imageUrl]);
+  }, [open, source.blobId, workspaceService]);
 
   return (
     <Modal
