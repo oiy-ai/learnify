@@ -61,4 +61,7 @@ export const sourceName = style({
 export const sourceDescription = style({
   fontSize: cssVar('fontXs'),
   color: cssVarV2('text/secondary'),
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
