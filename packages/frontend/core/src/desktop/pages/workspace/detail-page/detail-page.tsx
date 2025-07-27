@@ -172,26 +172,6 @@ const DetailPageImpl = memo(function DetailPageImpl() {
 
   const onLoad = useCallback(
     (editorContainer: AffineEditorContainer) => {
-      // 调试：输出文档内容结构
-      console.log('=== Document Debug Info ===');
-      console.log('Doc ID:', doc.id);
-      console.log('BlockSuite Doc:', doc.blockSuiteDoc);
-
-      // 获取文档内容
-      if (doc.blockSuiteDoc) {
-        const pageBlocks = doc.blockSuiteDoc.getBlocksByFlavour('affine:page');
-        console.log('Page blocks:', pageBlocks);
-
-        // const blocks = doc.blockSuiteDoc.getAllModels();
-        const blocks = doc.blockSuiteDoc.getBlocksByFlavour('affine:paragraph');
-        console.log('Blocks count:', blocks.length);
-
-        blocks.forEach((block, index) => {
-          console.log(`Block ${index}:`, block.model.text?.toString());
-        });
-      }
-      console.log('=== End Document Debug ===');
-
       const std = editorContainer.std;
       const disposable = new DisposableGroup();
       if (std) {
@@ -271,7 +251,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
         disposable.dispose();
       };
     },
-    [editor, workbench, peekView, doc]
+    [editor, workbench, peekView]
   );
 
   const [hasScrollTop, setHasScrollTop] = useState(false);
