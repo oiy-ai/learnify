@@ -1,25 +1,25 @@
-import { Button } from '@affine/component/ui/button';
-import { useI18n } from '@affine/i18n';
-import { Logo1Icon } from '@blocksuite/icons/rc';
+// import { Button } from '@affine/component/ui/button';
+// import { useI18n } from '@affine/i18n';
+// import { Logo1Icon } from '@blocksuite/icons/rc';
 import { useTheme } from 'next-themes';
-import { type ReactNode, useCallback } from 'react';
+import { type ReactNode } from 'react'; // useCallback
 
 import dotBgDark from './assets/dot-bg.dark.png';
 import dotBgLight from './assets/dot-bg.light.png';
-import { DesktopNavbar } from './desktop-navbar';
+// import { DesktopNavbar } from './desktop-navbar';
 import * as styles from './index.css';
-import { MobileNavbar } from './mobile-navbar';
+// import { MobileNavbar } from './mobile-navbar';
 
 export const AffineOtherPageLayout = ({
   children,
 }: {
   children: ReactNode;
 }) => {
-  const t = useI18n();
+  // const t = useI18n();
 
-  const openDownloadLink = useCallback(() => {
-    open(BUILD_CONFIG.downloadUrl, '_blank');
-  }, []);
+  // const openDownloadLink = useCallback(() => {
+  //   open(BUILD_CONFIG.downloadUrl, '_blank');
+  // }, []);
 
   const { resolvedTheme } = useTheme();
   const backgroundImage =
@@ -30,7 +30,7 @@ export const AffineOtherPageLayout = ({
       className={styles.root}
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      {BUILD_CONFIG.isElectron ? (
+      {/* {BUILD_CONFIG.isElectron ? (
         <div className={styles.draggableHeader} />
       ) : (
         <div className={styles.topNav}>
@@ -47,7 +47,7 @@ export const AffineOtherPageLayout = ({
           </Button>
           <MobileNavbar />
         </div>
-      )}
+      )} */}
 
       {children}
     </div>
