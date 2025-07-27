@@ -117,7 +117,7 @@ export const ProgressNavigator = () => {
   return (
     <div className={styles.root}>
       <MenuLinkItem
-        to="/all"
+        to="/notes"
         icon={isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         onClick={() => setIsExpanded(!isExpanded)}
       >
@@ -127,22 +127,22 @@ export const ProgressNavigator = () => {
       </MenuLinkItem>
       {isExpanded && (
         <>
-          <MenuLinkItem to="/all" icon={<MindmapIcon />}>
+          <MenuLinkItem to="/notes" icon={<MindmapIcon />}>
             <div className={styles.progressItem}>
               <Progress name="Mind Map" percent={percent1} color={color1} />
             </div>
           </MenuLinkItem>
-          <MenuLinkItem to="/all" icon={<ViewLayersIcon />}>
+          <MenuLinkItem to="/notes" icon={<ViewLayersIcon />}>
             <div className={styles.progressItem}>
               <Progress name="Notes" percent={percent2} color={color2} />
             </div>
           </MenuLinkItem>
-          <MenuLinkItem to="/all" icon={<TextIcon />}>
+          <MenuLinkItem to="/notes" icon={<TextIcon />}>
             <div className={styles.progressItem}>
               <Progress name="Flashcards" percent={percent3} color={color3} />
             </div>
           </MenuLinkItem>
-          <MenuLinkItem to="/all" icon={<HistoryIcon />}>
+          <MenuLinkItem to="/notes" icon={<HistoryIcon />}>
             <div className={styles.progressItem}>
               <Progress name="Podcast" percent={percent4} color={color4} />
             </div>
