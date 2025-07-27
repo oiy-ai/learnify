@@ -1,10 +1,12 @@
-import { IconButton, Popover } from '@affine/component';
+import { IconButton, notify, Popover } from '@affine/component';
 import { useI18n } from '@affine/i18n';
 import { LinkIcon } from '@blocksuite/icons/rc';
+import { useService } from '@toeverything/infra';
 import clsx from 'clsx';
 import type React from 'react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
+import { MaterialsDocService } from '../../services/materials-doc';
 import * as styles from './index.css';
 
 interface AddLinkButtonProps {
@@ -23,18 +25,40 @@ export function AddLinkButton({
 }: AddLinkButtonProps) {
   const t = useI18n();
   const [open, setOpen] = useState(false);
+  const materialsService = useService(MaterialsDocService);
 
-  const handleAddYouTube = () => {
-    // TODO: Implement YouTube link addition
-    console.log('Add YouTube link');
-    // Will use onAddLink in the future implementation
-    if (onAddLink) {
-      // Placeholder for future implementation
+  const handleAddYouTube = useCallback(async () => {
+    const url = prompt('Enter YouTube URL:');
+    if (!url || !url.trim()) {
+      return;
     }
-    setOpen(false);
-  };
 
-  const handleAddLink = () => {
+    try {
+      await materialsService.addYouTubeVideo({
+        url: url.trim(),
+      });
+
+      notify.success({
+        title: 'YouTube video added',
+        message: 'YouTube video has been added to materials',
+      });
+
+      setOpen(false);
+
+      // Call the callback if provided
+      if (onAddLink) {
+        await onAddLink(url.trim());
+      }
+    } catch (error) {
+      console.error('Failed to add YouTube video:', error);
+      notify.error({
+        title: 'Failed to add YouTube video',
+        message: error instanceof Error ? error.message : 'Invalid YouTube URL',
+      });
+    }
+  }, [materialsService, onAddLink]);
+
+  const handleAddLink = useCallback(() => {
     // TODO: Implement general link addition
     console.log('Add general link');
     // Will use onAddLink in the future implementation
@@ -42,7 +66,7 @@ export function AddLinkButton({
       // Placeholder for future implementation
     }
     setOpen(false);
-  };
+  }, [onAddLink]);
 
   return (
     <Popover
@@ -50,7 +74,12 @@ export function AddLinkButton({
       onOpenChange={setOpen}
       content={
         <div className={styles.menuContent}>
-          <div className={styles.menuItem} onClick={handleAddYouTube}>
+          <div
+            className={styles.menuItem}
+            onClick={() => {
+              handleAddYouTube().catch(console.error);
+            }}
+          >
             <div className={styles.menuIcon}>
               <svg
                 width="20"

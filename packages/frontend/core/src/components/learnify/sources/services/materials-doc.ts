@@ -1,4 +1,8 @@
-import type { AttachmentBlockModel } from '@blocksuite/affine/model';
+import type {
+  AttachmentBlockModel,
+  BookmarkBlockModel,
+  EmbedYoutubeModel,
+} from '@blocksuite/affine/model';
 import { NoteDisplayMode } from '@blocksuite/affine/model';
 import type { Store } from '@blocksuite/affine/store';
 import { LiveData, Service } from '@toeverything/infra';
@@ -15,6 +19,12 @@ export interface MaterialItem {
   mimeType: string;
   size: number;
   category: 'pdf' | 'image' | 'link' | 'attachment';
+}
+
+export interface YouTubeVideoData {
+  url: string;
+  title?: string;
+  description?: string;
 }
 
 export class MaterialsDocService extends Service {
@@ -56,13 +66,17 @@ export class MaterialsDocService extends Service {
       return [];
     }
 
-    const attachmentBlocks = doc.getBlocksByFlavour('affine:attachment');
-
     const materials: MaterialItem[] = [];
+    const blockOrder = this.getBlockOrder(doc);
 
+    // Process different types of blocks
+    const attachmentBlocks = doc.getBlocksByFlavour('affine:attachment');
+    const youtubeBlocks = doc.getBlocksByFlavour('affine:embed-youtube');
+    const bookmarkBlocks = doc.getBlocksByFlavour('affine:bookmark');
+
+    // Process attachment blocks
     for (const block of attachmentBlocks) {
       try {
-        // Access model properties correctly
         const model = block.model as AttachmentBlockModel;
         const props = model.props || {};
 
@@ -85,7 +99,67 @@ export class MaterialsDocService extends Service {
       }
     }
 
-    return materials;
+    // Process YouTube embed blocks
+    for (const block of youtubeBlocks) {
+      try {
+        const model = block.model as EmbedYoutubeModel;
+        const props = model.props || {};
+
+        const item: MaterialItem = {
+          id: block.id,
+          name: props.title || 'YouTube Video',
+          description: props.caption || props.description || '',
+          blobId: props.videoId || props.url || '',
+          mimeType: 'video/youtube',
+          size: 0,
+          category: 'link',
+        };
+
+        materials.push(item);
+      } catch (error) {
+        console.error(
+          '[MaterialsDocService] Error processing YouTube embed:',
+          error
+        );
+      }
+    }
+
+    // Process bookmark blocks (Card view for YouTube and other links)
+    for (const block of bookmarkBlocks) {
+      try {
+        const model = block.model as BookmarkBlockModel;
+        const props = model.props || {};
+
+        // Check if this is a YouTube link
+        const isYouTube = this.isYouTubeUrl(props.url || '');
+
+        const item: MaterialItem = {
+          id: block.id,
+          name: props.title || (isYouTube ? 'YouTube Video' : 'Web Link'),
+          description: props.caption || props.description || '',
+          blobId: props.url || '',
+          mimeType: isYouTube ? 'video/youtube' : 'text/html',
+          size: 0,
+          category: 'link',
+        };
+
+        materials.push(item);
+      } catch (error) {
+        console.error(
+          '[MaterialsDocService] Error processing bookmark:',
+          error
+        );
+      }
+    }
+
+    // Sort materials based on their order in the document
+    const sortedMaterials = materials.sort((a, b) => {
+      const aOrder = blockOrder.find(block => block.id === a.id);
+      const bOrder = blockOrder.find(block => block.id === b.id);
+      return (aOrder?.index || 0) - (bOrder?.index || 0);
+    });
+
+    return sortedMaterials;
   }
 
   async addMaterial(file: {
@@ -127,18 +201,141 @@ export class MaterialsDocService extends Service {
     );
   }
 
-  async removeMaterial(attachmentId: string): Promise<void> {
+  async addYouTubeVideo(videoData: YouTubeVideoData): Promise<void> {
     const doc = await this.getMaterialsDoc();
     if (!doc) {
       throw new Error('Materials document not found');
     }
+
+    // Get the first note block to add YouTube embed
+    const noteBlocks = doc.getBlocksByFlavour('affine:note');
+    const noteBlock =
+      noteBlocks.find(block => {
+        const model = block.model as any;
+        return model.displayMode !== NoteDisplayMode.EdgelessOnly;
+      }) || noteBlocks[0];
+
+    if (!noteBlock) {
+      throw new Error('No note block found in materials document');
+    }
+
+    // Extract video ID from URL
+    const videoId = this.extractYouTubeVideoId(videoData.url);
+    if (!videoId) {
+      throw new Error('Invalid YouTube URL');
+    }
+
+    // Add YouTube embed block
+    doc.addBlock(
+      'affine:embed-youtube' as never,
+      {
+        url: videoData.url,
+        videoId,
+        style: 'video',
+        title: videoData.title || null,
+        description: videoData.description || null,
+        caption: null,
+        image: null,
+        creator: null,
+        creatorUrl: null,
+        creatorImage: null,
+      },
+      noteBlock.id
+    );
+  }
+
+  private getBlockOrder(
+    doc: Store
+  ): { id: string; index: number; type: string }[] {
+    const blockOrder: { id: string; index: number; type: string }[] = [];
+    const pageBlocks = doc.getBlocksByFlavour('affine:page');
+
+    if (pageBlocks.length > 0) {
+      const pageModel = pageBlocks[0].model;
+      const children = this.getAllChildrenRecursively(pageModel);
+
+      children.forEach((child, index) => {
+        if (this.isMaterialBlock(child.flavour)) {
+          blockOrder.push({ id: child.id, index, type: child.flavour });
+        }
+      });
+    }
+
+    return blockOrder;
+  }
+
+  private getAllChildrenRecursively(block: any): any[] {
+    const children: any[] = [];
+    if (block.children) {
+      for (const child of block.children) {
+        children.push(child);
+        children.push(...this.getAllChildrenRecursively(child));
+      }
+    }
+    return children;
+  }
+
+  private isMaterialBlock(flavour: string): boolean {
+    return [
+      'affine:attachment',
+      'affine:embed-youtube',
+      'affine:bookmark',
+    ].includes(flavour);
+  }
+
+  private isYouTubeUrl(url: string): boolean {
+    return this.extractYouTubeVideoId(url) !== null;
+  }
+
+  private extractYouTubeVideoId(url: string): string | null {
+    const patterns = [
+      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/,
+      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?]+)/,
+      /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/,
+    ];
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+
+    return null;
+  }
+
+  async removeMaterial(materialId: string): Promise<void> {
+    const doc = await this.getMaterialsDoc();
+    if (!doc) {
+      throw new Error('Materials document not found');
+    }
+
+    // Try to find and delete attachment blocks
     const attachmentBlocks = doc.getBlocksByFlavour('affine:attachment');
     const attachmentBlock = attachmentBlocks.find(
-      block => block.id === attachmentId
+      block => block.id === materialId
     );
 
     if (attachmentBlock) {
       doc.deleteBlock(attachmentBlock.model);
+      return;
+    }
+
+    // Try to find and delete YouTube blocks
+    const youtubeBlocks = doc.getBlocksByFlavour('affine:embed-youtube');
+    const youtubeBlock = youtubeBlocks.find(block => block.id === materialId);
+
+    if (youtubeBlock) {
+      doc.deleteBlock(youtubeBlock.model);
+      return;
+    }
+
+    // Try to find and delete bookmark blocks
+    const bookmarkBlocks = doc.getBlocksByFlavour('affine:bookmark');
+    const bookmarkBlock = bookmarkBlocks.find(block => block.id === materialId);
+
+    if (bookmarkBlock) {
+      doc.deleteBlock(bookmarkBlock.model);
     }
   }
 
