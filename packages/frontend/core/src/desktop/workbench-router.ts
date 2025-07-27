@@ -2,10 +2,6 @@ import type { RouteObject } from 'react-router-dom';
 
 export const workbenchRoutes = [
   {
-    path: '/all',
-    lazy: () => import('./pages/workspace/all-page/all-page'),
-  },
-  {
     path: '/collection',
     lazy: () => import('./pages/workspace/all-collection'),
   },
@@ -64,6 +60,10 @@ export const workbenchRoutes = [
   {
     path: '/settings',
     lazy: () => import('./pages/workspace/settings'),
+  },
+  {
+    path: '/',
+    lazy: () => import('./pages/learnify/workspace/notes'),
   },
   {
     path: '*',
