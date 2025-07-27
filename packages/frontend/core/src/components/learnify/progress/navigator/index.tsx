@@ -127,7 +127,7 @@ export const ProgressNavigator = () => {
       </MenuLinkItem>
       {isExpanded && (
         <>
-          <MenuLinkItem to="/notes" icon={<MindmapIcon />}>
+          <MenuLinkItem to="/mind-maps" icon={<MindmapIcon />}>
             <div className={styles.progressItem}>
               <Progress name="Mind Map" percent={percent1} color={color1} />
             </div>
@@ -137,12 +137,12 @@ export const ProgressNavigator = () => {
               <Progress name="Notes" percent={percent2} color={color2} />
             </div>
           </MenuLinkItem>
-          <MenuLinkItem to="/notes" icon={<TextIcon />}>
+          <MenuLinkItem to="/flashcards" icon={<TextIcon />}>
             <div className={styles.progressItem}>
               <Progress name="Flashcards" percent={percent3} color={color3} />
             </div>
           </MenuLinkItem>
-          <MenuLinkItem to="/notes" icon={<HistoryIcon />}>
+          <MenuLinkItem to="/podcasts" icon={<HistoryIcon />}>
             <div className={styles.progressItem}>
               <Progress name="Podcast" percent={percent4} color={color4} />
             </div>
