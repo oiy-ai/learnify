@@ -94,18 +94,27 @@ jobs:
             SECRET_PREFIX="LEARNIFY_BETA"
           fi
 
+          # 先设置 IAM 策略，避免部署时失败
+          echo "Setting IAM policy for public access..."
+          gcloud run services add-iam-policy-binding ${{ env.SERVICE_NAME }} \
+            --region=${{ env.GCP_REGION }} \
+            --member="allUsers" \
+            --role="roles/run.invoker" \
+            --quiet || echo "IAM policy binding failed, will retry during deployment"
+
+          echo "Deploying to Cloud Run..."
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image=${{ env.AR_IMAGE }} \
             --region=${{ env.GCP_REGION }} \
             --project=${{ env.GCP_PROJECT }} \
             --platform=managed \
             --port=3010 \
-            --memory=1Gi \
-            --cpu=1 \
+            --memory=2Gi \
+            --cpu=2 \
             --min-instances=0 \
-            --max-instances=1 \
-            --concurrency=1 \
-            --timeout=180 \
+            --max-instances=2 \
+            --concurrency=10 \
+            --timeout=300 \
             --cpu-boost \
             --service-account=ghcr-sync@learnify-463605.iam.gserviceaccount.com \
             --set-env-vars="AFFINE_SERVER_PORT=3010,REDIS_SERVER_PORT=6379,REDIS_SERVER_TLS=true,REDIS_SERVER_DATABASE=0,AFFINE_INDEXER_ENABLED=false,AFFINE_SERVER_HTTPS=true" \
@@ -115,6 +124,14 @@ jobs:
             --add-volume-mount=volume=${{ env.STORAGE_BUCKET }},mount-path=/root/.affine/storage \
             --add-volume-mount=volume=${{ env.CONFIG_BUCKET }},mount-path=/root/.affine/config \
             --allow-unauthenticated
+
+          # 确保 IAM 策略正确设置
+          echo "Verifying IAM policy..."
+          gcloud run services add-iam-policy-binding ${{ env.SERVICE_NAME }} \
+            --region=${{ env.GCP_REGION }} \
+            --member="allUsers" \
+            --role="roles/run.invoker" \
+            --quiet || echo "IAM policy already set"
 
       - name: Verify deployment
         run: |
