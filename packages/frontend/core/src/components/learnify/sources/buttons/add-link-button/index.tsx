@@ -58,15 +58,45 @@ export function AddLinkButton({
     }
   }, [materialsService, onAddLink]);
 
-  const handleAddLink = useCallback(() => {
-    // TODO: Implement general link addition
-    console.log('Add general link');
-    // Will use onAddLink in the future implementation
-    if (onAddLink) {
-      // Placeholder for future implementation
+  const handleAddLink = useCallback(async () => {
+    const url = prompt('Enter URL:');
+    if (!url || !url.trim()) {
+      return;
     }
-    setOpen(false);
-  }, [onAddLink]);
+
+    try {
+      // Validate and normalize URL
+      let validUrl = url.trim();
+      if (!validUrl.startsWith('http://') && !validUrl.startsWith('https://')) {
+        validUrl = 'https://' + validUrl;
+      }
+
+      // Validate URL format
+      new URL(validUrl);
+
+      await materialsService.addLink({
+        url: validUrl,
+      });
+
+      notify.success({
+        title: 'Link added',
+        message: 'Link has been added to materials',
+      });
+
+      setOpen(false);
+
+      // Call the callback if provided
+      if (onAddLink) {
+        await onAddLink(validUrl);
+      }
+    } catch (error) {
+      console.error('Failed to add link:', error);
+      notify.error({
+        title: 'Failed to add link',
+        message: error instanceof Error ? error.message : 'Invalid URL',
+      });
+    }
+  }, [materialsService, onAddLink]);
 
   return (
     <Popover
@@ -97,7 +127,12 @@ export function AddLinkButton({
               </div>
             </div>
           </div>
-          <div className={styles.menuItem} onClick={handleAddLink}>
+          <div
+            className={styles.menuItem}
+            onClick={() => {
+              handleAddLink().catch(console.error);
+            }}
+          >
             <LinkIcon className={styles.menuIcon} />
             <div className={styles.menuItemContent}>
               <div className={styles.menuItemTitle}>Links</div>

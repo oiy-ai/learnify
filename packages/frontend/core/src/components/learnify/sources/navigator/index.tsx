@@ -5,6 +5,7 @@ import {
   ExportToPdfIcon,
   ImageIcon,
   LinkIcon,
+  PlayIcon,
 } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useMemo, useState } from 'react';
@@ -20,6 +21,7 @@ interface SourceCardProps {
   id: string;
   name: string;
   category: string;
+  mimeType: string;
   url?: string;
   checked: boolean;
   description: string;
@@ -33,19 +35,26 @@ const SourceCard = ({
   id,
   name,
   category,
+  mimeType,
   checked,
   description,
   onCheckedChange,
   onClick,
 }: SourceCardProps) => {
   const getIcon = () => {
+    // Check mimeType first for more specific icons
+    if (mimeType === 'video/youtube') {
+      return <PlayIcon className={styles.sourceIcon} />;
+    }
+
+    // Fall back to category-based icons
     switch (category) {
       case 'pdf':
         return <ExportToPdfIcon className={styles.sourceIcon} />;
       case 'image':
         return <ImageIcon className={styles.sourceIcon} />;
       case 'link':
-        // Video links
+        // General links (non-YouTube)
         return <LinkIcon className={styles.sourceIcon} />;
       case 'attachment':
         return <AttachmentIcon className={styles.sourceIcon} />;
@@ -178,6 +187,7 @@ export const NavigationPanelSources = () => {
             id={source.id}
             name={source.name}
             category={source.category}
+            mimeType={source.mimeType}
             url={undefined}
             description={source.description}
             checked={checkedSources[source.id] || false}

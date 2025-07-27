@@ -1,5 +1,6 @@
 import type {
   AttachmentBlockModel,
+  BookmarkBlockModel,
   EmbedYoutubeModel,
 } from '@blocksuite/affine/model';
 import { NoteDisplayMode } from '@blocksuite/affine/model';
@@ -21,6 +22,12 @@ export interface MaterialItem {
 }
 
 export interface YouTubeVideoData {
+  url: string;
+  title?: string;
+  description?: string;
+}
+
+export interface LinkData {
   url: string;
   title?: string;
   description?: string;
@@ -71,6 +78,7 @@ export class MaterialsDocService extends Service {
     // Process different types of blocks
     const attachmentBlocks = doc.getBlocksByFlavour('affine:attachment');
     const youtubeBlocks = doc.getBlocksByFlavour('affine:embed-youtube');
+    const bookmarkBlocks = doc.getBlocksByFlavour('affine:bookmark');
 
     // Process attachment blocks
     for (const block of attachmentBlocks) {
@@ -117,6 +125,36 @@ export class MaterialsDocService extends Service {
       } catch (error) {
         console.error(
           '[MaterialsDocService] Error processing YouTube embed:',
+          error
+        );
+      }
+    }
+
+    // Process bookmark blocks (general links, not YouTube)
+    for (const block of bookmarkBlocks) {
+      try {
+        const model = block.model as BookmarkBlockModel;
+        const props = model.props || {};
+
+        // Skip if this is a YouTube URL (should use embed-youtube instead)
+        if (this.isYouTubeUrl(props.url || '')) {
+          continue;
+        }
+
+        const item: MaterialItem = {
+          id: block.id,
+          name: props.title || 'Web Link',
+          description: props.caption || props.description || '',
+          blobId: props.url || '',
+          mimeType: 'text/html',
+          size: 0,
+          category: 'link',
+        };
+
+        materials.push(item);
+      } catch (error) {
+        console.error(
+          '[MaterialsDocService] Error processing bookmark:',
           error
         );
       }
@@ -214,6 +252,47 @@ export class MaterialsDocService extends Service {
     );
   }
 
+  async addLink(linkData: LinkData): Promise<void> {
+    const doc = await this.getMaterialsDoc();
+    if (!doc) {
+      throw new Error('Materials document not found');
+    }
+
+    // Get the first note block to add bookmark
+    const noteBlocks = doc.getBlocksByFlavour('affine:note');
+    const noteBlock =
+      noteBlocks.find(block => {
+        const model = block.model as any;
+        return model.displayMode !== NoteDisplayMode.EdgelessOnly;
+      }) || noteBlocks[0];
+
+    if (!noteBlock) {
+      throw new Error('No note block found in materials document');
+    }
+
+    // Validate URL
+    try {
+      new URL(linkData.url);
+    } catch {
+      throw new Error('Invalid URL');
+    }
+
+    // Add bookmark block (Card view)
+    doc.addBlock(
+      'affine:bookmark' as never,
+      {
+        url: linkData.url,
+        title: linkData.title || null,
+        description: linkData.description || null,
+        caption: null,
+        icon: null,
+        image: null,
+        style: 'horizontal',
+      },
+      noteBlock.id
+    );
+  }
+
   private getBlockOrder(
     doc: Store
   ): { id: string; index: number; type: string }[] {
@@ -246,7 +325,15 @@ export class MaterialsDocService extends Service {
   }
 
   private isMaterialBlock(flavour: string): boolean {
-    return ['affine:attachment', 'affine:embed-youtube'].includes(flavour);
+    return [
+      'affine:attachment',
+      'affine:embed-youtube',
+      'affine:bookmark',
+    ].includes(flavour);
+  }
+
+  private isYouTubeUrl(url: string): boolean {
+    return this.extractYouTubeVideoId(url) !== null;
   }
 
   private extractYouTubeVideoId(url: string): string | null {
@@ -289,6 +376,15 @@ export class MaterialsDocService extends Service {
 
     if (youtubeBlock) {
       doc.deleteBlock(youtubeBlock.model);
+      return;
+    }
+
+    // Try to find and delete bookmark blocks
+    const bookmarkBlocks = doc.getBlocksByFlavour('affine:bookmark');
+    const bookmarkBlock = bookmarkBlocks.find(block => block.id === materialId);
+
+    if (bookmarkBlock) {
+      doc.deleteBlock(bookmarkBlock.model);
     }
   }
 
