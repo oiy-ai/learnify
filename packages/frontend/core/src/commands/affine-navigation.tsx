@@ -24,32 +24,64 @@ export function registerAffineNavigationCommands({
   const unsubs: Array<() => void> = [];
   unsubs.push(
     registerAffineCommand({
-      id: 'affine:goto-all-pages',
+      id: 'affine:goto-mind-maps',
       category: 'affine:navigation',
       icon: <ArrowRightBigIcon />,
-      label: t['com.affine.cmdk.affine.navigation.goto-all-pages'](),
+      label: 'Go to MindMaps',
       run() {
         track.$.cmdk.navigation.navigate({
-          to: 'allDocs',
+          to: 'mind-maps',
         });
 
-        navigationHelper.jumpToPage(docCollection.id, 'all');
+        navigationHelper.jumpToPage(docCollection.id, 'mind-maps');
       },
     })
   );
 
   unsubs.push(
     registerAffineCommand({
-      id: 'affine:goto-collection-list',
+      id: 'affine:goto-notes',
       category: 'affine:navigation',
       icon: <ArrowRightBigIcon />,
-      label: 'Go to Collection List',
+      label: 'Go to Notes',
       run() {
         track.$.cmdk.navigation.navigate({
-          to: 'collectionList',
+          to: 'notes',
         });
 
-        navigationHelper.jumpToCollections(docCollection.id);
+        navigationHelper.jumpToPage(docCollection.id, 'notes');
+      },
+    })
+  );
+
+  unsubs.push(
+    registerAffineCommand({
+      id: 'affine:goto-flashcard',
+      category: 'affine:navigation',
+      icon: <ArrowRightBigIcon />,
+      label: 'Go to Flashcards',
+      run() {
+        track.$.cmdk.navigation.navigate({
+          to: 'flashcards',
+        });
+
+        navigationHelper.jumpToPage(docCollection.id, 'flashcards');
+      },
+    })
+  );
+
+  unsubs.push(
+    registerAffineCommand({
+      id: 'affine:goto-podcasts',
+      category: 'affine:navigation',
+      icon: <ArrowRightBigIcon />,
+      label: 'Go to Podcasts',
+      run() {
+        track.$.cmdk.navigation.navigate({
+          to: 'podcasts',
+        });
+
+        navigationHelper.jumpToPage(docCollection.id, 'podcasts');
       },
     })
   );
@@ -102,20 +134,20 @@ export function registerAffineNavigationCommands({
     })
   );
 
-  unsubs.push(
-    registerAffineCommand({
-      id: 'affine:open-account',
-      category: 'affine:navigation',
-      icon: <ArrowRightBigIcon />,
-      label: t['com.affine.cmdk.affine.navigation.open-account-settings'](),
-      run() {
-        track.$.cmdk.settings.openSettings({ to: 'account' });
-        workspaceDialogService.open('setting', {
-          activeTab: 'account',
-        });
-      },
-    })
-  );
+  // unsubs.push(
+  //   registerAffineCommand({
+  //     id: 'affine:open-account',
+  //     category: 'affine:navigation',
+  //     icon: <ArrowRightBigIcon />,
+  //     label: t['com.affine.cmdk.affine.navigation.open-account-settings'](),
+  //     run() {
+  //       track.$.cmdk.settings.openSettings({ to: 'account' });
+  //       workspaceDialogService.open('setting', {
+  //         activeTab: 'account',
+  //       });
+  //     },
+  //   })
+  // );
 
   unsubs.push(
     registerAffineCommand({
