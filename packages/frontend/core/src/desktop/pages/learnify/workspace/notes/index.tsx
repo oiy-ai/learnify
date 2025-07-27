@@ -12,6 +12,7 @@ import {
 } from '@affine/core/modules/collection';
 import { CollectionRulesService } from '@affine/core/modules/collection-rules';
 import type { FilterParams } from '@affine/core/modules/collection-rules/types';
+import { WorkspacePermissionService } from '@affine/core/modules/permissions';
 import { WorkspaceLocalState } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
 import { useLiveData, useService } from '@toeverything/infra';
@@ -105,6 +106,8 @@ export const AllPage = () => {
 
   const collectionService = useService(CollectionService);
   const pinnedCollectionService = useService(PinnedCollectionService);
+  const permissionService = useService(WorkspacePermissionService);
+  const isAdmin = useLiveData(permissionService.permission.isAdmin$);
   const {
     viewMode,
     setViewMode,
@@ -239,7 +242,19 @@ export const AllPage = () => {
       )
       .subscribe({
         next: result => {
-          explorerContextValue.groups$.next(result.groups);
+          // If user is not admin, filter out the Learnify Materials document
+          let filteredGroups = result.groups;
+          if (!isAdmin) {
+            filteredGroups = result.groups
+              .map(group => ({
+                ...group,
+                items: group.items.filter(docId => {
+                  return docId !== 'learnify-list-of-materials';
+                }),
+              }))
+              .filter(group => group.items.length > 0);
+          }
+          explorerContextValue.groups$.next(filteredGroups);
         },
         error: error => {
           console.error(error);
@@ -256,6 +271,7 @@ export const AllPage = () => {
     selectedCollection,
     selectedCollectionInfo,
     tempFilters,
+    isAdmin,
   ]);
 
   useEffect(() => {
