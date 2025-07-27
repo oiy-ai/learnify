@@ -12,6 +12,7 @@ import {
   OnJob,
 } from '../../../base';
 import { DocReader } from '../../../core/doc';
+import { readAllDocIdsFromWorkspaceSnapshot } from '../../../core/utils/blocksuite';
 import { Models } from '../../../models';
 import { CopilotStorage } from '../storage';
 import { readStream } from '../utils';
@@ -134,10 +135,30 @@ export class CopilotEmbeddingJob {
     if (enableDocEmbedding) {
       const toBeEmbedDocIds =
         await this.models.copilotWorkspace.findDocsToEmbed(workspaceId);
+      if (!toBeEmbedDocIds.length) {
+        return;
+      }
+      // filter out trashed docs
+      const rootSnapshot = await this.models.doc.getSnapshot(
+        workspaceId,
+        workspaceId
+      );
+      if (!rootSnapshot) {
+        this.logger.warn(
+          `Root snapshot for workspace ${workspaceId} not found, skipping embedding.`
+        );
+        return;
+      }
+      const allDocIds = new Set(
+        readAllDocIdsFromWorkspaceSnapshot(rootSnapshot.blob)
+      );
       this.logger.log(
         `Trigger embedding for ${toBeEmbedDocIds.length} docs in workspace ${workspaceId}`
       );
-      for (const docId of toBeEmbedDocIds) {
+      const finalToBeEmbedDocIds = toBeEmbedDocIds.filter(docId =>
+        allDocIds.has(docId)
+      );
+      for (const docId of finalToBeEmbedDocIds) {
         await this.queue.add(
           'copilot.embedding.docs',
           {
@@ -159,8 +180,10 @@ export class CopilotEmbeddingJob {
     }
   }
 
-  @OnEvent('doc.indexer.updated')
-  async addDocEmbeddingQueueFromEvent(doc: Events['doc.indexer.updated']) {
+  @OnJob('copilot.embedding.updateDoc')
+  async addDocEmbeddingQueueFromEvent(
+    doc: Jobs['copilot.embedding.updateDoc']
+  ) {
     if (!this.supportEmbedding || !this.embeddingClient) return;
 
     await this.queue.add(
@@ -176,8 +199,10 @@ export class CopilotEmbeddingJob {
     );
   }
 
-  @OnEvent('doc.indexer.deleted')
-  async deleteDocEmbeddingQueueFromEvent(doc: Events['doc.indexer.deleted']) {
+  @OnJob('copilot.embedding.deleteDoc')
+  async deleteDocEmbeddingQueueFromEvent(
+    doc: Jobs['copilot.embedding.deleteDoc']
+  ) {
     await this.queue.remove(
       `workspace:embedding:${doc.workspaceId}:${doc.docId}`,
       'copilot.embedding.docs'
@@ -333,6 +358,10 @@ export class CopilotEmbeddingJob {
     const signal = this.getWorkspaceSignal(workspaceId);
 
     try {
+      const hasNewDoc = await this.models.doc.exists(
+        workspaceId,
+        docId.split(':space:')[1] || ''
+      );
       const needEmbedding =
         await this.models.copilotWorkspace.checkDocNeedEmbedded(
           workspaceId,
@@ -348,8 +377,11 @@ export class CopilotEmbeddingJob {
           );
           return;
         }
-        const fragment = await this.getDocFragment(workspaceId, docId);
-        if (fragment) {
+        // if doc id deprecated, skip embedding and fulfill empty embedding
+        const fragment = !hasNewDoc
+          ? await this.getDocFragment(workspaceId, docId)
+          : undefined;
+        if (!hasNewDoc && fragment) {
           // fast fall for empty doc, journal is easily to create a empty doc
           if (fragment.summary.trim()) {
             const embeddings = await this.embeddingClient.getFileEmbeddings(
@@ -378,7 +410,7 @@ export class CopilotEmbeddingJob {
             );
             await this.fulfillEmptyEmbedding(workspaceId, docId);
           }
-        } else if (contextId) {
+        } else {
           this.logger.warn(
             `Doc ${docId} in workspace ${workspaceId} has no fragment, fulfilling empty embedding.`
           );
@@ -408,6 +440,41 @@ export class CopilotEmbeddingJob {
       this.logger.error(
         `Error embedding doc ${docId} in workspace ${workspaceId}`,
         error
+      );
+    }
+  }
+
+  @OnJob('copilot.embedding.cleanupTrashedDocEmbeddings')
+  async cleanupTrashedDocEmbeddings({
+    workspaceId,
+  }: Jobs['copilot.embedding.cleanupTrashedDocEmbeddings']) {
+    const workspace = await this.models.workspace.get(workspaceId);
+    if (!workspace) {
+      this.logger.warn(`workspace ${workspaceId} not found`);
+      return;
+    }
+
+    const snapshot = await this.models.doc.getSnapshot(
+      workspaceId,
+      workspaceId
+    );
+    if (!snapshot) {
+      this.logger.warn(`workspace snapshot ${workspaceId} not found`);
+      return;
+    }
+
+    const docIdsInWorkspace = readAllDocIdsFromWorkspaceSnapshot(snapshot.blob);
+    const docIdsInEmbedding =
+      await this.models.copilotContext.listWorkspaceEmbedding(workspaceId);
+    const docIdsInWorkspaceSet = new Set(docIdsInWorkspace);
+
+    const deletedDocIds = docIdsInEmbedding.filter(
+      docId => !docIdsInWorkspaceSet.has(docId)
+    );
+    for (const docId of deletedDocIds) {
+      await this.models.copilotContext.deleteWorkspaceEmbedding(
+        workspaceId,
+        docId
       );
     }
   }

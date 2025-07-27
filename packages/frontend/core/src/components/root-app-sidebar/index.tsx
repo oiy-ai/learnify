@@ -10,22 +10,23 @@ import {
   SidebarContainer,
   SidebarScrollableContainer,
 } from '@affine/core/modules/app-sidebar/views';
-// import { ExternalMenuLinkItem } from '@affine/core/modules/app-sidebar/views/menu-item/external-menu-link-item';
-import { AuthService } from '@affine/core/modules/cloud';
-// import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
+import { ExternalMenuLinkItem } from '@affine/core/modules/app-sidebar/views/menu-item/external-menu-link-item';
+import { AuthService, ServerService } from '@affine/core/modules/cloud';
+import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
+import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { CMDKQuickSearchService } from '@affine/core/modules/quicksearch/services/cmdk';
 import type { Workspace } from '@affine/core/modules/workspace';
 // import { useI18n } from '@affine/i18n';
 // import { track } from '@affine/track';
 import type { Store } from '@blocksuite/affine/store';
-// import {
-//   AllDocsIcon,
-//   // ImportIcon,
-//   // JournalIcon,
-//   SettingsIcon,
-// } from '@blocksuite/icons/rc';
-// useService,
-import { useLiveData, useServices } from '@toeverything/infra';
+import {
+  AiOutlineIcon,
+  AllDocsIcon,
+  ImportIcon,
+  JournalIcon,
+  SettingsIcon,
+} from '@blocksuite/icons/rc';
+import { useLiveData, useService, useServices } from '@toeverything/infra';
 import type { ReactElement } from 'react';
 import { memo, useCallback } from 'react';
 
@@ -104,6 +105,31 @@ export type RootAppSidebarProps = {
 //     </MenuLinkItem>
 //   );
 // };
+
+const AIChatButton = () => {
+  const featureFlagService = useService(FeatureFlagService);
+  const serverService = useService(ServerService);
+  const serverFeatures = useLiveData(serverService.server.features$);
+  const enableAI = useLiveData(featureFlagService.flags.enable_ai.$);
+
+  const { workbenchService } = useServices({
+    WorkbenchService,
+  });
+  const workbench = workbenchService.workbench;
+  const aiChatActive = useLiveData(
+    workbench.location$.selector(location => location.pathname === '/chat')
+  );
+
+  if (!enableAI || !serverFeatures?.copilot) {
+    return null;
+  }
+
+  return (
+    <MenuLinkItem icon={<AiOutlineIcon />} active={aiChatActive} to={'/chat'}>
+      <span data-testid="ai-chat">Intelligence</span>
+    </MenuLinkItem>
+  );
+};
 
 /**
  * This is for the whole affine app sidebar.
@@ -198,6 +224,7 @@ export const RootAppSidebar = memo((): ReactElement => {
           </div>
           <UserInfo />
         </div>
+        <AIChatButton />
         <div className={featurePanelWrapper}>
           <Tabs.Root defaultValue="mindmap" className={tabsWrapper}>
             <Tabs.List className={tabsListCustom}>

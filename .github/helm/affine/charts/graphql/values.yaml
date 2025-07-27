@@ -15,7 +15,7 @@ app:
   # AFFINE_SERVER_HOST
   host: '0.0.0.0'
   https: true
-  
+
 serviceAccount:
   create: true
   annotations: {}

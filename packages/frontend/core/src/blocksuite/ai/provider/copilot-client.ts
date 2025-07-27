@@ -4,6 +4,7 @@ import {
   addContextCategoryMutation,
   addContextDocMutation,
   addContextFileMutation,
+  applyDocUpdatesQuery,
   cleanupCopilotSessionMutation,
   createCopilotContextMutation,
   createCopilotMessageMutation,
@@ -11,6 +12,7 @@ import {
   forkCopilotSessionMutation,
   getCopilotHistoriesQuery,
   getCopilotHistoryIdsQuery,
+  getCopilotRecentSessionsQuery,
   getCopilotSessionQuery,
   getCopilotSessionsQuery,
   getWorkspaceEmbeddingStatusQuery,
@@ -18,6 +20,7 @@ import {
   listContextObjectQuery,
   listContextQuery,
   matchContextQuery,
+  type PaginationInput,
   type QueryOptions,
   type QueryResponse,
   removeContextCategoryMutation,
@@ -33,6 +36,13 @@ import {
   PaymentRequiredError,
   UnauthorizedError,
 } from './error';
+
+export enum Endpoint {
+  Stream = 'stream',
+  StreamObject = 'stream-object',
+  Workflow = 'workflow',
+  Images = 'images',
+}
 
 type OptionsField<T extends GraphQLQuery> =
   RequestOptions<T>['variables'] extends { options: infer U } ? U : never;
@@ -144,7 +154,7 @@ export class CopilotClient {
         query: getCopilotSessionQuery,
         variables: { sessionId, workspaceId },
       });
-      return res.currentUser?.copilot?.session;
+      return res.currentUser?.copilot?.chats?.edges?.[0]?.node;
     } catch (err) {
       throw resolveError(err);
     }
@@ -152,21 +162,45 @@ export class CopilotClient {
 
   async getSessions(
     workspaceId: string,
+    pagination: PaginationInput,
     docId?: string,
     options?: RequestOptions<
       typeof getCopilotSessionsQuery
-    >['variables']['options']
+    >['variables']['options'],
+    signal?: AbortSignal
   ) {
     try {
       const res = await this.gql({
         query: getCopilotSessionsQuery,
         variables: {
           workspaceId,
+          pagination,
           docId,
           options,
         },
+        signal,
       });
-      return res.currentUser?.copilot?.sessions;
+      return res.currentUser?.copilot?.chats.edges.map(e => e.node);
+    } catch (err) {
+      throw resolveError(err);
+    }
+  }
+
+  async getRecentSessions(
+    workspaceId: string,
+    limit?: number,
+    offset?: number
+  ) {
+    try {
+      const res = await this.gql({
+        query: getCopilotRecentSessionsQuery,
+        variables: {
+          workspaceId,
+          limit,
+          offset,
+        },
+      });
+      return res.currentUser?.copilot?.chats.edges.map(e => e.node);
     } catch (err) {
       throw resolveError(err);
     }
@@ -174,6 +208,7 @@ export class CopilotClient {
 
   async getHistories(
     workspaceId: string,
+    pagination: PaginationInput,
     docId?: string,
     options?: RequestOptions<
       typeof getCopilotHistoriesQuery
@@ -184,12 +219,13 @@ export class CopilotClient {
         query: getCopilotHistoriesQuery,
         variables: {
           workspaceId,
+          pagination,
           docId,
           options,
         },
       });
 
-      return res.currentUser?.copilot?.histories;
+      return res.currentUser?.copilot?.chats.edges.map(e => e.node);
     } catch (err) {
       throw resolveError(err);
     }
@@ -197,9 +233,10 @@ export class CopilotClient {
 
   async getHistoryIds(
     workspaceId: string,
+    pagination: PaginationInput,
     docId?: string,
     options?: RequestOptions<
-      typeof getCopilotHistoriesQuery
+      typeof getCopilotHistoryIdsQuery
     >['variables']['options']
   ) {
     try {
@@ -207,12 +244,13 @@ export class CopilotClient {
         query: getCopilotHistoryIdsQuery,
         variables: {
           workspaceId,
+          pagination,
           docId,
           options,
         },
       });
 
-      return res.currentUser?.copilot?.histories;
+      return res.currentUser?.copilot?.chats.edges.map(e => e.node);
     } catch (err) {
       throw resolveError(err);
     }
@@ -415,7 +453,7 @@ export class CopilotClient {
       webSearch?: boolean;
       modelId?: string;
     },
-    endpoint = 'stream'
+    endpoint = Endpoint.Stream
   ) {
     let url = `/api/copilot/chat/${sessionId}/${endpoint}`;
     const queryString = this.paramsToQueryString({
@@ -435,7 +473,7 @@ export class CopilotClient {
     sessionId: string,
     messageId?: string,
     seed?: string,
-    endpoint = 'images'
+    endpoint = Endpoint.Images
   ) {
     let url = `/api/copilot/chat/${sessionId}/${endpoint}`;
     const queryString = this.paramsToQueryString({
@@ -467,5 +505,22 @@ export class CopilotClient {
       query: getWorkspaceEmbeddingStatusQuery,
       variables: { workspaceId },
     }).then(res => res.queryWorkspaceEmbeddingStatus);
+  }
+
+  applyDocUpdates(
+    workspaceId: string,
+    docId: string,
+    op: string,
+    updates: string
+  ) {
+    return this.gql({
+      query: applyDocUpdatesQuery,
+      variables: {
+        workspaceId,
+        docId,
+        op,
+        updates,
+      },
+    }).then(res => res.applyDocUpdates);
   }
 }

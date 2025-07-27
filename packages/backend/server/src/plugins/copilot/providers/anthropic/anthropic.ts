@@ -62,6 +62,7 @@ export abstract class AnthropicProvider<T> extends CopilotProvider<T> {
 
     try {
       metrics.ai.counter('chat_text_calls').add(1, { model: model.id });
+
       const [system, msgs] = await chatToGPTMessage(messages, true, true);
 
       const modelInstance = this.instance(model.id);
@@ -106,6 +107,12 @@ export abstract class AnthropicProvider<T> extends CopilotProvider<T> {
         if (options.signal?.aborted) {
           await fullStream.cancel();
           break;
+        }
+      }
+      if (!options.signal?.aborted) {
+        const footnotes = parser.end();
+        if (footnotes.length) {
+          yield `\n\n${footnotes}`;
         }
       }
     } catch (e: any) {

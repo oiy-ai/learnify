@@ -4,8 +4,9 @@ import { type Framework } from '@toeverything/infra';
 import { configureLearnifySourcesModule } from '../components/learnify/sources';
 import {
   configureAIButtonModule,
-  configureAIModelSwitchModule,
+  configureAIDraftModule,
   configureAINetworkSearchModule,
+  configureAIPlaygroundModule,
   configureAIReasoningModule,
 } from './ai-button';
 import { configureAppSidebarModule } from './app-sidebar';
@@ -14,6 +15,7 @@ import { configureBlobManagementModule } from './blob-management';
 import { configureCloudModule } from './cloud';
 import { configureCollectionModule } from './collection';
 import { configureCollectionRulesModule } from './collection-rules';
+import { configureCommentModule } from './comment';
 import { configureWorkspaceDBModule } from './db';
 import { configureDialogModule } from './dialogs';
 import { configureDndModule } from './dnd';
@@ -108,8 +110,9 @@ export function configureCommonModules(framework: Framework) {
   configureCommonGlobalStorageImpls(framework);
   configureAINetworkSearchModule(framework);
   configureAIReasoningModule(framework);
-  configureAIModelSwitchModule(framework);
+  configureAIPlaygroundModule(framework);
   configureAIButtonModule(framework);
+  configureAIDraftModule(framework);
   configureTemplateDocModule(framework);
   configureBlobManagementModule(framework);
   configureMediaModule(framework);
@@ -119,5 +122,6 @@ export function configureCommonModules(framework: Framework) {
   configureWorkspacePropertyModule(framework);
   configureCollectionRulesModule(framework);
   configureIndexerEmbeddingModule(framework);
+  configureCommentModule(framework);
   configureLearnifySourcesModule(framework);
 }

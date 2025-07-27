@@ -8,6 +8,7 @@ function maybeAffineOrigin(origin: string, baseUrl: string) {
   return (
     origin.startsWith('file://') ||
     origin.endsWith('affine.pro') || // stable/beta
+    origin.endsWith('apple.getaffineapp.com') || // stable/beta
     origin.endsWith('affine.fail') || // canary
     origin === baseUrl // localhost or self-hosted
   );
@@ -164,6 +165,7 @@ export const preprocessParams = (
     'databaseId',
     'databaseRowId',
     'refreshKey',
+    'commentId',
   ]);
 };
 
@@ -180,6 +182,7 @@ export const paramsParseOptions: ParseOptions = {
     databaseId: 'string',
     databaseRowId: 'string',
     refreshKey: 'string',
+    commentId: 'string',
   },
 };
 

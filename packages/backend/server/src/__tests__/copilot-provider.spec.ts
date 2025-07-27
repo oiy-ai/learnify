@@ -207,6 +207,7 @@ const retry = async (
       try {
         await callback(t);
       } catch (e) {
+        console.error(`Error during ${action}:`, e);
         t.log(`Error during ${action}:`, e);
         throw e;
       }
@@ -350,10 +351,10 @@ The term **“CRDT”** was first introduced by Marc Shapiro, Nuno Preguiça, Ca
         params: {
           files: [
             {
-              blobId: 'euclidean_distance',
-              fileName: 'euclidean_distance.rs',
-              fileType: 'text/rust',
-              fileContent: TestAssets.Code,
+              blobId: 'todo_md',
+              fileName: 'todo.md',
+              fileType: 'text/markdown',
+              fileContent: TestAssets.TODO,
             },
           ],
         },
@@ -369,7 +370,7 @@ The term **“CRDT”** was first introduced by Marc Shapiro, Nuno Preguiça, Ca
               .map(c => JSON.parse(c.citationJson).type)
               .filter(type => ['attachment', 'doc'].includes(type)).length ===
               0,
-          'should not have citation'
+          `should not have citation: ${JSON.stringify(c, null, 2)}`
         );
       });
     },
@@ -475,6 +476,7 @@ The term **“CRDT”** was first introduced by Marc Shapiro, Nuno Preguiça, Ca
         },
       },
     ],
+    config: { model: 'gemini-2.5-pro' },
     verifier: (t: ExecutionContext<Tester>, result: string) => {
       t.notThrows(() => {
         TranscriptionResponseSchema.parse(JSON.parse(result));
@@ -482,6 +484,34 @@ The term **“CRDT”** was first introduced by Marc Shapiro, Nuno Preguiça, Ca
     },
     type: 'structured' as const,
     prefer: CopilotProviderType.Gemini,
+  },
+  {
+    promptName: ['Conversation Summary'],
+    messages: [
+      {
+        role: 'user' as const,
+        content: '',
+        params: {
+          messages: [
+            { role: 'user', content: 'what is single source of truth?' },
+            { role: 'assistant', content: TestAssets.SSOT },
+          ],
+          focus: 'technical decisions',
+          length: 'comprehensive',
+        },
+      },
+    ],
+    verifier: (t: ExecutionContext<Tester>, result: string) => {
+      assertNotWrappedInCodeBlock(t, result);
+      const cleared = result.toLowerCase();
+      t.assert(
+        cleared.includes('single source of truth') ||
+          /single.*source/.test(cleared) ||
+          cleared.includes('ssot'),
+        'should include original keyword'
+      );
+    },
+    type: 'text' as const,
   },
   {
     promptName: [
@@ -501,6 +531,7 @@ The term **“CRDT”** was first introduced by Marc Shapiro, Nuno Preguiça, Ca
       'Make it longer',
       'Make it shorter',
       'Continue writing',
+      'Section Edit',
       'Chat With AFFiNE AI',
       'Search With AFFiNE AI',
     ],
@@ -668,11 +699,12 @@ for (const {
         t.truthy(provider, 'should have provider');
         await retry(`action: ${promptName}`, t, async t => {
           const finalConfig = Object.assign({}, prompt.config, config);
+          const modelId = finalConfig.model || prompt.model;
 
           switch (type) {
             case 'text': {
               const result = await provider.text(
-                { modelId: prompt.model },
+                { modelId },
                 [
                   ...prompt.finish(
                     messages.reduce(
@@ -691,7 +723,7 @@ for (const {
             }
             case 'structured': {
               const result = await provider.structure(
-                { modelId: prompt.model },
+                { modelId },
                 [
                   ...prompt.finish(
                     messages.reduce(
@@ -710,7 +742,7 @@ for (const {
             case 'object': {
               const streamObjects: StreamObject[] = [];
               for await (const chunk of provider.streamObject(
-                { modelId: prompt.model },
+                { modelId },
                 [
                   ...prompt.finish(
                     messages.reduce(
@@ -742,7 +774,7 @@ for (const {
                 });
               }
               const stream = provider.streamImages(
-                { modelId: prompt.model },
+                { modelId },
                 [
                   ...prompt.finish(
                     finalMessage.reduce(
@@ -829,3 +861,55 @@ for (const { name, content, verifier } of workflows) {
     }
   );
 }
+
+// ==================== rerank ====================
+
+test(
+  'should be able to rerank message chunks',
+  runIfCopilotConfigured,
+  async t => {
+    const { factory, prompt } = t.context;
+
+    await retry('rerank', t, async t => {
+      const query = 'Is this content relevant to programming?';
+      const embeddings = [
+        'How to write JavaScript code for web development.',
+        'Today is a beautiful sunny day for walking in the park.',
+        'Python is a popular programming language for data science.',
+        'The weather forecast predicts rain for the weekend.',
+        'JavaScript frameworks like React and Angular are widely used.',
+        'Cooking recipes can be found in many online blogs.',
+        'Machine learning algorithms are essential for AI development.',
+        'The latest smartphone models have impressive camera features.',
+        'Learning to code can open up many career opportunities.',
+        'The stock market is experiencing significant fluctuations.',
+      ];
+
+      const p = (await prompt.get('Rerank results'))!;
+      t.assert(p, 'should have prompt for rerank');
+      const provider = (await factory.getProviderByModel(p.model))!;
+      t.assert(provider, 'should have provider for rerank');
+
+      const scores = await provider.rerank(
+        { modelId: p.model },
+        embeddings.map(e => p.finish({ query, doc: e }))
+      );
+
+      t.is(scores.length, 10, 'should return scores for all chunks');
+
+      for (const score of scores) {
+        t.assert(
+          typeof score === 'number' && score >= 0 && score <= 1,
+          `score should be a number between 0 and 1, got ${score}`
+        );
+      }
+
+      t.log('Rerank scores:', scores);
+      t.is(
+        scores.filter(s => s > 0.5).length,
+        4,
+        'should have 4 related chunks'
+      );
+    });
+  }
+);

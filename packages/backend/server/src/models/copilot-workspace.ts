@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 
 import { Injectable } from '@nestjs/common';
 import { Transactional } from '@nestjs-cls/transactional';
-import { Prisma } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 import { PaginationInput } from '../base';
 import { BaseModel } from './base';
@@ -16,6 +16,11 @@ import type {
 
 @Injectable()
 export class CopilotWorkspaceConfigModel extends BaseModel {
+  constructor(private readonly database: PrismaClient) {
+    super();
+  }
+
+  @Transactional()
   private async listIgnoredDocIds(
     workspaceId: string,
     options?: PaginationInput
@@ -40,28 +45,27 @@ export class CopilotWorkspaceConfigModel extends BaseModel {
    * @param workspaceId id of the workspace
    * @returns docIds
    */
-  @Transactional()
   async findDocsToEmbed(workspaceId: string): Promise<string[]> {
-    const ignoredDocIds = (await this.listIgnoredDocIds(workspaceId)).map(
-      d => d.docId
-    );
+    // NOTE: for unknown reason, the transaction will timeout if call from event handler
+    // so we use an independent client here
+    const docIds = await this.database.$queryRaw<{ id: string }[]>`
+      SELECT s.guid as id
+        FROM snapshots AS s
+          LEFT JOIN ai_workspace_embeddings e
+            ON e.workspace_id = s.workspace_id
+               AND e.doc_id = s.guid
+          LEFT JOIN ai_workspace_ignored_docs id
+            ON id.workspace_id = s.workspace_id
+               AND id.doc_id = s.guid
+        WHERE s.workspace_id = ${workspaceId}
+          AND s.guid <> s.workspace_id
+          AND s.guid NOT LIKE '%$%'
+          AND s.guid NOT LIKE '%:settings:%'
+          AND e.doc_id IS NULL
+          AND id.doc_id IS NULL
+          AND s.blob <> E'\\\\x0000';`;
 
-    const docIds = await this.db.snapshot
-      .findMany({
-        where: {
-          workspaceId,
-          AND: [
-            { id: { notIn: ignoredDocIds } },
-            { id: { not: workspaceId } },
-            { id: { not: { contains: '$' } } },
-          ],
-          embedding: { none: {} },
-        },
-        select: { id: true },
-      })
-      .then(r => r.map(doc => doc.id));
-
-    return docIds;
+    return docIds.map(r => r.id);
   }
 
   @Transactional()
@@ -148,7 +152,7 @@ export class CopilotWorkspaceConfigModel extends BaseModel {
   }
 
   @Transactional()
-  async getWorkspaceEmbeddingStatus(workspaceId: string) {
+  async getEmbeddingStatus(workspaceId: string) {
     const ignoredDocIds = (await this.listIgnoredDocIds(workspaceId)).map(
       d => d.docId
     );
@@ -158,13 +162,19 @@ export class CopilotWorkspaceConfigModel extends BaseModel {
         { id: { notIn: ignoredDocIds } },
         { id: { not: workspaceId } },
         { id: { not: { contains: '$' } } },
+        { id: { not: { contains: ':settings:' } } },
+        { blob: { not: new Uint8Array([0, 0]) } },
       ],
     };
 
     const [docTotal, docEmbedded, fileTotal, fileEmbedded] = await Promise.all([
-      this.db.snapshot.count({ where: snapshotCondition }),
-      this.db.snapshot.count({
+      this.db.snapshot.findMany({
+        where: snapshotCondition,
+        select: { id: true },
+      }),
+      this.db.snapshot.findMany({
         where: { ...snapshotCondition, embedding: { some: {} } },
+        select: { id: true },
       }),
       this.db.aiWorkspaceFiles.count({ where: { workspaceId } }),
       this.db.aiWorkspaceFiles.count({
@@ -172,9 +182,23 @@ export class CopilotWorkspaceConfigModel extends BaseModel {
       }),
     ]);
 
+    const docTotalIds = docTotal.map(d => d.id);
+    const docTotalSet = new Set(docTotalIds);
+    const outdatedDocPrefix = `${workspaceId}:space:`;
+    const duplicateOutdatedDocSet = new Set(
+      docTotalIds
+        .filter(id => id.startsWith(outdatedDocPrefix))
+        .filter(id => docTotalSet.has(id.slice(outdatedDocPrefix.length)))
+    );
+
     return {
-      total: docTotal + fileTotal,
-      embedded: docEmbedded + fileEmbedded,
+      total:
+        docTotalIds.filter(id => !duplicateOutdatedDocSet.has(id)).length +
+        fileTotal,
+      embedded:
+        docEmbedded
+          .map(d => d.id)
+          .filter(id => !duplicateOutdatedDocSet.has(id)).length + fileEmbedded,
     };
   }
 
@@ -281,6 +305,13 @@ export class CopilotWorkspaceConfigModel extends BaseModel {
     fileId: string,
     embeddings: Embedding[]
   ) {
+    if (embeddings.length === 0) {
+      this.logger.warn(
+        `No embeddings provided for workspaceId: ${workspaceId}, fileId: ${fileId}. Skipping insertion.`
+      );
+      return;
+    }
+
     const values = this.processEmbeddings(workspaceId, fileId, embeddings);
     await this.db.$executeRaw`
           INSERT INTO "ai_workspace_file_embeddings"

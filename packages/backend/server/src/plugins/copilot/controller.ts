@@ -13,22 +13,22 @@ import type { Request, Response } from 'express';
 import {
   BehaviorSubject,
   catchError,
-  concatMap,
   connect,
-  EMPTY,
   filter,
   finalize,
   from,
+  ignoreElements,
   interval,
   lastValueFrom,
   map,
   merge,
   mergeMap,
   Observable,
+  reduce,
   Subject,
   take,
   takeUntil,
-  toArray,
+  tap,
 } from 'rxjs';
 
 import {
@@ -50,11 +50,13 @@ import {
   CopilotProviderFactory,
   ModelInputType,
   ModelOutputType,
+  StreamObject,
 } from './providers';
 import { StreamObjectParser } from './providers/utils';
 import { ChatSession, ChatSessionService } from './session';
 import { CopilotStorage } from './storage';
 import { ChatMessage, ChatQuerySchema } from './types';
+import { getSignal } from './utils';
 import { CopilotWorkflowService, GraphExecutorState } from './workflow';
 
 export interface ChatEvent {
@@ -122,7 +124,7 @@ export class CopilotController implements BeforeApplicationShutdown {
       modelId: model,
     });
     if (!provider) {
-      throw new NoCopilotProviderAvailable();
+      throw new NoCopilotProviderAvailable({ modelId: model });
     }
 
     return { provider, model, hasAttachment };
@@ -154,16 +156,6 @@ export class CopilotController implements BeforeApplicationShutdown {
     }
 
     return [latestMessage, session];
-  }
-
-  private getSignal(req: Request) {
-    const controller = new AbortController();
-    req.socket.on('close', hasError => {
-      if (hasError) {
-        controller.abort();
-      }
-    });
-    return controller.signal;
   }
 
   private parseNumber(value: string | string[] | undefined) {
@@ -255,8 +247,9 @@ export class CopilotController implements BeforeApplicationShutdown {
       const { reasoning, webSearch } = ChatQuerySchema.parse(query);
       const content = await provider.text({ modelId: model }, finalMessage, {
         ...session.config.promptConfig,
-        signal: this.getSignal(req),
+        signal: getSignal(req).signal,
         user: user.id,
+        session: session.config.sessionId,
         workspace: session.config.workspaceId,
         reasoning,
         webSearch,
@@ -305,12 +298,22 @@ export class CopilotController implements BeforeApplicationShutdown {
       metrics.ai.counter('chat_stream_calls').add(1, { model });
       this.ongoingStreamCount$.next(this.ongoingStreamCount$.value + 1);
 
+      const { signal, onConnectionClosed } = getSignal(req);
+      let endBeforePromiseResolve = false;
+      onConnectionClosed(isAborted => {
+        if (isAborted) {
+          endBeforePromiseResolve = true;
+        }
+      });
+
       const { messageId, reasoning, webSearch } = ChatQuerySchema.parse(query);
+
       const source$ = from(
         provider.streamText({ modelId: model }, finalMessage, {
           ...session.config.promptConfig,
-          signal: this.getSignal(req),
+          signal,
           user: user.id,
+          session: session.config.sessionId,
           workspace: session.config.workspaceId,
           reasoning,
           webSearch,
@@ -324,16 +327,25 @@ export class CopilotController implements BeforeApplicationShutdown {
             ),
             // save the generated text to the session
             shared$.pipe(
-              toArray(),
-              concatMap(values => {
+              reduce((acc, chunk) => acc + chunk, ''),
+              tap(buffer => {
                 session.push({
                   role: 'assistant',
-                  content: values.join(''),
+                  content: endBeforePromiseResolve
+                    ? '> Request aborted'
+                    : buffer,
                   createdAt: new Date(),
                 });
-                return from(session.save());
+                void session
+                  .save()
+                  .catch(err =>
+                    this.logger.error(
+                      'Failed to save session in sse stream',
+                      err
+                    )
+                  );
               }),
-              mergeMap(() => EMPTY)
+              ignoreElements()
             )
           )
         ),
@@ -378,12 +390,22 @@ export class CopilotController implements BeforeApplicationShutdown {
       metrics.ai.counter('chat_object_stream_calls').add(1, { model });
       this.ongoingStreamCount$.next(this.ongoingStreamCount$.value + 1);
 
+      const { signal, onConnectionClosed } = getSignal(req);
+      let endBeforePromiseResolve = false;
+      onConnectionClosed(isAborted => {
+        if (isAborted) {
+          endBeforePromiseResolve = true;
+        }
+      });
+
       const { messageId, reasoning, webSearch } = ChatQuerySchema.parse(query);
+
       const source$ = from(
         provider.streamObject({ modelId: model }, finalMessage, {
           ...session.config.promptConfig,
-          signal: this.getSignal(req),
+          signal,
           user: user.id,
+          session: session.config.sessionId,
           workspace: session.config.workspaceId,
           reasoning,
           webSearch,
@@ -397,20 +419,29 @@ export class CopilotController implements BeforeApplicationShutdown {
             ),
             // save the generated text to the session
             shared$.pipe(
-              toArray(),
-              concatMap(values => {
+              reduce((acc, chunk) => acc.concat([chunk]), [] as StreamObject[]),
+              tap(result => {
                 const parser = new StreamObjectParser();
-                const streamObjects = parser.mergeTextDelta(values);
+                const streamObjects = parser.mergeTextDelta(result);
                 const content = parser.mergeContent(streamObjects);
                 session.push({
                   role: 'assistant',
-                  content,
-                  streamObjects,
+                  content: endBeforePromiseResolve
+                    ? '> Request aborted'
+                    : content,
+                  streamObjects: endBeforePromiseResolve ? null : streamObjects,
                   createdAt: new Date(),
                 });
-                return from(session.save());
+                void session
+                  .save()
+                  .catch(err =>
+                    this.logger.error(
+                      'Failed to save session in sse stream',
+                      err
+                    )
+                  );
               }),
-              mergeMap(() => EMPTY)
+              ignoreElements()
             )
           )
         ),
@@ -458,11 +489,21 @@ export class CopilotController implements BeforeApplicationShutdown {
         });
       }
       this.ongoingStreamCount$.next(this.ongoingStreamCount$.value + 1);
+
+      const { signal, onConnectionClosed } = getSignal(req);
+      let endBeforePromiseResolve = false;
+      onConnectionClosed(isAborted => {
+        if (isAborted) {
+          endBeforePromiseResolve = true;
+        }
+      });
+
       const source$ = from(
         this.workflow.runGraph(params, session.model, {
           ...session.config.promptConfig,
-          signal: this.getSignal(req),
+          signal,
           user: user.id,
+          session: session.config.sessionId,
           workspace: session.config.workspaceId,
         })
       ).pipe(
@@ -499,19 +540,30 @@ export class CopilotController implements BeforeApplicationShutdown {
             ),
             // save the generated text to the session
             shared$.pipe(
-              toArray(),
-              concatMap(values => {
+              reduce((acc, chunk) => {
+                if (chunk.status === GraphExecutorState.EmitContent) {
+                  acc += chunk.content;
+                }
+                return acc;
+              }, ''),
+              tap(content => {
                 session.push({
                   role: 'assistant',
-                  content: values
-                    .filter(v => v.status === GraphExecutorState.EmitContent)
-                    .map(v => v.content)
-                    .join(''),
+                  content: endBeforePromiseResolve
+                    ? '> Request aborted'
+                    : content,
                   createdAt: new Date(),
                 });
-                return from(session.save());
+                void session
+                  .save()
+                  .catch(err =>
+                    this.logger.error(
+                      'Failed to save session in sse stream',
+                      err
+                    )
+                  );
               }),
-              mergeMap(() => EMPTY)
+              ignoreElements()
             )
           )
         ),
@@ -571,6 +623,15 @@ export class CopilotController implements BeforeApplicationShutdown {
         sessionId
       );
       this.ongoingStreamCount$.next(this.ongoingStreamCount$.value + 1);
+
+      const { signal, onConnectionClosed } = getSignal(req);
+      let endBeforePromiseResolve = false;
+      onConnectionClosed(isAborted => {
+        if (isAborted) {
+          endBeforePromiseResolve = true;
+        }
+      });
+
       const source$ = from(
         provider.streamImages(
           {
@@ -584,8 +645,9 @@ export class CopilotController implements BeforeApplicationShutdown {
             ...session.config.promptConfig,
             quality: params.quality || undefined,
             seed: this.parseNumber(params.seed),
-            signal: this.getSignal(req),
+            signal,
             user: user.id,
+            session: session.config.sessionId,
             workspace: session.config.workspaceId,
           }
         )
@@ -603,17 +665,24 @@ export class CopilotController implements BeforeApplicationShutdown {
             ),
             // save the generated text to the session
             shared$.pipe(
-              toArray(),
-              concatMap(attachments => {
+              reduce((acc, chunk) => acc.concat([chunk]), [] as string[]),
+              tap(attachments => {
                 session.push({
                   role: 'assistant',
-                  content: '',
-                  attachments: attachments,
+                  content: endBeforePromiseResolve ? '> Request aborted' : '',
+                  attachments: endBeforePromiseResolve ? [] : attachments,
                   createdAt: new Date(),
                 });
-                return from(session.save());
+                void session
+                  .save()
+                  .catch(err =>
+                    this.logger.error(
+                      'Failed to save session in sse stream',
+                      err
+                    )
+                  );
               }),
-              mergeMap(() => EMPTY)
+              ignoreElements()
             )
           )
         ),
@@ -651,7 +720,7 @@ export class CopilotController implements BeforeApplicationShutdown {
       `https://api.unsplash.com/search/photos?${query}`,
       {
         headers: { Authorization: `Client-ID ${key}` },
-        signal: this.getSignal(req),
+        signal: getSignal(req).signal,
       }
     );
 

@@ -1,14 +1,19 @@
-import { ChatPanel } from '@affine/core/blocksuite/ai';
+import { useConfirmModal } from '@affine/component';
+import { AIProvider, ChatPanel } from '@affine/core/blocksuite/ai';
 import type { AffineEditorContainer } from '@affine/core/blocksuite/block-suite-editor';
+import { NotificationServiceImpl } from '@affine/core/blocksuite/view-extensions/editor-view/notification-service';
 import { useAIChatConfig } from '@affine/core/components/hooks/affine/use-ai-chat-config';
+import { useAISpecs } from '@affine/core/components/hooks/affine/use-ai-specs';
+import { AIDraftService } from '@affine/core/modules/ai-button';
+import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { FeatureFlagService } from '@affine/core/modules/feature-flag';
+import { AppThemeService } from '@affine/core/modules/theme';
 import { WorkbenchService } from '@affine/core/modules/workbench';
-import { ViewExtensionManagerIdentifier } from '@blocksuite/affine/ext-loader';
 import { RefNodeSlotsProvider } from '@blocksuite/affine/inlines/reference';
 import { DocModeProvider } from '@blocksuite/affine/shared/services';
 import { createSignalFromObservable } from '@blocksuite/affine/shared/utils';
-import { useFramework } from '@toeverything/infra';
-import { forwardRef, useEffect, useRef } from 'react';
+import { useFramework, useService } from '@toeverything/infra';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 
 import * as styles from './chat.css';
 
@@ -24,6 +29,7 @@ export const EditorChatPanel = forwardRef(function EditorChatPanel(
 ) {
   const chatPanelRef = useRef<ChatPanel | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const workbench = useService(WorkbenchService).workbench;
   const framework = useFramework();
 
   useEffect(() => {
@@ -47,8 +53,10 @@ export const EditorChatPanel = forwardRef(function EditorChatPanel(
     searchMenuConfig,
     networkSearchConfig,
     reasoningConfig,
-    modelSwitchConfig,
+    playgroundConfig,
   } = useAIChatConfig();
+  const confirmModal = useConfirmModal();
+  const specs = useAISpecs();
 
   useEffect(() => {
     if (!editor || !editor.host) return;
@@ -74,12 +82,21 @@ export const EditorChatPanel = forwardRef(function EditorChatPanel(
       chatPanelRef.current.searchMenuConfig = searchMenuConfig;
       chatPanelRef.current.networkSearchConfig = networkSearchConfig;
       chatPanelRef.current.reasoningConfig = reasoningConfig;
-      chatPanelRef.current.modelSwitchConfig = modelSwitchConfig;
-      chatPanelRef.current.extensions = editor.host.std
-        .get(ViewExtensionManagerIdentifier)
-        .get('preview-page');
+      chatPanelRef.current.playgroundConfig = playgroundConfig;
+      chatPanelRef.current.extensions = specs;
       chatPanelRef.current.affineFeatureFlagService =
         framework.get(FeatureFlagService);
+      chatPanelRef.current.affineWorkspaceDialogService = framework.get(
+        WorkspaceDialogService
+      );
+      chatPanelRef.current.affineWorkbenchService =
+        framework.get(WorkbenchService);
+      chatPanelRef.current.affineThemeService = framework.get(AppThemeService);
+      chatPanelRef.current.notificationService = new NotificationServiceImpl(
+        confirmModal.closeConfirmModal,
+        confirmModal.openConfirmModal
+      );
+      chatPanelRef.current.aiDraftService = framework.get(AIDraftService);
 
       containerRef.current?.append(chatPanelRef.current);
     } else {
@@ -109,8 +126,30 @@ export const EditorChatPanel = forwardRef(function EditorChatPanel(
     networkSearchConfig,
     searchMenuConfig,
     reasoningConfig,
-    modelSwitchConfig,
+    playgroundConfig,
+    confirmModal,
+    specs,
   ]);
+
+  const [autoResized, setAutoResized] = useState(false);
+  useEffect(() => {
+    // after auto expanded first time, do not auto expand again(even if user manually resized)
+    if (autoResized) return;
+    const subscription = AIProvider.slots.previewPanelOpenChange.subscribe(
+      open => {
+        if (!open) return;
+        const sidebarWidth = workbench.sidebarWidth$.value;
+        const MIN_SIDEBAR_WIDTH = 1080;
+        if (!sidebarWidth || sidebarWidth < MIN_SIDEBAR_WIDTH) {
+          workbench.setSidebarWidth(MIN_SIDEBAR_WIDTH);
+          setAutoResized(true);
+        }
+      }
+    );
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [autoResized, workbench]);
 
   return <div className={styles.root} ref={containerRef} />;
 });

@@ -26,7 +26,7 @@ services:
 
   # https://manual.manticoresearch.com/Starting_the_server/Docker
   manticoresearch:
-    image: manticoresearch/manticore:${MANTICORE_VERSION:-9.3.2}
+    image: manticoresearch/manticore:${MANTICORE_VERSION:-10.1.0}
     ports:
       - 9308:9308
     ulimits:
@@ -72,17 +72,6 @@ services:
   #     interval: 10s
   #     timeout: 10s
   #     retries: 120
-
-  # dns:
-  #   image: strm/dnsmasq
-  #   volumes:
-  #     - ./dnsmasq.conf:/etc/dnsmasq.d/local.conf
-  #   ports:
-  #     - "53:53/udp"
-  #   cap_add:
-  #     - NET_ADMIN
-  #   depends_on:
-  #     - nginx
 
   # nginx:
   #   image: nginx:alpine

@@ -2,6 +2,7 @@ import type { ReactToLit } from '@affine/component';
 import { AIViewExtension } from '@affine/core/blocksuite/view-extensions/ai';
 import { CloudViewExtension } from '@affine/core/blocksuite/view-extensions/cloud';
 import { CodeBlockPreviewViewExtension } from '@affine/core/blocksuite/view-extensions/code-block-preview';
+import { CommentViewExtension } from '@affine/core/blocksuite/view-extensions/comment';
 import { AffineDatabaseViewExtension } from '@affine/core/blocksuite/view-extensions/database';
 import {
   EdgelessBlockHeaderConfigViewExtension,
@@ -32,6 +33,7 @@ import type {
 import { ViewExtensionManager } from '@blocksuite/affine/ext-loader';
 import { getInternalViewExtensions } from '@blocksuite/affine/extensions/view';
 import { FoundationViewExtension } from '@blocksuite/affine/foundation/view';
+import { InlineCommentViewExtension } from '@blocksuite/affine/inlines/comment';
 import { AffineCanvasTextFonts } from '@blocksuite/affine/shared/services';
 import { LinkedDocViewExtension } from '@blocksuite/affine/widgets/linked-doc/view';
 import type { FrameworkProvider } from '@toeverything/infra';
@@ -56,6 +58,10 @@ type Configure = {
   electron: (framework?: FrameworkProvider) => Configure;
   linkPreview: (framework?: FrameworkProvider) => Configure;
   codeBlockHtmlPreview: (framework?: FrameworkProvider) => Configure;
+  comment: (
+    enableComment?: boolean,
+    framework?: FrameworkProvider
+  ) => Configure;
 
   value: ViewExtensionManager;
 };
@@ -90,6 +96,7 @@ class ViewProvider {
       ElectronViewExtension,
       AffineLinkPreviewExtension,
       AffineDatabaseViewExtension,
+      CommentViewExtension,
     ]);
   }
 
@@ -116,6 +123,7 @@ class ViewProvider {
       electron: this._configureElectron,
       linkPreview: this._configureLinkPreview,
       codeBlockHtmlPreview: this._configureCodeBlockHtmlPreview,
+      comment: this._configureComment,
       value: this._manager,
     };
   }
@@ -137,7 +145,8 @@ class ViewProvider {
       .ai()
       .electron()
       .linkPreview()
-      .codeBlockHtmlPreview();
+      .codeBlockHtmlPreview()
+      .comment();
 
     return this.config;
   };
@@ -321,6 +330,22 @@ class ViewProvider {
     framework?: FrameworkProvider
   ) => {
     this._manager.configure(CodeBlockPreviewViewExtension, { framework });
+    return this.config;
+  };
+
+  private readonly _configureComment = (
+    enableComment?: boolean,
+    framework?: FrameworkProvider
+  ) => {
+    this._manager.configure(CommentViewExtension, {
+      enableComment,
+      framework,
+    });
+
+    this._manager.configure(InlineCommentViewExtension, {
+      enabled: enableComment,
+    });
+
     return this.config;
   };
 }

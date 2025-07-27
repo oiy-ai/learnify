@@ -274,9 +274,11 @@ export class OpenAIProvider extends CopilotProvider<OpenAIConfig> {
   override getProviderSpecificTools(
     toolName: CopilotChatTools,
     model: string
-  ): [string, Tool] | undefined {
+  ): [string, Tool?] | undefined {
     if (toolName === 'webSearch' && !this.isReasoningModel(model)) {
       return ['web_search_preview', openai.tools.webSearchPreview()];
+    } else if (toolName === 'docEdit') {
+      return ['doc_edit', undefined];
     }
     return;
   }
@@ -347,7 +349,9 @@ export class OpenAIProvider extends CopilotProvider<OpenAIConfig> {
             break;
           }
           case 'finish': {
-            const result = citationParser.end();
+            const footnotes = textParser.end();
+            const result =
+              citationParser.end() + (footnotes.length ? '\n' + footnotes : '');
             yield result;
             break;
           }
@@ -438,6 +442,69 @@ export class OpenAIProvider extends CopilotProvider<OpenAIConfig> {
       metrics.ai.counter('chat_text_errors').add(1, { model: model.id });
       throw this.handleError(e, model.id, options);
     }
+  }
+
+  override async rerank(
+    cond: ModelConditions,
+    chunkMessages: PromptMessage[][],
+    options: CopilotChatOptions = {}
+  ): Promise<number[]> {
+    const fullCond = { ...cond, outputType: ModelOutputType.Text };
+    await this.checkParams({ messages: [], cond: fullCond, options });
+    const model = this.selectModel(fullCond);
+    // get the log probability of "yes"/"no"
+    const instance = this.#instance(model.id, { logprobs: 16 });
+
+    const scores = await Promise.all(
+      chunkMessages.map(async messages => {
+        const [system, msgs] = await chatToGPTMessage(messages);
+
+        const { logprobs } = await generateText({
+          model: instance,
+          system,
+          messages: msgs,
+          temperature: 0,
+          maxTokens: 16,
+          providerOptions: {
+            openai: {
+              ...this.getOpenAIOptions(options, model.id),
+            },
+          },
+          abortSignal: options.signal,
+        });
+
+        const topMap: Record<string, number> = (
+          logprobs?.[0]?.topLogprobs ?? []
+        ).reduce<Record<string, number>>(
+          (acc, { token, logprob }) => ({ ...acc, [token]: logprob }),
+          {}
+        );
+
+        const findLogProb = (token: string): number => {
+          // OpenAI often includes a leading space, so try matching '.yes', '_yes', ' yes' and 'yes'
+          return [`.${token}`, `_${token}`, ` ${token}`, token]
+            .flatMap(v => [v, v.toLowerCase(), v.toUpperCase()])
+            .reduce<number>(
+              (best, key) =>
+                (topMap[key] ?? Number.NEGATIVE_INFINITY) > best
+                  ? topMap[key]
+                  : best,
+              Number.NEGATIVE_INFINITY
+            );
+        };
+
+        const logYes = findLogProb('Yes');
+        const logNo = findLogProb('No');
+
+        const pYes = Math.exp(logYes);
+        const pNo = Math.exp(logNo);
+        const prob = pYes + pNo === 0 ? 0 : pYes / (pYes + pNo);
+
+        return prob;
+      })
+    );
+
+    return scores;
   }
 
   private async getFullStream(

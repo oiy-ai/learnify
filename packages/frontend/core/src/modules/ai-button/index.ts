@@ -1,14 +1,17 @@
 export { AIButtonProvider } from './provider/ai-button';
 export { AIButtonService } from './services/ai-button';
+export { AIDraftService } from './services/ai-draft';
 
 import type { Framework } from '@toeverything/infra';
 
 import { FeatureFlagService } from '../feature-flag';
-import { GlobalStateService } from '../storage';
+import { CacheStorage, GlobalStateService } from '../storage';
+import { WorkspaceScope } from '../workspace';
 import { AIButtonProvider } from './provider/ai-button';
 import { AIButtonService } from './services/ai-button';
-import { AIModelSwitchService } from './services/model-switch';
+import { AIDraftService } from './services/ai-draft';
 import { AINetworkSearchService } from './services/network-search';
+import { AIPlaygroundService } from './services/playground';
 import { AIReasoningService } from './services/reasoning';
 
 export const configureAIButtonModule = (framework: Framework) => {
@@ -28,6 +31,12 @@ export function configureAIReasoningModule(framework: Framework) {
   framework.service(AIReasoningService, [GlobalStateService]);
 }
 
-export function configureAIModelSwitchModule(framework: Framework) {
-  framework.service(AIModelSwitchService, [FeatureFlagService]);
+export function configureAIPlaygroundModule(framework: Framework) {
+  framework.service(AIPlaygroundService, [FeatureFlagService]);
+}
+
+export function configureAIDraftModule(framework: Framework) {
+  framework
+    .scope(WorkspaceScope)
+    .service(AIDraftService, [GlobalStateService, CacheStorage]);
 }

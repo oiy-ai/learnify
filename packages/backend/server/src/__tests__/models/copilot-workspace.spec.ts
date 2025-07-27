@@ -214,6 +214,21 @@ test('should insert and search embedding', async t => {
     );
     t.false(results.includes(docId), 'docs containing `$` should be excluded');
   }
+
+  {
+    const docId = 'empty_doc';
+    await t.context.doc.upsert({
+      spaceId: workspace.id,
+      docId: docId,
+      blob: Uint8Array.from([0, 0]),
+      timestamp: Date.now(),
+      editorId: user.id,
+    });
+    const results = await t.context.copilotWorkspace.findDocsToEmbed(
+      workspace.id
+    );
+    t.false(results.includes(docId), 'empty documents should be excluded');
+  }
 });
 
 test('should check need to be embedded', async t => {
@@ -290,4 +305,51 @@ test('should check embedding table', async t => {
   //   const ret = await t.context.copilotWorkspace.checkEmbeddingAvailable();
   //   t.false(ret, 'should return false when embedding table is not available');
   // }
+});
+
+test('should filter outdated doc id style in embedding status', async t => {
+  const docId = randomUUID();
+  const outdatedDocId = `${workspace.id}:space:${docId}`;
+
+  await t.context.doc.upsert({
+    spaceId: workspace.id,
+    docId,
+    blob: Uint8Array.from([1, 2, 3]),
+    timestamp: Date.now(),
+    editorId: user.id,
+  });
+
+  await t.context.doc.upsert({
+    spaceId: workspace.id,
+    docId: outdatedDocId,
+    blob: Uint8Array.from([1, 2, 3]),
+    timestamp: Date.now(),
+    editorId: user.id,
+  });
+
+  {
+    const status = await t.context.copilotWorkspace.getEmbeddingStatus(
+      workspace.id
+    );
+    t.snapshot(status, 'should include modern doc format');
+  }
+
+  {
+    await t.context.copilotContext.insertWorkspaceEmbedding(
+      workspace.id,
+      docId,
+      [
+        {
+          index: 0,
+          content: 'content',
+          embedding: Array.from({ length: 1024 }, () => 1),
+        },
+      ]
+    );
+
+    const status = await t.context.copilotWorkspace.getEmbeddingStatus(
+      workspace.id
+    );
+    t.snapshot(status, 'should count docs after filtering outdated');
+  }
 });

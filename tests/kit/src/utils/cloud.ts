@@ -152,6 +152,22 @@ export async function createRandomUser(): Promise<{
   } as any;
 }
 
+export async function switchDefaultChatModel(model: string) {
+  await runPrisma(async client => {
+    const promptId = await client.aiPrompt
+      .findFirst({
+        where: { name: 'Chat With AFFiNE AI' },
+        select: { id: true },
+      })
+      .then(f => f!.id);
+
+    await client.aiPrompt.update({
+      where: { id: promptId },
+      data: { model },
+    });
+  });
+}
+
 export async function createRandomAIUser(): Promise<{
   name: string;
   email: string;
@@ -308,5 +324,7 @@ export async function enableCloudWorkspaceFromShareButton(page: Page) {
 export async function enableShare(page: Page) {
   await page.getByTestId('cloud-share-menu-button').click();
   await page.getByTestId('share-link-menu-trigger').click();
+  // wait for the menu to be visible
+  await page.waitForTimeout(500);
   await page.getByTestId('share-link-menu-enable-share').click();
 }

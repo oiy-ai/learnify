@@ -1,4 +1,4 @@
-import type { CopilotSessionType } from '@affine/graphql';
+import type { CopilotChatHistoryFragment } from '@affine/graphql';
 import {
   menu,
   popMenu,
@@ -6,7 +6,6 @@ import {
 } from '@blocksuite/affine/components/context-menu';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import {
-  AiOutlineIcon,
   ArrowDownSmallIcon,
   ThinkingIcon,
   WebIcon,
@@ -14,8 +13,6 @@ import {
 import { ShadowlessElement } from '@blocksuite/std';
 import { css, html } from 'lit';
 import { property } from 'lit/decorators.js';
-
-import type { AIModelSwitchConfig } from './type';
 
 export class ChatInputPreference extends SignalWatcher(
   WithDisposable(ShadowlessElement)
@@ -28,6 +25,9 @@ export class ChatInputPreference extends SignalWatcher(
       color: var(--affine-v2-icon-primary);
       transition: all 0.23s ease;
       border-radius: 4px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
     }
     .chat-input-preference-trigger:hover {
       background-color: var(--affine-v2-layer-background-hoverOverlay);
@@ -49,11 +49,7 @@ export class ChatInputPreference extends SignalWatcher(
   `;
 
   @property({ attribute: false })
-  accessor session!: CopilotSessionType | undefined;
-
-  // --------- model props start ---------
-  @property({ attribute: false })
-  accessor modelSwitchConfig: AIModelSwitchConfig | undefined = undefined;
+  accessor session!: CopilotChatHistoryFragment | null | undefined;
 
   @property({ attribute: false })
   accessor onModelChange: ((modelId: string) => void) | undefined;
@@ -85,9 +81,9 @@ export class ChatInputPreference extends SignalWatcher(
     | undefined;
   // --------- search props end ---------
 
-  private readonly _onModelChange = (modelId: string) => {
-    this.onModelChange?.(modelId);
-  };
+  // private readonly _onModelChange = (modelId: string) => {
+  //   this.onModelChange?.(modelId);
+  // };
 
   openPreference(e: Event) {
     const element = e.currentTarget;
@@ -96,22 +92,20 @@ export class ChatInputPreference extends SignalWatcher(
     const searchItems = [];
 
     // model switch
-    if (this.modelSwitchConfig?.visible.value) {
-      modelItems.push(
-        menu.subMenu({
-          name: 'Model',
-          prefix: AiOutlineIcon(),
-          options: {
-            items: (this.session?.optionalModels ?? []).map(modelId => {
-              return menu.action({
-                name: modelId,
-                select: () => this._onModelChange(modelId),
-              });
-            }),
-          },
-        })
-      );
-    }
+    // modelItems.push(
+    //   menu.subMenu({
+    //     name: 'Model',
+    //     prefix: AiOutlineIcon(),
+    //     options: {
+    //       items: (this.session?.optionalModels ?? []).map(modelId => {
+    //         return menu.action({
+    //           name: modelId,
+    //           select: () => this._onModelChange(modelId),
+    //         });
+    //       }),
+    //     },
+    //   })
+    // );
 
     modelItems.push(
       menu.toggleSwitch({
@@ -157,9 +151,7 @@ export class ChatInputPreference extends SignalWatcher(
       data-testid="chat-input-preference-trigger"
       class="chat-input-preference-trigger"
     >
-      <span class="chat-input-preference-trigger-label">
-        ${this.modelId || this.session?.model}
-      </span>
+      <span class="chat-input-preference-trigger-label"> Claude </span>
       <span class="chat-input-preference-trigger-icon">
         ${ArrowDownSmallIcon()}
       </span>

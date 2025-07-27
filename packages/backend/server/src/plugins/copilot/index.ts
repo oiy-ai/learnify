@@ -15,6 +15,7 @@ import {
   CopilotContextService,
 } from './context';
 import { CopilotController } from './controller';
+import { CopilotCronJobs } from './cron';
 import { CopilotEmbeddingJob } from './embedding';
 import { ChatMessageCache } from './message';
 import { PromptService } from './prompt';
@@ -63,7 +64,9 @@ import {
     // context
     CopilotContextResolver,
     CopilotContextService,
+    // jobs
     CopilotEmbeddingJob,
+    CopilotCronJobs,
     // transcription
     CopilotTranscriptionService,
     CopilotTranscriptionResolver,
