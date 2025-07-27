@@ -1,6 +1,5 @@
 import type {
   AttachmentBlockModel,
-  BookmarkBlockModel,
   EmbedYoutubeModel,
 } from '@blocksuite/affine/model';
 import { NoteDisplayMode } from '@blocksuite/affine/model';
@@ -72,7 +71,6 @@ export class MaterialsDocService extends Service {
     // Process different types of blocks
     const attachmentBlocks = doc.getBlocksByFlavour('affine:attachment');
     const youtubeBlocks = doc.getBlocksByFlavour('affine:embed-youtube');
-    const bookmarkBlocks = doc.getBlocksByFlavour('affine:bookmark');
 
     // Process attachment blocks
     for (const block of attachmentBlocks) {
@@ -119,34 +117,6 @@ export class MaterialsDocService extends Service {
       } catch (error) {
         console.error(
           '[MaterialsDocService] Error processing YouTube embed:',
-          error
-        );
-      }
-    }
-
-    // Process bookmark blocks (Card view for YouTube and other links)
-    for (const block of bookmarkBlocks) {
-      try {
-        const model = block.model as BookmarkBlockModel;
-        const props = model.props || {};
-
-        // Check if this is a YouTube link
-        const isYouTube = this.isYouTubeUrl(props.url || '');
-
-        const item: MaterialItem = {
-          id: block.id,
-          name: props.title || (isYouTube ? 'YouTube Video' : 'Web Link'),
-          description: props.caption || props.description || '',
-          blobId: props.url || '',
-          mimeType: isYouTube ? 'video/youtube' : 'text/html',
-          size: 0,
-          category: 'link',
-        };
-
-        materials.push(item);
-      } catch (error) {
-        console.error(
-          '[MaterialsDocService] Error processing bookmark:',
           error
         );
       }
@@ -276,15 +246,7 @@ export class MaterialsDocService extends Service {
   }
 
   private isMaterialBlock(flavour: string): boolean {
-    return [
-      'affine:attachment',
-      'affine:embed-youtube',
-      'affine:bookmark',
-    ].includes(flavour);
-  }
-
-  private isYouTubeUrl(url: string): boolean {
-    return this.extractYouTubeVideoId(url) !== null;
+    return ['affine:attachment', 'affine:embed-youtube'].includes(flavour);
   }
 
   private extractYouTubeVideoId(url: string): string | null {
@@ -327,15 +289,6 @@ export class MaterialsDocService extends Service {
 
     if (youtubeBlock) {
       doc.deleteBlock(youtubeBlock.model);
-      return;
-    }
-
-    // Try to find and delete bookmark blocks
-    const bookmarkBlocks = doc.getBlocksByFlavour('affine:bookmark');
-    const bookmarkBlock = bookmarkBlocks.find(block => block.id === materialId);
-
-    if (bookmarkBlock) {
-      doc.deleteBlock(bookmarkBlock.model);
     }
   }
 
