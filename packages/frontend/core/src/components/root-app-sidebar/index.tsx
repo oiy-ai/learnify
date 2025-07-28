@@ -106,6 +106,8 @@ export type RootAppSidebarProps = {
 //   );
 // };
 
+// @ts-expect-error TS6133: AIChatButton is declared but its value is never read
+// eslint-disable-next-line no-unused-vars
 const AIChatButton = () => {
   const featureFlagService = useService(FeatureFlagService);
   const serverService = useService(ServerService);
@@ -224,7 +226,7 @@ export const RootAppSidebar = memo((): ReactElement => {
           </div>
           <UserInfo />
         </div>
-        <AIChatButton />
+        {/* <AIChatButton /> */}
         <div className={featurePanelWrapper}>
           <Tabs.Root defaultValue="mindmap" className={tabsWrapper}>
             <Tabs.List className={tabsListCustom}>
