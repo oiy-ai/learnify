@@ -7,6 +7,8 @@ import type { ExplorerDisplayPreference } from '@affine/core/components/explorer
 import { EmptyFlashcardDetail } from '@affine/core/components/learnify/empty/flashcard-detail';
 import { CardsExplorer } from '@affine/core/components/learnify/flashcards/explorer/cards-list';
 import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
+import { CollectionListHeader } from '@affine/core/desktop/pages/workspace/collection/list-header';
+import { UserFeatureService } from '@affine/core/modules/cloud';
 import {
   type Collection,
   CollectionService,
@@ -62,6 +64,9 @@ export const CollectionDetail = ({
   const rules = useLiveData(collection.rules$);
   const allowList = useLiveData(collection.allowList$);
 
+  const userFeatureService = useService(UserFeatureService);
+  const isAFFiNEAdmin = useLiveData(userFeatureService.userFeature.isAdmin$);
+
   const handleDisplayPreferenceChange = useCallback(
     (displayPreference: ExplorerDisplayPreference) => {
       explorerContextValue.displayPreference$.next(displayPreference);
@@ -111,6 +116,10 @@ export const CollectionDetail = ({
     rules.filters,
   ]);
 
+  useEffect(() => {
+    userFeatureService.userFeature.revalidate();
+  }, [userFeatureService]);
+
   return (
     <DocExplorerContext.Provider value={explorerContextValue}>
       <ViewHeader>
@@ -121,7 +130,9 @@ export const CollectionDetail = ({
       </ViewHeader>
       <ViewBody>
         <FlexWrapper flexDirection="column" alignItems="stretch" width="100%">
-          {/* <CollectionListHeader collection={collection} /> */}
+          {isAFFiNEAdmin ? (
+            <CollectionListHeader collection={collection} />
+          ) : null}
           <div className={styles.scrollArea}>
             <CardsExplorer disableMultiDelete={!isAdmin && !isOwner} />
           </div>
@@ -164,7 +175,7 @@ export const Component = function CollectionPage() {
   }
   const inner =
     info?.allowList.length === 0 && info?.rules.filters.length === 0 ? (
-      <Placeholder collection={collection}/>
+      <Placeholder collection={collection} />
     ) : (
       <CollectionDetail collection={collection} />
     );
@@ -214,7 +225,10 @@ const Placeholder = ({ collection }: { collection: Collection }) => {
         />
       </ViewHeader>
       <ViewBody>
-        <EmptyFlashcardDetail collection={collection} style={{ height: '100%' }} />
+        <EmptyFlashcardDetail
+          collection={collection}
+          style={{ height: '100%' }}
+        />
       </ViewBody>
     </>
   );

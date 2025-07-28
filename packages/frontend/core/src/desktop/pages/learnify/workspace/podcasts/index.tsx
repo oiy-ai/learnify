@@ -8,6 +8,8 @@ import { useGuard } from '@affine/core/components/guard';
 import { EmptyPodcastDetail } from '@affine/core/components/learnify/empty/podcast-detail';
 import { PodcastsExplorer } from '@affine/core/components/learnify/podcasts/explorer/podcasts-list';
 import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
+import { CollectionListHeader } from '@affine/core/desktop/pages/workspace/collection/list-header';
+import { UserFeatureService } from '@affine/core/modules/cloud';
 import {
   type Collection,
   CollectionService,
@@ -55,6 +57,9 @@ export const CollectionDetail = ({
 
   // 监听选中的文档ID变化
   const selectedDocIds = useLiveData(explorerContextValue.selectedDocIds$);
+
+  const userFeatureService = useService(UserFeatureService);
+  const isAFFiNEAdmin = useLiveData(userFeatureService.userFeature.isAdmin$);
 
   useEffect(() => {
     // 当有文档被选中时，设置第一个选中的文档为编辑器显示的文档
@@ -145,6 +150,10 @@ export const CollectionDetail = ({
     hasAutoSelected,
   ]);
 
+  useEffect(() => {
+    userFeatureService.userFeature.revalidate();
+  }, [userFeatureService]);
+
   return (
     <DocExplorerContext.Provider value={explorerContextValue}>
       <ViewHeader>
@@ -155,6 +164,9 @@ export const CollectionDetail = ({
       </ViewHeader>
       <ViewBody>
         <FlexWrapper flexDirection="column" alignItems="stretch" width="55%">
+          {isAFFiNEAdmin ? (
+            <CollectionListHeader collection={collection} />
+          ) : null}
           <div className={styles.scrollArea}>
             <PodcastsExplorer disableMultiDelete={!isAdmin && !isOwner} />
           </div>
@@ -228,7 +240,7 @@ export const Component = function CollectionPage() {
   }
   const inner =
     info?.allowList.length === 0 && info?.rules.filters.length === 0 ? (
-      <Placeholder collection={collection}/>
+      <Placeholder collection={collection} />
     ) : (
       <CollectionDetail collection={collection} />
     );
@@ -272,7 +284,10 @@ const Placeholder = ({ collection }: { collection: Collection }) => {
         />
       </ViewHeader>
       <ViewBody>
-        <EmptyPodcastDetail collection={collection} style={{ height: '100%' }} />
+        <EmptyPodcastDetail
+          collection={collection}
+          style={{ height: '100%' }}
+        />
       </ViewBody>
     </>
   );

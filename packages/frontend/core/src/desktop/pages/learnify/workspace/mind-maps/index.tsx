@@ -9,6 +9,8 @@ import { EmptyMindMapDetail } from '@affine/core/components/learnify/empty/mind-
 import { MindMapsExplorer } from '@affine/core/components/learnify/mind-maps/explorer/mind-maps-list';
 import { PageDetailEditor } from '@affine/core/components/page-detail-editor';
 import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
+import { CollectionListHeader } from '@affine/core/desktop/pages/workspace/collection/list-header';
+import { UserFeatureService } from '@affine/core/modules/cloud';
 import {
   type Collection,
   CollectionService,
@@ -85,6 +87,9 @@ export const CollectionDetail = ({
   const rules = useLiveData(collection.rules$);
   const allowList = useLiveData(collection.allowList$);
 
+  const userFeatureService = useService(UserFeatureService);
+  const isAFFiNEAdmin = useLiveData(userFeatureService.userFeature.isAdmin$);
+
   const handleDisplayPreferenceChange = useCallback(
     (displayPreference: ExplorerDisplayPreference) => {
       explorerContextValue.displayPreference$.next(displayPreference);
@@ -150,6 +155,10 @@ export const CollectionDetail = ({
     hasAutoSelected,
   ]);
 
+  useEffect(() => {
+    userFeatureService.userFeature.revalidate();
+  }, [userFeatureService]);
+
   return (
     <DocExplorerContext.Provider value={explorerContextValue}>
       <ViewHeader>
@@ -160,6 +169,9 @@ export const CollectionDetail = ({
       </ViewHeader>
       <ViewBody>
         <FlexWrapper flexDirection="column" alignItems="stretch" width="33%">
+          {isAFFiNEAdmin ? (
+            <CollectionListHeader collection={collection} />
+          ) : null}
           <div className={styles.scrollArea}>
             <MindMapsExplorer disableMultiDelete={!isAdmin && !isOwner} />
           </div>
