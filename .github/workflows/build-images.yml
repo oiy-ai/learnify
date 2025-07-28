@@ -27,6 +27,8 @@ jobs:
       - name: Build Core
         run: yarn affine @affine/web build
         env:
+          ENABLE_BRAND_REPLACE: true
+          BRAND_NAME: Learnify
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
@@ -60,6 +62,8 @@ jobs:
       - name: Build Admin
         run: yarn affine @affine/admin build
         env:
+          ENABLE_BRAND_REPLACE: true
+          BRAND_NAME: Learnify
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
@@ -92,6 +96,8 @@ jobs:
       - name: Build Mobile
         run: yarn affine @affine/mobile build
         env:
+          ENABLE_BRAND_REPLACE: true
+          BRAND_NAME: Learnify
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
