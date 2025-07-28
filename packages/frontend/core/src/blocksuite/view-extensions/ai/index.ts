@@ -25,7 +25,7 @@ import {
 } from '../../ai/services/block-diff';
 import { blockDiffWidgetForBlock } from '../../ai/widgets/block-diff/block';
 import { blockDiffWidgetForPage } from '../../ai/widgets/block-diff/page';
-import { blockDiffPlayground } from '../../ai/widgets/block-diff/playground';
+// import { blockDiffPlayground } from '../../ai/widgets/block-diff/playground';
 import { EdgelessClipboardAIChatConfig } from './edgeless-clipboard';
 
 const optionsSchema = z.object({
@@ -89,9 +89,9 @@ export class AIViewExtension extends ViewExtensionProvider<AIViewOptions> {
         BlockDiffWatcher,
       ]);
 
-      if (process.env.NODE_ENV === 'development') {
-        context.register([blockDiffPlayground]);
-      }
+      // if (process.env.NODE_ENV === 'development') {
+      //   context.register([blockDiffPlayground]);
+      // }
     }
   }
 }
