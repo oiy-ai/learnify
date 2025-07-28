@@ -6,13 +6,13 @@ import {
 import { DocsExplorer } from '@affine/core/components/explorer/docs-view/docs-list';
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
 import { Filters } from '@affine/core/components/filter';
+import { UserFeatureService } from '@affine/core/modules/cloud';
 import {
   CollectionService,
   PinnedCollectionService,
 } from '@affine/core/modules/collection';
 import { CollectionRulesService } from '@affine/core/modules/collection-rules';
 import type { FilterParams } from '@affine/core/modules/collection-rules/types';
-import { WorkspacePermissionService } from '@affine/core/modules/permissions';
 import { WorkspaceLocalState } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
 import { useLiveData, useService } from '@toeverything/infra';
@@ -106,8 +106,8 @@ export const AllPage = () => {
 
   const collectionService = useService(CollectionService);
   const pinnedCollectionService = useService(PinnedCollectionService);
-  const permissionService = useService(WorkspacePermissionService);
-  const isAdmin = useLiveData(permissionService.permission.isAdmin$);
+  const userFeatureService = useService(UserFeatureService);
+  const isAFFiNEAdmin = useLiveData(userFeatureService.userFeature.isAdmin$);
   const {
     viewMode,
     setViewMode,
@@ -244,7 +244,7 @@ export const AllPage = () => {
         next: result => {
           // If user is not admin, filter out the Learnify Materials document
           let filteredGroups = result.groups;
-          if (!isAdmin) {
+          if (!isAFFiNEAdmin) {
             filteredGroups = result.groups
               .map(group => ({
                 ...group,
@@ -271,7 +271,7 @@ export const AllPage = () => {
     selectedCollection,
     selectedCollectionInfo,
     tempFilters,
-    isAdmin,
+    isAFFiNEAdmin,
   ]);
 
   useEffect(() => {
