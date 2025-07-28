@@ -7,7 +7,7 @@ import {
 } from '@affine/core/modules/collection';
 import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import type { DocRecord } from '@affine/core/modules/doc';
-import { WorkbenchLink } from '@affine/core/modules/workbench';
+// import { WorkbenchLink } from '@affine/core/modules/workbench';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
@@ -86,12 +86,6 @@ export const CollectionListHeader = ({
   return (
     <header className={styles.collectionHeader}>
       <div className={styles.breadcrumb}>
-        <div className={styles.breadcrumbItem}>
-          <WorkbenchLink to="/collection" className={styles.breadcrumbLink}>
-            {t['com.affine.collections.header']()}
-          </WorkbenchLink>
-        </div>
-        <div className={styles.breadcrumbSeparator}>/</div>
         <div className={styles.breadcrumbItem} data-active={true}>
           <ViewLayersIcon className={styles.breadcrumbIcon} />
           {name}
