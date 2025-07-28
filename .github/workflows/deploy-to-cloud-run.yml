@@ -94,14 +94,6 @@ jobs:
             SECRET_PREFIX="LEARNIFY_BETA"
           fi
 
-          # 先设置 IAM 策略，避免部署时失败
-          echo "Setting IAM policy for public access..."
-          gcloud run services add-iam-policy-binding ${{ env.SERVICE_NAME }} \
-            --region=${{ env.GCP_REGION }} \
-            --member="allUsers" \
-            --role="roles/run.invoker" \
-            --quiet || echo "IAM policy binding failed, will retry during deployment"
-
           echo "Deploying to Cloud Run..."
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image=${{ env.AR_IMAGE }} \
@@ -123,15 +115,9 @@ jobs:
             --add-volume=name=${{ env.CONFIG_BUCKET }},type=cloud-storage,bucket=${{ env.CONFIG_BUCKET }} \
             --add-volume-mount=volume=${{ env.STORAGE_BUCKET }},mount-path=/root/.affine/storage \
             --add-volume-mount=volume=${{ env.CONFIG_BUCKET }},mount-path=/root/.affine/config \
-            --allow-unauthenticated
+            --no-allow-unauthenticated
 
-          # 确保 IAM 策略正确设置
-          echo "Verifying IAM policy..."
-          gcloud run services add-iam-policy-binding ${{ env.SERVICE_NAME }} \
-            --region=${{ env.GCP_REGION }} \
-            --member="allUsers" \
-            --role="roles/run.invoker" \
-            --quiet || echo "IAM policy already set"
+          echo "Deployment completed successfully!"
 
       - name: Verify deployment
         run: |
