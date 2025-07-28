@@ -5,14 +5,14 @@ import {
   // AppDownloadButton,
   AppSidebar,
   // MenuItem,
-  // MenuLinkItem,
+  MenuLinkItem,
   QuickSearchInput,
   SidebarContainer,
   SidebarScrollableContainer,
 } from '@affine/core/modules/app-sidebar/views';
-import { ExternalMenuLinkItem } from '@affine/core/modules/app-sidebar/views/menu-item/external-menu-link-item';
+// import { ExternalMenuLinkItem } from '@affine/core/modules/app-sidebar/views/menu-item/external-menu-link-item';
 import { AuthService, ServerService } from '@affine/core/modules/cloud';
-import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
+// import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { CMDKQuickSearchService } from '@affine/core/modules/quicksearch/services/cmdk';
 import type { Workspace } from '@affine/core/modules/workspace';
@@ -21,10 +21,10 @@ import type { Workspace } from '@affine/core/modules/workspace';
 import type { Store } from '@blocksuite/affine/store';
 import {
   AiOutlineIcon,
-  AllDocsIcon,
-  ImportIcon,
-  JournalIcon,
-  SettingsIcon,
+  // AllDocsIcon,
+  // ImportIcon,
+  // JournalIcon,
+  // SettingsIcon,
 } from '@blocksuite/icons/rc';
 import { useLiveData, useService, useServices } from '@toeverything/infra';
 import type { ReactElement } from 'react';
