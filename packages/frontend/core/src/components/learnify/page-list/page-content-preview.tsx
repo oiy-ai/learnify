@@ -18,17 +18,22 @@ interface PagePreviewProps {
   rawType?: 'flashcards' | 'mind-maps';
 }
 
-interface FlashcardPreviewProps {
+interface QuizCardPreviewProps {
   question: string;
   options: Array<{ label: string; text: string }>;
   correctAnswer?: string;
 }
 
-const FlashcardPreview = ({
+interface FlashcardPreviewProps {
+  question: string;
+  answer: string;
+}
+
+const QuizCardPreview = ({
   question,
   options,
   correctAnswer,
-}: FlashcardPreviewProps) => {
+}: QuizCardPreviewProps) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
 
@@ -71,6 +76,31 @@ const FlashcardPreview = ({
             </button>
           );
         })}
+      </div>
+    </div>
+  );
+};
+
+const FlashcardPreview = ({ question, answer }: FlashcardPreviewProps) => {
+  const [showAnswer, setShowAnswer] = useState(false);
+
+  const handleToggleAnswer = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowAnswer(prev => !prev);
+  }, []);
+
+  return (
+    <div className={styles.flashcardContainer}>
+      <div className={styles.flashcardQuestion}>{question}</div>
+      <div className={styles.flashcardOptionsContainer}>
+        <button
+          className={styles.flashcardOption}
+          onClick={handleToggleAnswer}
+          data-selected={showAnswer}
+        >
+          {showAnswer ? `答案: ${answer}` : '查看答案'}
+        </button>
       </div>
     </div>
   );
@@ -136,7 +166,27 @@ function postprocessFlashcardContent(content: ReactNode): ReactNode {
     return words.slice(0, maxWords).join(' ') + '...';
   };
 
-  if (content.startsWith('[single-choice]')) {
+  // 处理简单的 flashcard 格式: [flashcard][Question]Q[Answer]A
+  if (content.startsWith('[flashcard]')) {
+    const afterType = content.replace('[flashcard]', '').trim();
+
+    // 提取问题
+    const questionMatch = afterType.match(/\[Question\](.*?)(?=\[Answer\])/s);
+    const rawQuestion = questionMatch ? questionMatch[1].trim() : '';
+
+    // 提取答案
+    const answerMatch = afterType.match(/\[Answer\](.*?)$/s);
+    const answer = answerMatch ? answerMatch[1].trim() : '';
+
+    // 限制问题长度到45个单词
+    const question = limitTextToWords(rawQuestion, 45);
+
+    if (question && answer) {
+      postprocessor = <FlashcardPreview question={question} answer={answer} />;
+    } else {
+      postprocessor = content; // 如果解析失败，回退到原始内容
+    }
+  } else if (content.startsWith('[single-choice]')) {
     // Format: [single-choice] [Question]Find the equation... [Options]a) 选项A b) Option B [Answer]d
     const afterType = content.replace('[single-choice]', '').trim();
 
@@ -177,7 +227,7 @@ function postprocessFlashcardContent(content: ReactNode): ReactNode {
     // Return flashcard component with question and option buttons
     if (question && options.length > 0) {
       postprocessor = (
-        <FlashcardPreview
+        <QuizCardPreview
           question={question}
           options={options}
           correctAnswer={correctAnswer}
