@@ -1759,7 +1759,7 @@
   "com.affine.workspace.cannot-delete": "您不能刪除僅剩的 Workspace",
   "com.affine.workspace.cloud": "雲工作區",
   "com.affine.workspace.cloud.account.logout": "登出",
-  "com.affine.workspace.cloud.account.settings": "帳號設定",
+  "com.affine.workspace.cloud.account.settings": "設定",
   "com.affine.workspace.cloud.account.admin": "管理面板",
   "com.affine.workspace.cloud.account.team.owner": "團隊所有者",
   "com.affine.workspace.cloud.account.team.member": "團隊成員",

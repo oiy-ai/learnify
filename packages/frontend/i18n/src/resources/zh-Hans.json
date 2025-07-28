@@ -1760,7 +1760,7 @@
   "com.affine.workspace.cannot-delete": "您无法删除最后一个工作区",
   "com.affine.workspace.cloud": "云工作区",
   "com.affine.workspace.cloud.account.logout": "退出登录",
-  "com.affine.workspace.cloud.account.settings": "账户设置",
+  "com.affine.workspace.cloud.account.settings": "设置",
   "com.affine.workspace.cloud.account.admin": "管理面板",
   "com.affine.workspace.cloud.account.team.owner": "团队所有者",
   "com.affine.workspace.cloud.account.team.member": "团队成员",
