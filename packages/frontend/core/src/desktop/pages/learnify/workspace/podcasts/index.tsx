@@ -228,7 +228,7 @@ export const Component = function CollectionPage() {
   }
   const inner =
     info?.allowList.length === 0 && info?.rules.filters.length === 0 ? (
-      <Placeholder />
+      <Placeholder collection={collection}/>
     ) : (
       <CollectionDetail collection={collection} />
     );
@@ -242,7 +242,7 @@ export const Component = function CollectionPage() {
   );
 };
 
-const Placeholder = () => {
+const Placeholder = ({ collection }: { collection: Collection }) => {
   const [explorerContextValue] = useState(() =>
     createDocExplorerContext({
       view: 'list',
@@ -272,7 +272,7 @@ const Placeholder = () => {
         />
       </ViewHeader>
       <ViewBody>
-        <EmptyPodcastDetail style={{ height: '100%' }} />
+        <EmptyPodcastDetail collection={collection} style={{ height: '100%' }} />
       </ViewBody>
     </>
   );
