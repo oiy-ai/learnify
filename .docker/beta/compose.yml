@@ -5,9 +5,6 @@ services:
     container_name: learnify
     ports:
       - 3010:3010
-    depends_on:
-      learnify_migration:
-        condition: service_completed_successfully
     volumes:
       # custom configurations
       - ${UPLOAD_LOCATION}:/root/.affine/storage
