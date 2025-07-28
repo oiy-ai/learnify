@@ -7,7 +7,7 @@ export const workbenchRoutes = [
   },
   {
     path: '/all',
-    lazy: () => import('./pages/workspace/all-page/all-page'),
+    lazy: () => import('./pages/learnify/workspace/notes'),
   },
   {
     path: '/collection',
