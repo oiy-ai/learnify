@@ -5,7 +5,7 @@ import { fixUrl, OriginRules } from './utils';
 
 @Injectable()
 export class WorkerService {
-  allowedOrigins: OriginRules = [...this.url.allowedOrigins];
+  allowedOrigins: OriginRules = [];
 
   constructor(
     private readonly config: Config,
