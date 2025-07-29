@@ -610,6 +610,7 @@ export function createNodeTargetConfig(
                 legacyDecorator: true,
                 decoratorMetadata: true,
                 react: { runtime: 'automatic' },
+                useDefineForClassFields: false,
               },
             },
             sourceMaps: true,
