@@ -39,7 +39,7 @@ services:
         hard: -1
     volumes:
       - manticoresearch_data:/var/lib/manticore
-
+  
   # elasticsearch:
   #   image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-9.0.1}${ELASTIC_VERSION_ARM64}
   #   platform: ${ELASTIC_PLATFORM}

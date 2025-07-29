@@ -38,39 +38,22 @@ class Redis extends IORedis implements OnModuleInit, OnModuleDestroy {
       );
     }
   }
-
-  static buildRedisOptions(config: Config['redis']): RedisOptions {
-    const { tls, ...baseConfig } = config;
-
-    const options: RedisOptions = {
-      ...baseConfig,
-      ...baseConfig.ioredis,
-    };
-
-    // Handle TLS configuration - for cloud services like Upstash
-    if (tls) {
-      options.tls = {};
-    }
-
-    return options;
-  }
 }
 
 @Injectable()
 export class CacheRedis extends Redis {
   constructor(config: Config) {
-    super(Redis.buildRedisOptions(config.redis));
+    super({ ...config.redis, ...config.redis.ioredis });
   }
 }
 
 @Injectable()
 export class SessionRedis extends Redis {
   constructor(config: Config) {
-    const options = Redis.buildRedisOptions(config.redis);
     super({
-      ...options,
-      db: 0, // Use database 0 for Upstash compatibility
-      keyPrefix: 'session:', // Add prefix for logical separation
+      ...config.redis,
+      ...config.redis.ioredis,
+      db: (config.redis.db ?? 0) + 2,
     });
   }
 }
@@ -78,11 +61,10 @@ export class SessionRedis extends Redis {
 @Injectable()
 export class SocketIoRedis extends Redis {
   constructor(config: Config) {
-    const options = Redis.buildRedisOptions(config.redis);
     super({
-      ...options,
-      db: 0, // Use database 0 for Upstash compatibility
-      keyPrefix: 'socket:', // Add prefix for logical separation
+      ...config.redis,
+      ...config.redis.ioredis,
+      db: (config.redis.db ?? 0) + 3,
     });
   }
 }
@@ -90,11 +72,10 @@ export class SocketIoRedis extends Redis {
 @Injectable()
 export class QueueRedis extends Redis {
   constructor(config: Config) {
-    const options = Redis.buildRedisOptions(config.redis);
     super({
-      ...options,
-      db: 0, // Use database 0 for Upstash compatibility
-      // BullMQ doesn't support ioredis keyPrefix, it uses its own prefix option
+      ...config.redis,
+      ...config.redis.ioredis,
+      db: (config.redis.db ?? 0) + 4,
       // required explicitly set to `null` by bullmq
       maxRetriesPerRequest: null,
     });
