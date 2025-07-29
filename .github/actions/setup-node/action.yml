@@ -39,6 +39,10 @@ inputs:
   full-cache:
     description: 'Full installation cache'
     required: false
+  clear-cache:
+    description: 'Clear all caches and dependencies before install'
+    required: false
+    default: 'false'
 runs:
   using: 'composite'
   steps:
@@ -128,6 +132,26 @@ runs:
         path: |
           ${{ steps.yarn-cache.outputs.yarn_global_cache }}
         key: node_modules-cache-full-${{ runner.os }}-${{ runner.arch }}-${{ steps.system-info.outputs.name }}-${{ steps.system-info.outputs.release }}-${{ steps.system-info.outputs.version }}
+
+    - name: Clear all caches and dependencies
+      if: ${{ inputs.clear-cache == 'true' }}
+      shell: bash
+      working-directory: ${{ steps.workspace-path.outputs.workspace_path }}
+      run: |
+        echo "🧹 清除yarn缓存和依赖..."
+
+        # 清除yarn缓存
+        yarn cache clean || echo "yarn cache clean failed, continuing..."
+
+        # 删除所有node_modules
+        find . -name "node_modules" -type d -prune -exec rm -rf {} + 2>/dev/null || echo "node_modules cleanup completed"
+
+        # 清除yarn的本地状态
+        rm -rf .yarn/cache || echo ".yarn/cache not found"
+        rm -rf .yarn/unplugged || echo ".yarn/unplugged not found"  
+        rm -rf .yarn/install-state.gz || echo ".yarn/install-state.gz not found"
+
+        echo "✅ 缓存和依赖清理完成"
 
     - name: yarn install
       if: ${{ inputs.package-install == 'true' }}
