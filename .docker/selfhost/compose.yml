@@ -1,7 +1,7 @@
 name: learnify
 services:
   learnify:
-    image: ghcr.io/a1exsun/learnify:${AFFINE_REVISION:-stable}-771750180fd5897db5767e1fe40e9a816eb391ba
+    image: ghcr.io/a1exsun/learnify:${AFFINE_REVISION:-stable}-f5f79711100e792baa426892d3127bded9bdea7c
     container_name: learnify
     ports:
       - '${PORT:-3010}:3010'
@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
 
   learnify_migration:
-    image: ghcr.io/a1exsun/learnify:${AFFINE_REVISION:-stable}-771750180fd5897db5767e1fe40e9a816eb391ba
+    image: ghcr.io/a1exsun/learnify:${AFFINE_REVISION:-stable}-f5f79711100e792baa426892d3127bded9bdea7c
     container_name: learnify_migration_job
     volumes:
       # custom configurations
