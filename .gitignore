@@ -2,6 +2,7 @@ CLAUDE.md
 .claude
 .ai
 .cloudflare/.wrangler
+**/config.json
 
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 .pnp.*
@@ -95,3 +96,4 @@ af.cmd
 
 # playwright
 storageState.json
+

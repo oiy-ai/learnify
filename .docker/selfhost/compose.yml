@@ -1,8 +1,8 @@
-name: affine
+name: learnify
 services:
-  affine:
+  learnify:
     image: ghcr.io/toeverything/affine:${AFFINE_REVISION:-stable}
-    container_name: affine_server
+    container_name: learnify
     ports:
       - '${PORT:-3010}:3010'
     depends_on:
@@ -10,7 +10,7 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
-      affine_migration:
+      learnify_migration:
         condition: service_completed_successfully
     volumes:
       # custom configurations
@@ -24,9 +24,9 @@ services:
       - AFFINE_INDEXER_ENABLED=false
     restart: unless-stopped
 
-  affine_migration:
+  learnify_migration:
     image: ghcr.io/toeverything/affine:${AFFINE_REVISION:-stable}
-    container_name: affine_migration_job
+    container_name: learnify_migration_job
     volumes:
       # custom configurations
       - ${UPLOAD_LOCATION}:/root/.affine/storage
