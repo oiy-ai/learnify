@@ -3,7 +3,7 @@ name: Build Images Manually
 on:
   workflow_dispatch:
     inputs:
-      flavor:
+      build-type:
         description: 'Select distribution to build'
         type: choice
         default: canary
@@ -21,4 +21,6 @@ jobs:
     name: Build Image
     uses: ./.github/workflows/build-images.yml
     with:
-      flavor: ${{ github.event.inputs.flavor }}
+      build-type: ${{ github.event.inputs.build-type }}
+      app-version: 0.0.0-${{ github.event.inputs.build-type }}.${{ github.run_number }}
+      git-short-hash: ${{ github.sha }}
