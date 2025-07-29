@@ -46,7 +46,7 @@ services:
 
   redis:
     image: redis
-    container_name: affine_redis
+    container_name: learnify_redis
     healthcheck:
       test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 10s
@@ -56,7 +56,7 @@ services:
 
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: affine_postgres
+    container_name: learnify_postgres
     volumes:
       - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
     environment:
