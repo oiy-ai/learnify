@@ -1,7 +1,7 @@
 name: learnify
 services:
   learnify:
-    image: ghcr.io/toeverything/affine:${AFFINE_REVISION:-stable}
+    image: ghcr.io/a1exsun/learnify-graphql:${AFFINE_REVISION:-stable}
     container_name: learnify
     ports:
       - '${PORT:-3010}:3010'
@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
 
   learnify_migration:
-    image: ghcr.io/toeverything/affine:${AFFINE_REVISION:-stable}
+    image: ghcr.io/a1exsun/learnify-graphql:${AFFINE_REVISION:-stable}
     container_name: learnify_migration_job
     volumes:
       # custom configurations

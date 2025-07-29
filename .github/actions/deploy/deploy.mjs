@@ -43,55 +43,45 @@ const replicaConfig = {
     doc: Number(process.env.BETA_DOC_REPLICA) || 2,
   },
   canary: {
-    web: 1,
-    graphql: 1,
-    sync: 1,
-    renderer: 1,
-    doc: 1,
+    web: 2,
+    graphql: 2,
+    sync: 2,
+    renderer: 2,
+    doc: 2,
   },
 };
 
 const cpuConfig = {
   beta: {
-    web: '200m',
-    graphql: '500m',
-    sync: '500m',
-    doc: '500m',
-    renderer: '200m',
+    web: '300m',
+    graphql: '1',
+    sync: '1',
+    doc: '1',
+    renderer: '300m',
   },
   canary: {
-    web: '200m',
-    graphql: '500m',
-    sync: '500m',
-    doc: '500m',
-    renderer: '200m',
+    web: '300m',
+    graphql: '1',
+    sync: '1',
+    doc: '1',
+    renderer: '300m',
   },
-};
-
-// 安全转义shell参数的辅助函数
-const escapeShellArg = arg => {
-  if (!arg) return '""';
-  // 如果包含特殊字符，用单引号包围并转义内部的单引号
-  if (/[^a-zA-Z0-9._-]/.test(arg)) {
-    return `'${arg.replace(/'/g, `'\\''`)}'`;
-  }
-  return arg;
 };
 
 const createHelmCommand = ({ isDryRun }) => {
   const flag = isDryRun ? '--dry-run' : '--atomic';
   const imageTag = `${buildType}-${GIT_SHORT_HASH}`;
   const redisAndPostgres =
-    DATABASE_URL && REDIS_SERVER_HOST
+    isProduction || isBeta || isInternal
       ? [
           `--set        cloud-sql-proxy.enabled=true`,
-          `--set-string cloud-sql-proxy.database.connectionName=${escapeShellArg(GCLOUD_CONNECTION_NAME)}`,
-          `--set-string global.database.host=${escapeShellArg(DATABASE_URL)}`,
-          `--set-string global.database.user=${escapeShellArg(DATABASE_USERNAME)}`,
-          `--set-string global.database.password=${escapeShellArg(DATABASE_PASSWORD)}`,
-          `--set-string global.database.name=${escapeShellArg(DATABASE_NAME)}`,
-          `--set-string global.redis.host=${escapeShellArg(REDIS_SERVER_HOST)}`,
-          `--set-string global.redis.password=${escapeShellArg(REDIS_SERVER_PASSWORD || '')}`,
+          `--set-string cloud-sql-proxy.database.connectionName="${GCLOUD_CONNECTION_NAME}"`,
+          `--set-string global.database.host=${DATABASE_URL}`,
+          `--set-string global.database.user=${DATABASE_USERNAME}`,
+          `--set-string global.database.password=${DATABASE_PASSWORD}`,
+          `--set-string global.database.name=${DATABASE_NAME}`,
+          `--set-string global.redis.host="${REDIS_SERVER_HOST}"`,
+          `--set-string global.redis.password="${REDIS_SERVER_PASSWORD}"`,
         ]
       : [];
   const indexerOptions = [
@@ -120,15 +110,9 @@ const createHelmCommand = ({ isDryRun }) => {
   const resources = cpu
     ? [
         `--set        web.resources.requests.cpu="${cpu.web}"`,
-        `--set        web.resources.requests.memory="1Gi"`,
         `--set        graphql.resources.requests.cpu="${cpu.graphql}"`,
-        `--set        graphql.resources.requests.memory="1Gi"`,
         `--set        sync.resources.requests.cpu="${cpu.sync}"`,
-        `--set        sync.resources.requests.memory="1Gi"`,
         `--set        doc.resources.requests.cpu="${cpu.doc}"`,
-        `--set        doc.resources.requests.memory="1Gi"`,
-        `--set        renderer.resources.requests.cpu="${cpu.renderer}"`,
-        `--set        renderer.resources.requests.memory="1Gi"`,
       ]
     : [];
 
@@ -147,7 +131,7 @@ const createHelmCommand = ({ isDryRun }) => {
     .map(host => host.trim())
     .filter(host => host);
   const deployCommand = [
-    `helm upgrade --install learnify .github/helm/affine`,
+    `helm upgrade --install affine .github/helm/affine`,
     `--namespace  ${namespace}`,
     `--set-string global.deployment.type="affine"`,
     `--set-string global.deployment.platform="gcp"`,
@@ -175,7 +159,7 @@ const createHelmCommand = ({ isDryRun }) => {
     `--set        doc.replicaCount=${replica.doc}`,
     ...serviceAnnotations,
     ...resources,
-    `--timeout 20m`,
+    `--timeout 10m`,
     flag,
   ].join(' ');
   return deployCommand;
@@ -191,73 +175,7 @@ const templates = output
   .join('---');
 console.log(templates);
 
-// 添加调试信息
-console.log('=== Helm Command Debug ===');
-const finalCommand = createHelmCommand({ isDryRun: false });
-console.log('Command:', finalCommand);
-console.log('=== Environment Variables ===');
-console.log('DATABASE_URL:', DATABASE_URL ? 'SET' : 'NOT SET');
-console.log('REDIS_SERVER_HOST:', REDIS_SERVER_HOST ? 'SET' : 'NOT SET');
-console.log(
-  'REDIS_SERVER_PASSWORD:',
-  REDIS_SERVER_PASSWORD ? 'SET' : 'NOT SET'
-);
-console.log('BUILD_TYPE:', buildType);
-console.log(
-  'NAMESPACE:',
-  isProduction
-    ? 'production'
-    : isBeta
-      ? 'beta'
-      : isInternal
-        ? 'internal'
-        : 'dev'
-);
-console.log('=========================');
-
-try {
-  execSync(finalCommand, {
-    encoding: 'utf-8',
-    stdio: 'inherit',
-  });
-  console.log('✅ 部署成功完成!');
-} catch (error) {
-  console.error('❌ 部署失败:', error.message);
-  console.log('正在检查 pod 状态...');
-
-  const namespace = isProduction
-    ? 'production'
-    : isBeta
-      ? 'beta'
-      : isInternal
-        ? 'internal'
-        : 'dev';
-
-  try {
-    // 检查 pod 状态
-    const podStatus = execSync(
-      `kubectl get pods -n ${namespace} -l app.kubernetes.io/instance=learnify`,
-      {
-        encoding: 'utf-8',
-        stdio: 'pipe',
-      }
-    );
-    console.log('Pod 状态:');
-    console.log(podStatus);
-
-    // 检查最近的事件
-    const events = execSync(
-      `kubectl get events -n ${namespace} --sort-by='.lastTimestamp' | tail -20`,
-      {
-        encoding: 'utf-8',
-        stdio: 'pipe',
-      }
-    );
-    console.log('最近的事件:');
-    console.log(events);
-  } catch (debugError) {
-    console.error('无法获取调试信息:', debugError.message);
-  }
-
-  throw error;
-}
+execSync(createHelmCommand({ isDryRun: false }), {
+  encoding: 'utf-8',
+  stdio: 'inherit',
+});
