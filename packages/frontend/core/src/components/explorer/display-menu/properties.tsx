@@ -1,4 +1,4 @@
-import { Button, Divider } from '@affine/component';
+import { Button } from '@affine/component';
 import { WorkspacePropertyService } from '@affine/core/modules/workspace-property';
 import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
@@ -102,30 +102,6 @@ export const DisplayProperties = ({
             );
           })}
       </div>
-      {displayPreference.view === 'list' ? (
-        <>
-          <Divider space={4} size="thinner" />
-          <section className={styles.sectionLabel}>
-            {t['com.affine.all-docs.display.list-view']()}
-          </section>
-          <div className={styles.properties}>
-            <Button
-              className={styles.property}
-              data-show={showIcon}
-              onClick={toggleIcon}
-            >
-              {t['com.affine.all-docs.display.list-view.icon']()}
-            </Button>
-            <Button
-              className={styles.property}
-              data-show={showBody}
-              onClick={toggleBody}
-            >
-              {t['com.affine.all-docs.display.list-view.body']()}
-            </Button>
-          </div>
-        </>
-      ) : null}
     </div>
   );
 };
