@@ -287,8 +287,8 @@ export const WorkspacePropertyTypes = {
     value: DocPrimaryModeValue,
     name: 'com.affine.page-properties.property.docPrimaryMode',
     description: 'com.affine.page-properties.property.docPrimaryMode.tooltips',
-    allowInGroupBy: true,
-    allowInOrderBy: true,
+    allowInGroupBy: false,
+    allowInOrderBy: false,
     filterMethod: {
       is: 'com.affine.editCollection.rules.include.is',
       'is-not': 'com.affine.editCollection.rules.include.is-not',
@@ -304,8 +304,8 @@ export const WorkspacePropertyTypes = {
     value: JournalValue,
     name: 'com.affine.page-properties.property.journal',
     description: 'com.affine.page-properties.property.journal.tooltips',
-    allowInGroupBy: true,
-    allowInOrderBy: true,
+    allowInGroupBy: false,
+    allowInOrderBy: false,
     filterMethod: {
       is: 'com.affine.editCollection.rules.include.is',
       'is-not': 'com.affine.editCollection.rules.include.is-not',

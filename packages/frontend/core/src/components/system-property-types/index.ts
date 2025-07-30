@@ -156,8 +156,8 @@ export const SystemPropertyTypes = {
     icon: EdgelessIcon,
     name: 'com.affine.page-properties.property.edgelessTheme',
     showInDocList: 'stack',
-    allowInGroupBy: true,
-    allowInOrderBy: true,
+    allowInGroupBy: false,
+    allowInOrderBy: false,
     docListProperty: EdgelessThemeDocListProperty,
     groupHeader: EdgelessThemeGroupHeader,
     filterMethod: {
@@ -171,8 +171,8 @@ export const SystemPropertyTypes = {
     icon: LongerIcon,
     name: 'com.affine.page-properties.property.pageWidth',
     showInDocList: 'stack',
-    allowInGroupBy: true,
-    allowInOrderBy: true,
+    allowInGroupBy: false,
+    allowInOrderBy: false,
     docListProperty: PageWidthDocListProperty,
     groupHeader: PageWidthGroupHeader,
     filterMethod: {
@@ -186,8 +186,8 @@ export const SystemPropertyTypes = {
     icon: TemplateIcon,
     name: 'com.affine.page-properties.property.template',
     showInDocList: 'stack',
-    allowInGroupBy: true,
-    allowInOrderBy: true,
+    allowInGroupBy: false,
+    allowInOrderBy: false,
     docListProperty: TemplateDocListProperty,
     groupHeader: TemplateGroupHeader,
     filterMethod: {
@@ -201,8 +201,8 @@ export const SystemPropertyTypes = {
     icon: IntegrationsIcon,
     name: 'com.affine.integration.integrations',
     showInDocList: 'stack',
-    allowInGroupBy: true,
-    allowInOrderBy: true,
+    allowInGroupBy: false,
+    allowInOrderBy: false,
     docListProperty: IntegrationTypeDocListProperty,
     groupHeader: IntegrationTypeGroupHeader,
     filterMethod: {
