@@ -155,7 +155,7 @@ export const SystemPropertyTypes = {
   edgelessTheme: {
     icon: EdgelessIcon,
     name: 'com.affine.page-properties.property.edgelessTheme',
-    showInDocList: 'stack',
+    showInDocList: undefined,
     allowInGroupBy: false,
     allowInOrderBy: false,
     docListProperty: EdgelessThemeDocListProperty,
@@ -185,7 +185,7 @@ export const SystemPropertyTypes = {
   template: {
     icon: TemplateIcon,
     name: 'com.affine.page-properties.property.template',
-    showInDocList: 'stack',
+    showInDocList: undefined,
     allowInGroupBy: false,
     allowInOrderBy: false,
     docListProperty: TemplateDocListProperty,
@@ -200,7 +200,7 @@ export const SystemPropertyTypes = {
   integrationType: {
     icon: IntegrationsIcon,
     name: 'com.affine.integration.integrations',
-    showInDocList: 'stack',
+    showInDocList: undefined,
     allowInGroupBy: false,
     allowInOrderBy: false,
     docListProperty: IntegrationTypeDocListProperty,
