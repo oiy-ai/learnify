@@ -2,7 +2,7 @@ import { DropdownButton, Menu } from '@affine/component';
 import { BlockCard } from '@affine/component/card/block-card';
 import { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
-import { EdgelessIcon, ImportIcon, PageIcon } from '@blocksuite/icons/rc';
+import { ImportIcon, PageIcon } from '@blocksuite/icons/rc';
 import type { MouseEvent, PropsWithChildren } from 'react';
 import { useCallback, useState } from 'react';
 
@@ -11,14 +11,12 @@ import * as styles from './new-page-button.css';
 type NewPageButtonProps = {
   createNewDoc: (e?: MouseEvent) => void;
   createNewPage: (e?: MouseEvent) => void;
-  createNewEdgeless: (e?: MouseEvent) => void;
   importFile?: () => void;
   size?: 'small' | 'default';
 };
 
 export const CreateNewPagePopup = ({
   createNewPage,
-  createNewEdgeless,
   importFile,
 }: NewPageButtonProps) => {
   const t = useI18n();
@@ -39,14 +37,6 @@ export const CreateNewPagePopup = ({
         onAuxClick={createNewPage}
         data-testid="new-page-button-in-all-page"
       />
-      <BlockCard
-        title={t['com.affine.new_edgeless']()}
-        desc={t['com.affine.draw_with_a_blank_whiteboard']()}
-        right={<EdgelessIcon width={20} height={20} />}
-        onClick={createNewEdgeless}
-        onAuxClick={createNewEdgeless}
-        data-testid="new-edgeless-button-in-all-page"
-      />
       {importFile ? (
         <BlockCard
           title={t['com.affine.new_import']()}
@@ -64,7 +54,6 @@ export const CreateNewPagePopup = ({
 export const NewPageButton = ({
   createNewDoc,
   createNewPage,
-  createNewEdgeless,
   importFile,
   size,
   children,
@@ -89,18 +78,6 @@ export const NewPageButton = ({
     [createNewPage]
   );
 
-  const handleCreateNewEdgeless: NewPageButtonProps['createNewEdgeless'] =
-    useCallback(
-      e => {
-        createNewEdgeless(e);
-        setOpen(false);
-        track.allDocs.header.actions.createDoc({
-          mode: 'edgeless',
-        });
-      },
-      [createNewEdgeless]
-    );
-
   const handleImportFile = useCallback(() => {
     importFile?.();
     setOpen(false);
@@ -112,7 +89,6 @@ export const NewPageButton = ({
         <CreateNewPagePopup
           createNewDoc={handleCreateNewDoc}
           createNewPage={handleCreateNewPage}
-          createNewEdgeless={handleCreateNewEdgeless}
           importFile={importFile ? handleImportFile : undefined}
         />
       }

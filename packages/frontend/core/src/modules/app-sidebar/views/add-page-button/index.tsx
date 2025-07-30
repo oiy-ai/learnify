@@ -13,7 +13,6 @@ import track from '@affine/track';
 import type { DocMode } from '@blocksuite/affine/model';
 import {
   ArrowDownSmallIcon,
-  EdgelessIcon,
   PageIcon,
   PlusIcon,
   TemplateIcon,
@@ -93,14 +92,6 @@ function AddPageWithAsk({ className, style }: AddPageButtonProps) {
     },
     [createDoc]
   );
-  const createEdgeless = useCallback(
-    (e?: MouseEvent) => {
-      createDoc(e, 'edgeless');
-      track.$.navigationPanel.$.createDoc();
-      track.$.sidebar.newDoc.quickStart({ with: 'edgeless' });
-    },
-    [createDoc]
-  );
 
   const createDocFromTemplate = useAsyncCallback(
     async (templateId: string) => {
@@ -121,13 +112,6 @@ function AddPageWithAsk({ className, style }: AddPageButtonProps) {
             onAuxClick={createPage}
           >
             {t['Page']()}
-          </MenuItem>
-          <MenuItem
-            prefixIcon={<EdgelessIcon />}
-            onClick={createEdgeless}
-            onAuxClick={createEdgeless}
-          >
-            {t['Edgeless']()}
           </MenuItem>
           <MenuSub
             triggerOptions={{

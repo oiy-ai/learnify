@@ -28,8 +28,6 @@ export const DisplayProperties = ({
   }, [propertyList]);
 
   const displayProperties = displayPreference.displayProperties;
-  const showIcon = displayPreference.showDocIcon ?? false;
-  const showBody = displayPreference.showDocPreview ?? false;
 
   const handleDisplayPropertiesChange = useCallback(
     (displayProperties: string[]) => {
@@ -48,20 +46,6 @@ export const DisplayProperties = ({
     },
     [displayProperties, handleDisplayPropertiesChange]
   );
-
-  const toggleIcon = useCallback(() => {
-    onDisplayPreferenceChange({
-      ...displayPreference,
-      showDocIcon: !showIcon,
-    });
-  }, [displayPreference, onDisplayPreferenceChange, showIcon]);
-
-  const toggleBody = useCallback(() => {
-    onDisplayPreferenceChange({
-      ...displayPreference,
-      showDocPreview: !showBody,
-    });
-  }, [displayPreference, onDisplayPreferenceChange, showBody]);
 
   return (
     <div className={styles.root}>
