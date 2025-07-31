@@ -1,6 +1,9 @@
+import { UserFeatureService } from '@affine/core/modules/cloud';
 import { WorkbenchLink } from '@affine/core/modules/workbench';
 import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
+import { useLiveData, useService } from '@toeverything/infra';
+import { useEffect } from 'react';
 
 import * as styles from './navigation.css';
 
@@ -11,12 +14,12 @@ const items = [
   //   testId: 'workspace-docs-button',
   //   to: '/all',
   // },
-  // {
-  //   value: 'collections',
-  //   label: 'com.affine.collections.header',
-  //   testId: 'workspace-collections-button',
-  //   to: '/collection',
-  // },
+  {
+    value: 'collections',
+    label: 'com.affine.collections.header',
+    testId: 'workspace-collections-button',
+    to: '/collection',
+  },
   // {
   //   value: 'tags',
   //   label: 'Tags',
@@ -53,10 +56,24 @@ type NavigationKey = (typeof items)[number]['value'];
 
 export const ExplorerNavigation = ({ active }: { active: NavigationKey }) => {
   const t = useI18n();
+  const userFeatureService = useService(UserFeatureService);
+  const isAFFiNEAdmin = useLiveData(userFeatureService.userFeature.isAdmin$);
+
+  useEffect(() => {
+    userFeatureService.userFeature.revalidate();
+  }, [userFeatureService]);
+
+  const filteredItems = items.filter(item => {
+    // Hide collections for non-admin users
+    if (item.value === 'collections' && !isAFFiNEAdmin) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div className={styles.container}>
-      {items.map(item => (
+      {filteredItems.map(item => (
         <WorkbenchLink
           key={item.value}
           data-testid={item.testId}
