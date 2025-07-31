@@ -2,7 +2,12 @@ import { Scrollable } from '@affine/component';
 import clsx from 'clsx';
 import { selectAtom } from 'jotai/utils';
 import type { HTMLAttributes, PropsWithChildren } from 'react';
-import { forwardRef, useCallback, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useMemo, useState } from 'react';
+
+// Ensure React is available globally for libraries that expect it
+if (typeof window !== 'undefined' && !(window as any).React) {
+  (window as any).React = React;
+}
 import { Virtuoso } from 'react-virtuoso';
 
 import { ListInnerWrapper } from './list';
