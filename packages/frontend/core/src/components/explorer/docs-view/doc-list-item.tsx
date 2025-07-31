@@ -1,5 +1,4 @@
 import {
-  Checkbox,
   ContextMenu,
   DragHandle as DragHandleIcon,
   Tooltip,
@@ -239,35 +238,6 @@ const DragHandle = memo(function DragHandle({
     </div>
   );
 });
-const Select = memo(function Select({
-  id,
-  ...props
-}: HTMLProps<HTMLDivElement>) {
-  const contextValue = useContext(DocExplorerContext);
-  const selectMode = useLiveData(contextValue.selectMode$);
-  const selectedDocIds = useLiveData(contextValue.selectedDocIds$);
-
-  const handleSelectChange = useCallback(() => {
-    id && contextValue.selectedDocIds$?.next([id]);
-  }, [id, contextValue]);
-
-  if (!id) {
-    return null;
-  }
-
-  return (
-    <div
-      data-select-mode={selectMode}
-      data-testid={`doc-list-item-select`}
-      {...props}
-    >
-      <Checkbox
-        checked={selectedDocIds.includes(id)}
-        onChange={handleSelectChange}
-      />
-    </div>
-  );
-});
 // Different with RawDocIcon, refer to `ExplorerDisplayPreference.showDocIcon`
 const DocIcon = memo(function DocIcon({
   id,
@@ -341,7 +311,15 @@ export const ListViewDoc = ({ docId }: DocListItemProps) => {
     >
       <li className={styles.listViewRoot}>
         <DragHandle id={docId} className={styles.listDragHandle} />
-        <Select id={docId} className={styles.listSelect} />
+        {quickActions
+          .filter(action => action.key === 'quickSelect')
+          .map(action => {
+            return (
+              <Tooltip key={action.key} content={t.t(action.name)}>
+                <action.Component doc={doc} />
+              </Tooltip>
+            );
+          })}
         <DocIcon id={docId} className={styles.listIcon} />
         <div className={styles.listBrief}>
           <DocTitle
@@ -353,13 +331,15 @@ export const ListViewDoc = ({ docId }: DocListItemProps) => {
         </div>
         <div className={styles.listSpace} />
         <ListViewProperties docId={docId} />
-        {quickActions.map(action => {
-          return (
-            <Tooltip key={action.key} content={t.t(action.name)}>
-              <action.Component doc={doc} />
-            </Tooltip>
-          );
-        })}
+        {quickActions
+          .filter(action => action.key !== 'quickSelect')
+          .map(action => {
+            return (
+              <Tooltip key={action.key} content={t.t(action.name)}>
+                <action.Component doc={doc} />
+              </Tooltip>
+            );
+          })}
         <MoreMenuButton
           docId={docId}
           contentOptions={listMoreMenuContentOptions}
@@ -379,7 +359,6 @@ const cardMoreMenuContentOptions = {
 export const CardViewDoc = ({ docId, rawType }: DocListItemProps) => {
   const t = useI18n();
   const contextValue = useContext(DocExplorerContext);
-  const selectMode = useLiveData(contextValue.selectMode$);
   const docsService = useService(DocsService);
   const doc = useLiveData(docsService.list.doc$(docId));
   const showMoreOperation = useLiveData(contextValue.showMoreOperation$);
@@ -410,17 +389,17 @@ export const CardViewDoc = ({ docId, rawType }: DocListItemProps) => {
               </Tooltip>
             );
           })}
-          {selectMode ? (
-            <Select id={docId} className={styles.cardViewCheckbox} />
-          ) : (
-            <MoreMenuButton
-              docId={docId}
-              contentOptions={cardMoreMenuContentOptions}
-              iconProps={{ size: '16' }}
-            />
-          )}
+          <MoreMenuButton
+            docId={docId}
+            contentOptions={cardMoreMenuContentOptions}
+            iconProps={{ size: '16' }}
+          />
         </header>
-        <DocPreview id={docId} className={styles.cardPreviewContainer} rawType={rawType} />
+        <DocPreview
+          id={docId}
+          className={styles.cardPreviewContainer}
+          rawType={rawType}
+        />
         <CardViewProperties docId={docId} />
       </li>
     </ContextMenu>
