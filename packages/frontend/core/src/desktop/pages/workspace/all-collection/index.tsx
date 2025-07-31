@@ -4,6 +4,7 @@ import {
   CollectionListHeader,
   VirtualizedCollectionList,
 } from '@affine/core/components/page-list';
+import { UserFeatureService } from '@affine/core/modules/cloud';
 import {
   ViewIcon,
   ViewTitle,
@@ -11,10 +12,11 @@ import {
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
 import { useLiveData, useService } from '@toeverything/infra';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { CollectionService } from '../../../../modules/collection';
 import { ViewBody, ViewHeader } from '../../../../modules/workbench';
+import { PageNotFound } from '../../404';
 import { AllDocSidebarTabs } from '../layouts/all-doc-sidebar-tabs';
 import { EmptyCollectionList } from '../page-list-empty';
 import { AllCollectionHeader } from './header';
@@ -27,6 +29,13 @@ export const AllCollection = () => {
 
   const collectionService = useService(CollectionService);
   const collections = useLiveData(collectionService.collections$);
+
+  const userFeatureService = useService(UserFeatureService);
+  const isAFFiNEAdmin = useLiveData(userFeatureService.userFeature.isAdmin$);
+
+  useEffect(() => {
+    userFeatureService.userFeature.revalidate();
+  }, [userFeatureService]);
 
   const navigateHelper = useNavigateHelper();
   const { openPromptModal } = usePromptModal();
@@ -60,6 +69,10 @@ export const AllCollection = () => {
     openPromptModal,
     t,
   ]);
+
+  if (!isAFFiNEAdmin) {
+    return <PageNotFound noPermission />;
+  }
 
   return (
     <>
