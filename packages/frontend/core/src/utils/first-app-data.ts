@@ -69,19 +69,25 @@ export async function buildShowcaseWorkspace(
   const collectionService = workspace.scope.get(CollectionService);
   collectionService.createCollection({
     id: LEARNIFY_COLLECTIONS.MIND_MAPS,
-    name: 'learnify-mind-maps',
+    name: 'Learnify Mind Maps',
+    rules: { filters: [] },
+    allowList: [],
+  });
+  collectionService.createCollection({
+    id: LEARNIFY_COLLECTIONS.NOTES,
+    name: 'Learnify Notes',
     rules: { filters: [] },
     allowList: [],
   });
   collectionService.createCollection({
     id: LEARNIFY_COLLECTIONS.PODCASTS,
-    name: 'learnify-podcasts',
+    name: 'Learnify Podcasts',
     rules: { filters: [] },
     allowList: [],
   });
   collectionService.createCollection({
     id: LEARNIFY_COLLECTIONS.FLASHCARDS,
-    name: 'learnify-flashcards',
+    name: 'Learnify Flashcards',
     rules: { filters: [] },
     allowList: [],
   });
