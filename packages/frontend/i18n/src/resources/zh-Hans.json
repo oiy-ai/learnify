@@ -2094,6 +2094,8 @@
   "com.learnify.collection.emptyCollection": "您还没有上传任何材料。",
   "com.learnify.empty.mind-map-detail.title": "还没有思维导图",
   "com.learnify.empty.mind-map-detail.description": "先上传材料，然后 Learnify 将自动生成思维导图，帮助您可视化概念。",
+  "com.learnify.empty.note-detail.title": "还没有笔记",
+  "com.learnify.empty.note-detail.description": "先上传材料，然后 Learnify 将自动生成笔记，帮助您整理和复习概念。",
   "com.learnify.empty.flashcard-detail.title": "还没有闪回卡片",
   "com.learnify.empty.flashcard-detail.description": "先上传材料，然后 Learnify 将自动生成闪回卡片，帮助您记忆概念。",
   "com.learnify.empty.podcast-detail.title": "还没有播客",
