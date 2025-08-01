@@ -46,6 +46,7 @@ export const CollectionDetail = ({
   const displayPreference = useLiveData(
     explorerContextValue.displayPreference$
   );
+  const view = useLiveData(explorerContextValue.view$);
   const groupBy = useLiveData(explorerContextValue.groupBy$);
   const orderBy = useLiveData(explorerContextValue.orderBy$);
   const rules = useLiveData(collection.rules$);
@@ -54,6 +55,16 @@ export const CollectionDetail = ({
   const handleDisplayPreferenceChange = useCallback(
     (displayPreference: ExplorerDisplayPreference) => {
       explorerContextValue.displayPreference$.next(displayPreference);
+    },
+    [explorerContextValue]
+  );
+
+  const handleViewChange = useCallback(
+    (view: ExplorerDisplayPreference['view']) => {
+      explorerContextValue.displayPreference$.next({
+        ...explorerContextValue.displayPreference$.value,
+        view,
+      });
     },
     [explorerContextValue]
   );
@@ -106,6 +117,8 @@ export const CollectionDetail = ({
         <NotesHeader
           displayPreference={displayPreference}
           onDisplayPreferenceChange={handleDisplayPreferenceChange}
+          view={view ?? 'list'}
+          onViewChange={handleViewChange}
         />
       </ViewHeader>
       <ViewBody>
@@ -174,10 +187,21 @@ const Placeholder = ({ collection }: { collection: Collection }) => {
   const displayPreference = useLiveData(
     explorerContextValue.displayPreference$
   );
+  const view = useLiveData(explorerContextValue.view$);
 
   const handleDisplayPreferenceChange = useCallback(
     (displayPreference: ExplorerDisplayPreference) => {
       explorerContextValue.displayPreference$.next(displayPreference);
+    },
+    [explorerContextValue]
+  );
+
+  const handleViewChange = useCallback(
+    (view: ExplorerDisplayPreference['view']) => {
+      explorerContextValue.displayPreference$.next({
+        ...explorerContextValue.displayPreference$.value,
+        view,
+      });
     },
     [explorerContextValue]
   );
@@ -188,6 +212,8 @@ const Placeholder = ({ collection }: { collection: Collection }) => {
         <NotesHeader
           displayPreference={displayPreference}
           onDisplayPreferenceChange={handleDisplayPreferenceChange}
+          view={view ?? 'list'}
+          onViewChange={handleViewChange}
         />
       </ViewHeader>
       <ViewBody>
