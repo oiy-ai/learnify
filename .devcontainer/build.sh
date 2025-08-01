@@ -20,9 +20,8 @@ if [ -d "node_modules" ] && [ "$(ls -A node_modules 2>/dev/null)" ]; then
     sudo rm -rf node_modules/* node_modules/.* 2>/dev/null || true
 fi
 
-# 删除锁文件并重新安装依赖
+# 重新安装依赖
 echo "正在重新安装依赖..."
-rm -f package-lock.json yarn.lock || true
 yarn install
 
 # 确保新安装的 node_modules 权限正确
