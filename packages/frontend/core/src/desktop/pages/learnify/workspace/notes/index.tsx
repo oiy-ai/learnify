@@ -1,15 +1,13 @@
 import { FlexWrapper } from '@affine/component';
-import { EmptyCollectionDetail } from '@affine/core/components/affine/empty/collection-detail';
 import {
   createDocExplorerContext,
   DocExplorerContext,
 } from '@affine/core/components/explorer/context';
 import { DocsExplorer } from '@affine/core/components/explorer/docs-view/docs-list';
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
-import { useNavigateHelper } from '@affine/core/components/hooks/use-navigate-helper';
+import { EmptyNoteDetail } from '@affine/core/components/learnify/empty/note-detail';
 import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
 import { PageNotFound } from '@affine/core/desktop/pages/404';
-import { CollectionDetailHeader } from '@affine/core/desktop/pages/workspace/collection/header';
 import { CollectionListHeader } from '@affine/core/desktop/pages/workspace/collection/list-header';
 import { AllDocSidebarTabs } from '@affine/core/desktop/pages/workspace/layouts/all-doc-sidebar-tabs';
 import {
@@ -26,12 +24,11 @@ import {
   ViewIcon,
   ViewTitle,
 } from '@affine/core/modules/workbench';
-import { WorkspaceService } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
-import { ViewLayersIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService, useServices } from '@toeverything/infra';
 import { useCallback, useEffect, useState } from 'react';
 
+import { NotesHeader } from './header';
 import * as styles from './index.css';
 
 export const CollectionDetail = ({
@@ -106,7 +103,7 @@ export const CollectionDetail = ({
   return (
     <DocExplorerContext.Provider value={explorerContextValue}>
       <ViewHeader>
-        <CollectionDetailHeader
+        <NotesHeader
           displayPreference={displayPreference}
           onDisplayPreferenceChange={handleDisplayPreferenceChange}
         />
@@ -172,62 +169,29 @@ export const Component = function CollectionPage() {
 };
 
 const Placeholder = ({ collection }: { collection: Collection }) => {
-  const workspace = useService(WorkspaceService).workspace;
-  const { jumpToCollections } = useNavigateHelper();
-  const t = useI18n();
-  const name = useLiveData(collection?.name$);
+  const [explorerContextValue] = useState(createDocExplorerContext);
 
-  const handleJumpToCollections = useCallback(() => {
-    jumpToCollections(workspace.id);
-  }, [jumpToCollections, workspace]);
+  const displayPreference = useLiveData(
+    explorerContextValue.displayPreference$
+  );
+
+  const handleDisplayPreferenceChange = useCallback(
+    (displayPreference: ExplorerDisplayPreference) => {
+      explorerContextValue.displayPreference$.next(displayPreference);
+    },
+    [explorerContextValue]
+  );
 
   return (
     <>
       <ViewHeader>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            fontSize: 'var(--affine-font-xs)',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              cursor: 'pointer',
-              color: 'var(--affine-text-secondary-color)',
-              ['WebkitAppRegion' as string]: 'no-drag',
-            }}
-            onClick={handleJumpToCollections}
-          >
-            <ViewLayersIcon
-              style={{ color: 'var(--affine-icon-color)' }}
-              fontSize={14}
-            />
-            {t['com.affine.collection.allCollections']()}
-            <div>/</div>
-          </div>
-          <div
-            data-testid="collection-name"
-            style={{
-              fontWeight: 600,
-              color: 'var(--affine-text-primary-color)',
-              ['WebkitAppRegion' as string]: 'no-drag',
-            }}
-          >
-            {name ?? t['Untitled']()}
-          </div>
-          <div style={{ flex: 1 }} />
-        </div>
+        <NotesHeader
+          displayPreference={displayPreference}
+          onDisplayPreferenceChange={handleDisplayPreferenceChange}
+        />
       </ViewHeader>
       <ViewBody>
-        <EmptyCollectionDetail
-          collection={collection}
-          style={{ height: '100%' }}
-        />
+        <EmptyNoteDetail collection={collection} style={{ height: '100%' }} />
       </ViewBody>
     </>
   );
