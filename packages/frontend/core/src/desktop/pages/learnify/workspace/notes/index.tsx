@@ -1,260 +1,91 @@
-import { Button, usePromptModal } from '@affine/component';
+import { FlexWrapper } from '@affine/component';
+import { EmptyCollectionDetail } from '@affine/core/components/affine/empty/collection-detail';
 import {
   createDocExplorerContext,
   DocExplorerContext,
 } from '@affine/core/components/explorer/context';
 import { DocsExplorer } from '@affine/core/components/explorer/docs-view/docs-list';
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
-import { Filters } from '@affine/core/components/filter';
-import { UserFeatureService } from '@affine/core/modules/cloud';
+import { useNavigateHelper } from '@affine/core/components/hooks/use-navigate-helper';
+import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
+import { PageNotFound } from '@affine/core/desktop/pages/404';
+import { CollectionDetailHeader } from '@affine/core/desktop/pages/workspace/collection/header';
+import { CollectionListHeader } from '@affine/core/desktop/pages/workspace/collection/list-header';
+import { AllDocSidebarTabs } from '@affine/core/desktop/pages/workspace/layouts/all-doc-sidebar-tabs';
 import {
+  type Collection,
   CollectionService,
-  PinnedCollectionService,
 } from '@affine/core/modules/collection';
 import { CollectionRulesService } from '@affine/core/modules/collection-rules';
-import type { FilterParams } from '@affine/core/modules/collection-rules/types';
-import { WorkspaceLocalState } from '@affine/core/modules/workspace';
-import { useI18n } from '@affine/i18n';
-import { useLiveData, useService } from '@toeverything/infra';
-import { useCallback, useEffect, useState } from 'react';
-
+import { GlobalContextService } from '@affine/core/modules/global-context';
+import { WorkspacePermissionService } from '@affine/core/modules/permissions';
 import {
+  useIsActiveView,
   ViewBody,
   ViewHeader,
   ViewIcon,
   ViewTitle,
-} from '../../../../../modules/workbench';
-import * as styles from '../../../workspace/all-page/all-page.css';
-import { MigrationAllDocsDataNotification } from '../../../workspace/all-page/migration-data';
-import { PinnedCollections } from '../../../workspace/all-page/pinned-collections';
-import { AllDocSidebarTabs } from '../../../workspace/layouts/all-doc-sidebar-tabs';
-import { AllDocsHeader } from './all-page-header';
+} from '@affine/core/modules/workbench';
+import { WorkspaceService } from '@affine/core/modules/workspace';
+import { useI18n } from '@affine/i18n';
+import { ViewLayersIcon } from '@blocksuite/icons/rc';
+import { useLiveData, useService, useServices } from '@toeverything/infra';
+import { useCallback, useEffect, useState } from 'react';
 
-const DefaultDisplayPreference: {
-  // eslint-disable-next-line no-unused-vars
-  [key in ViewMode]: ExplorerDisplayPreference;
-} = {
-  grid: {
-    view: 'grid',
-    displayProperties: [
-      'system:createdAt',
-      'system:updatedAt',
-      'system:createdBy',
-      'system:tags',
-    ],
-    orderBy: {
-      type: 'system',
-      key: 'updatedAt',
-      desc: true,
-    },
-    groupBy: undefined,
-    showDocIcon: true,
-    showDocPreview: true,
-    quickFavorite: true,
-    showDragHandle: true,
-    showMoreOperation: true,
-  },
-  masonry: {
-    view: 'masonry',
-    displayProperties: [
-      'system:createdAt',
-      'system:updatedAt',
-      'system:createdBy',
-      'system:tags',
-    ],
-    orderBy: {
-      type: 'system',
-      key: 'updatedAt',
-      desc: true,
-    },
-    groupBy: undefined,
-    showDocIcon: true,
-    showDocPreview: true,
-    quickFavorite: true,
-    showDragHandle: true,
-    showMoreOperation: true,
-  },
-  list: {
-    view: 'list',
-    displayProperties: [
-      'system:createdAt',
-      'system:updatedAt',
-      'system:createdBy',
-      'system:tags',
-    ],
-    orderBy: {
-      type: 'system',
-      key: 'updatedAt',
-      desc: true,
-    },
-    groupBy: {
-      type: 'system',
-      key: 'updatedAt',
-    },
-    showDocIcon: true,
-    showDocPreview: true,
-    quickFavorite: true,
-    showDragHandle: true,
-    showMoreOperation: true,
-  },
-};
+import * as styles from './index.css';
 
-type ViewMode = NonNullable<ExplorerDisplayPreference['view']>;
-
-export const AllPage = () => {
-  const t = useI18n();
-
-  const collectionService = useService(CollectionService);
-  const pinnedCollectionService = useService(PinnedCollectionService);
-  const userFeatureService = useService(UserFeatureService);
-  const isAFFiNEAdmin = useLiveData(userFeatureService.userFeature.isAdmin$);
-  const {
-    viewMode,
-    setViewMode,
-    selectedCollectionId,
-    setSelectedCollectionId,
-    displayPreference,
-    setDisplayPreference,
-  } = useAllDocsOptions();
-
-  const isCollectionDataReady = useLiveData(
-    collectionService.collectionDataReady$
-  );
-
-  const isPinnedCollectionDataReady = useLiveData(
-    pinnedCollectionService.pinnedCollectionDataReady$
-  );
-
-  const pinnedCollections = useLiveData(
-    pinnedCollectionService.pinnedCollections$
-  );
-
-  const selectedCollection = useLiveData(
-    selectedCollectionId
-      ? collectionService.collection$(selectedCollectionId)
-      : null
-  );
-
-  useEffect(() => {
-    // if selected collection is not in pinned collections, set selected collection id to null
-    if (
-      isPinnedCollectionDataReady &&
-      selectedCollectionId &&
-      !pinnedCollections.some(c => c.collectionId === selectedCollectionId)
-    ) {
-      setSelectedCollectionId(null);
-    }
-  }, [
-    isPinnedCollectionDataReady,
-    pinnedCollections,
-    selectedCollectionId,
-    setSelectedCollectionId,
-  ]);
-
-  useEffect(() => {
-    // if selected collection is not found, set selected collection id to null
-    if (!selectedCollection && selectedCollectionId && isCollectionDataReady) {
-      setSelectedCollectionId(null);
-    }
-  }, [
-    isCollectionDataReady,
-    selectedCollection,
-    selectedCollectionId,
-    setSelectedCollectionId,
-  ]);
-
-  const selectedCollectionInfo = useLiveData(
-    selectedCollection ? selectedCollection.info$ : null
-  );
-
-  const [tempFilters, setTempFilters] = useState<FilterParams[] | null>(null);
-  const [tempFiltersInitial, setTempFiltersInitial] =
-    useState<FilterParams | null>(null);
-
-  const [explorerContextValue] = useState(() =>
-    createDocExplorerContext(displayPreference)
-  );
-
-  useEffect(() => {
-    explorerContextValue.displayPreference$.next(displayPreference);
-  }, [displayPreference, explorerContextValue]);
-
-  const groupBy = displayPreference.groupBy;
-  const orderBy = displayPreference.orderBy;
-
-  const { openPromptModal } = usePromptModal();
-
+export const CollectionDetail = ({
+  collection,
+}: {
+  collection: Collection;
+}) => {
+  const [explorerContextValue] = useState(createDocExplorerContext);
   const collectionRulesService = useService(CollectionRulesService);
+
+  const permissionService = useService(WorkspacePermissionService);
+  const isAdmin = useLiveData(permissionService.permission.isAdmin$);
+  const isOwner = useLiveData(permissionService.permission.isOwner$);
+
+  const displayPreference = useLiveData(
+    explorerContextValue.displayPreference$
+  );
+  const groupBy = useLiveData(explorerContextValue.groupBy$);
+  const orderBy = useLiveData(explorerContextValue.orderBy$);
+  const rules = useLiveData(collection.rules$);
+  const allowList = useLiveData(collection.allowList$);
+
+  const handleDisplayPreferenceChange = useCallback(
+    (displayPreference: ExplorerDisplayPreference) => {
+      explorerContextValue.displayPreference$.next(displayPreference);
+    },
+    [explorerContextValue]
+  );
+
   useEffect(() => {
     const subscription = collectionRulesService
-      .watch(
-        selectedCollectionInfo
-          ? {
-              filters: selectedCollectionInfo.rules.filters,
-              groupBy,
-              orderBy,
-              extraAllowList: selectedCollectionInfo.allowList,
-              extraFilters: [
-                {
-                  type: 'system',
-                  key: 'empty-journal',
-                  method: 'is',
-                  value: 'false',
-                },
-                {
-                  type: 'system',
-                  key: 'trash',
-                  method: 'is',
-                  value: 'false',
-                },
-              ],
-            }
-          : {
-              filters:
-                tempFilters && tempFilters.length > 0
-                  ? tempFilters
-                  : [
-                      // if no filters are present, match all non-trash documents
-                      {
-                        type: 'system',
-                        key: 'trash',
-                        method: 'is',
-                        value: 'false',
-                      },
-                    ],
-              groupBy,
-              orderBy,
-              extraFilters: [
-                {
-                  type: 'system',
-                  key: 'empty-journal',
-                  method: 'is',
-                  value: 'false',
-                },
-                {
-                  type: 'system',
-                  key: 'trash',
-                  method: 'is',
-                  value: 'false',
-                },
-              ],
-            }
-      )
+      .watch({
+        filters: rules.filters,
+        groupBy,
+        orderBy,
+        extraAllowList: allowList,
+        extraFilters: [
+          {
+            type: 'system',
+            key: 'empty-journal',
+            method: 'is',
+            value: 'false',
+          },
+          {
+            type: 'system',
+            key: 'trash',
+            method: 'is',
+            value: 'false',
+          },
+        ],
+      })
       .subscribe({
         next: result => {
-          // If user is not admin, filter out the Learnify Materials document
-          let filteredGroups = result.groups;
-          if (!isAFFiNEAdmin) {
-            filteredGroups = result.groups
-              .map(group => ({
-                ...group,
-                items: group.items.filter(docId => {
-                  return docId !== 'learnify-list-of-materials';
-                }),
-              }))
-              .filter(group => group.items.length > 0);
-          }
-          explorerContextValue.groups$.next(filteredGroups);
+          explorerContextValue.groups$.next(result.groups);
         },
         error: error => {
           console.error(error);
@@ -264,241 +95,140 @@ export const AllPage = () => {
       subscription.unsubscribe();
     };
   }, [
+    allowList,
     collectionRulesService,
-    explorerContextValue,
+    explorerContextValue.groups$,
     groupBy,
     orderBy,
-    selectedCollection,
-    selectedCollectionInfo,
-    tempFilters,
-    isAFFiNEAdmin,
+    rules.filters,
   ]);
-
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        explorerContextValue.selectMode$.next(false);
-        explorerContextValue.selectedDocIds$.next([]);
-        explorerContextValue.prevCheckAnchorId$.next(null);
-      }
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [explorerContextValue]);
-
-  const handleFilterChange = useCallback((filters: FilterParams[]) => {
-    setTempFilters(filters);
-  }, []);
-
-  const handleSelectCollection = useCallback(
-    (collectionId: string) => {
-      setSelectedCollectionId(collectionId);
-      setTempFilters(null);
-    },
-    [setSelectedCollectionId]
-  );
-
-  const handleSelectAll = useCallback(() => {
-    setSelectedCollectionId(null);
-    setTempFilters(null);
-  }, [setSelectedCollectionId]);
-
-  const handleSaveFilters = useCallback(() => {
-    if (selectedCollectionId) {
-      collectionService.updateCollection(selectedCollectionId, {
-        rules: {
-          filters: tempFilters ?? [],
-        },
-      });
-      setTempFilters(null);
-    } else {
-      openPromptModal({
-        title: t['com.affine.editCollection.saveCollection'](),
-        label: t['com.affine.editCollectionName.name'](),
-        inputOptions: {
-          placeholder: t['com.affine.editCollectionName.name.placeholder'](),
-        },
-        children: t['com.affine.editCollectionName.createTips'](),
-        confirmText: t['com.affine.editCollection.save'](),
-        cancelText: t['com.affine.editCollection.button.cancel'](),
-        confirmButtonOptions: {
-          variant: 'primary',
-        },
-        onConfirm(name) {
-          const id = collectionService.createCollection({
-            name,
-            rules: {
-              filters: tempFilters ?? [],
-            },
-          });
-          pinnedCollectionService.addPinnedCollection({
-            collectionId: id,
-            index: pinnedCollectionService.indexAt('after'),
-          });
-          setTempFilters(null);
-          setSelectedCollectionId(id);
-        },
-      });
-    }
-  }, [
-    collectionService,
-    openPromptModal,
-    pinnedCollectionService,
-    selectedCollectionId,
-    setSelectedCollectionId,
-    t,
-    tempFilters,
-  ]);
-
-  const handleNewTempFilter = useCallback(
-    (params: FilterParams) => {
-      setSelectedCollectionId(null);
-      setTempFilters([]);
-      setTempFiltersInitial(params);
-    },
-    [setSelectedCollectionId]
-  );
-
-  const handleDisplayPreferenceChange = useCallback(
-    (displayPreference: ExplorerDisplayPreference) => {
-      setDisplayPreference(displayPreference);
-    },
-    [setDisplayPreference]
-  );
 
   return (
     <DocExplorerContext.Provider value={explorerContextValue}>
-      <ViewTitle title={t['Notes']()} />
-      <ViewIcon icon="note" />
       <ViewHeader>
-        <AllDocsHeader
+        <CollectionDetailHeader
           displayPreference={displayPreference}
           onDisplayPreferenceChange={handleDisplayPreferenceChange}
-          view={viewMode}
-          onViewChange={setViewMode}
         />
       </ViewHeader>
       <ViewBody>
-        <div className={styles.body}>
-          <MigrationAllDocsDataNotification />
-          <div className={styles.pinnedCollection}>
-            <PinnedCollections
-              activeCollectionId={selectedCollectionId}
-              onActiveAll={handleSelectAll}
-              onActiveCollection={handleSelectCollection}
-              onAddFilter={handleNewTempFilter}
-              hiddenAdd={tempFilters !== null}
-            />
-          </div>
-          <div className={styles.filterArea}>
-            {tempFilters !== null && (
-              <div className={styles.filterInnerArea}>
-                <Filters
-                  // When the selected collection changes, the filters internal state should be reset
-                  key={selectedCollectionId ?? 'all'}
-                  className={styles.filters}
-                  filters={tempFilters}
-                  onChange={handleFilterChange}
-                  defaultDraftFilter={tempFiltersInitial}
-                />
-                <Button
-                  variant="plain"
-                  onClick={() => {
-                    setTempFilters(null);
-                  }}
-                >
-                  {t['Cancel']()}
-                </Button>
-                <Button onClick={handleSaveFilters}>{t['save']()}</Button>
-              </div>
-            )}
-          </div>
+        <FlexWrapper flexDirection="column" alignItems="stretch" width="100%">
+          <CollectionListHeader collection={collection} />
           <div className={styles.scrollArea}>
-            <DocsExplorer />
+            <DocsExplorer disableMultiDelete={!isAdmin && !isOwner} />
           </div>
-        </div>
+        </FlexWrapper>
       </ViewBody>
-      <AllDocSidebarTabs />
     </DocExplorerContext.Provider>
   );
 };
 
-export const Component = () => {
-  return <AllPage />;
+export const Component = function CollectionPage() {
+  const { collectionService, globalContextService } = useServices({
+    CollectionService,
+    GlobalContextService,
+  });
+  const globalContext = globalContextService.globalContext;
+  const t = useI18n();
+  const collection = useLiveData(
+    collectionService.collection$(LEARNIFY_COLLECTIONS.NOTES)
+  );
+  const name = useLiveData(collection?.name$);
+  const isActiveView = useIsActiveView();
+
+  useEffect(() => {
+    if (isActiveView && collection) {
+      globalContext.collectionId.set(collection.id);
+      globalContext.isCollection.set(true);
+
+      return () => {
+        globalContext.collectionId.set(null);
+        globalContext.isCollection.set(false);
+      };
+    }
+    return;
+  }, [collection, globalContext, isActiveView]);
+
+  const info = useLiveData(collection?.info$);
+
+  if (!collection) {
+    return <PageNotFound />;
+  }
+  const inner =
+    info?.allowList.length === 0 && info?.rules.filters.length === 0 ? (
+      <Placeholder collection={collection} />
+    ) : (
+      <CollectionDetail collection={collection} />
+    );
+
+  return (
+    <>
+      <ViewIcon icon="collection" />
+      <ViewTitle title={name ?? t['Untitled']()} />
+      <AllDocSidebarTabs />
+      {inner}
+    </>
+  );
 };
 
-/**
- * Since split view allows users to open multiple all docs simultaneously, each with its own state,
- * we only read the stored state once during useState initialization to maintain independent states.
- */
-const useAllDocsOptions = () => {
-  const workspaceLocalState = useService(WorkspaceLocalState);
+const Placeholder = ({ collection }: { collection: Collection }) => {
+  const workspace = useService(WorkspaceService).workspace;
+  const { jumpToCollections } = useNavigateHelper();
+  const t = useI18n();
+  const name = useLiveData(collection?.name$);
 
-  const readSavedViewMode = useCallback(() => {
-    return workspaceLocalState.get<ViewMode>('allDocsMode') ?? 'list';
-  }, [workspaceLocalState]);
+  const handleJumpToCollections = useCallback(() => {
+    jumpToCollections(workspace.id);
+  }, [jumpToCollections, workspace]);
 
-  const readSavedDisplayPreference = useCallback(
-    (mode: ViewMode) => {
-      const saved = workspaceLocalState.get<ExplorerDisplayPreference>(
-        'allDocsDisplayPreference:' + mode
-      );
-      return {
-        ...DefaultDisplayPreference[mode],
-        ...saved,
-        view: mode,
-      };
-    },
-    [workspaceLocalState]
+  return (
+    <>
+      <ViewHeader>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            fontSize: 'var(--affine-font-xs)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              cursor: 'pointer',
+              color: 'var(--affine-text-secondary-color)',
+              ['WebkitAppRegion' as string]: 'no-drag',
+            }}
+            onClick={handleJumpToCollections}
+          >
+            <ViewLayersIcon
+              style={{ color: 'var(--affine-icon-color)' }}
+              fontSize={14}
+            />
+            {t['com.affine.collection.allCollections']()}
+            <div>/</div>
+          </div>
+          <div
+            data-testid="collection-name"
+            style={{
+              fontWeight: 600,
+              color: 'var(--affine-text-primary-color)',
+              ['WebkitAppRegion' as string]: 'no-drag',
+            }}
+          >
+            {name ?? t['Untitled']()}
+          </div>
+          <div style={{ flex: 1 }} />
+        </div>
+      </ViewHeader>
+      <ViewBody>
+        <EmptyCollectionDetail
+          collection={collection}
+          style={{ height: '100%' }}
+        />
+      </ViewBody>
+    </>
   );
-
-  const [viewMode, setViewMode] = useState(readSavedViewMode);
-  const [displayPreference, setDisplayPreference] =
-    useState<ExplorerDisplayPreference>(() =>
-      readSavedDisplayPreference(viewMode)
-    );
-  const [selectedCollectionId, setSelectedCollectionId] = useState(
-    () =>
-      workspaceLocalState.get<string | null>('allDocsSelectedCollectionId') ??
-      null
-  );
-
-  const handleViewModeChange = useCallback(
-    (mode: ViewMode) => {
-      workspaceLocalState.set('allDocsMode', mode);
-      setViewMode(mode);
-      setDisplayPreference(readSavedDisplayPreference(mode));
-    },
-    [workspaceLocalState, readSavedDisplayPreference]
-  );
-
-  const handleDisplayPreferenceChange = useCallback(
-    (displayPreference: ExplorerDisplayPreference) => {
-      workspaceLocalState.set(
-        'allDocsDisplayPreference:' + viewMode,
-        displayPreference
-      );
-      setDisplayPreference(displayPreference);
-    },
-    [viewMode, workspaceLocalState]
-  );
-
-  const handleSelectedCollectionIdChange = useCallback(
-    (collectionId: string | null) => {
-      workspaceLocalState.set('allDocsSelectedCollectionId', collectionId);
-      setSelectedCollectionId(collectionId);
-    },
-    [workspaceLocalState]
-  );
-
-  return {
-    viewMode,
-    setViewMode: handleViewModeChange,
-    displayPreference,
-    setDisplayPreference: handleDisplayPreferenceChange,
-    selectedCollectionId,
-    setSelectedCollectionId: handleSelectedCollectionIdChange,
-  };
 };
