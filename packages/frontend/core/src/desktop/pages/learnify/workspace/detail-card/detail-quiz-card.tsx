@@ -134,7 +134,7 @@ export const DetailQuizCard = ({ doc, pageId }: DetailQuizCardProps) => {
     const loadCard = async () => {
       if (!doc || !doc.blockSuiteDoc) {
         setError(
-          t['com.affine.flashcard.error.fetch-failed']?.() ||
+          t['com.learnify.flashcard.error.fetch-failed']?.() ||
             'Failed to load card content from server'
         );
         return;
@@ -157,7 +157,7 @@ export const DetailQuizCard = ({ doc, pageId }: DetailQuizCardProps) => {
 
         if (paragraphs.every(p => !p.trim())) {
           setError(
-            t['com.affine.flashcard.error.no-content']?.() ||
+            t['com.learnify.flashcard.error.no-content']?.() ||
               'No content found in this card'
           );
           return;
@@ -169,14 +169,14 @@ export const DetailQuizCard = ({ doc, pageId }: DetailQuizCardProps) => {
           setError(null);
         } else {
           setError(
-            t['com.affine.flashcard.error.format-mismatch']?.() ||
+            t['com.learnify.flashcard.error.format-mismatch']?.() ||
               'Card content format is incorrect. Expected single-choice format.'
           );
         }
       } catch (error) {
         console.error('Error parsing card content:', error);
         setError(
-          t['com.affine.flashcard.error.parse-failed']?.() ||
+          t['com.learnify.flashcard.error.parse-failed']?.() ||
             'Failed to parse card content'
         );
       }
@@ -207,7 +207,7 @@ export const DetailQuizCard = ({ doc, pageId }: DetailQuizCardProps) => {
       <div className={styles.errorContainer}>
         <div className={styles.errorIcon}>�</div>
         <h2 className={styles.errorTitle}>
-          {t['com.affine.flashcard.error.title']?.() || 'Unable to Load Card'}
+          {t['com.learnify.flashcard.error.title']?.() || 'Unable to Load Card'}
         </h2>
         <p className={styles.errorMessage}>{error}</p>
       </div>

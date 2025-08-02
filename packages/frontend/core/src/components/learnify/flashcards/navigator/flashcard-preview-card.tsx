@@ -479,10 +479,6 @@ const FlashcardDocumentPreview = ({ docId }: { docId: string }) => {
     setShowAnswer(true);
   }, []);
 
-  const handleHideAnswer = useCallback(() => {
-    setShowAnswer(false);
-  }, []);
-
   const handleSelectAnswer = useCallback(
     (optionKey: string) => {
       if (showResult) return;

@@ -33,11 +33,10 @@ export const AllDocsHeader = ({
 }: {
   displayPreference: ExplorerDisplayPreference;
   onDisplayPreferenceChange: (
-     
     displayPreference: ExplorerDisplayPreference
   ) => void;
   view: DocListItemView;
-   
+
   onViewChange: (view: DocListItemView) => void;
 }) => {
   const t = useI18n();

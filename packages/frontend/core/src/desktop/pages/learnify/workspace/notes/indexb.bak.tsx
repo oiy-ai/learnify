@@ -31,7 +31,6 @@ import { AllDocSidebarTabs } from '../../../workspace/layouts/all-doc-sidebar-ta
 import { AllDocsHeader } from './all-page-header';
 
 const DefaultDisplayPreference: {
-   
   [key in ViewMode]: ExplorerDisplayPreference;
 } = {
   grid: {
