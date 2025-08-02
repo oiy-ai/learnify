@@ -40,7 +40,7 @@ const NotePreviewItem = ({ docId, onClick }: NotePreviewItemProps) => {
     return 'No description available';
   };
 
-  const formatDate = (timestamp: number | null) => {
+  const formatDate = (timestamp: number | undefined) => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
     const now = new Date();
