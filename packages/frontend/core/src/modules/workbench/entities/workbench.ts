@@ -25,11 +25,11 @@ const workspaceSelectorOpenKey = 'workspaceSelectorOpen';
 
 export class Workbench extends Entity {
   constructor(
-    // eslint-disable-next-line no-unused-vars
+     
     private readonly defaultState: WorkbenchDefaultState,
-    // eslint-disable-next-line no-unused-vars
+     
     private readonly newTabHandler: WorkbenchNewTabHandler,
-    // eslint-disable-next-line no-unused-vars
+     
     private readonly globalState: GlobalState
   ) {
     super();
@@ -237,8 +237,8 @@ export class Workbench extends Entity {
     this.open('/notes', options);
   }
 
-  openMindMap(options?: WorkbenchOpenOptions) {
-    this.open('/mind-map', options);
+  openMindMaps(options?: WorkbenchOpenOptions) {
+    this.open('/mind-maps', options);
   }
 
   openQACards(options?: WorkbenchOpenOptions) {
