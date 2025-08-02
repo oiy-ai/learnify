@@ -84,7 +84,7 @@ export const emptyPreview = style({
 });
 
 export const emptyText = style({
-  fontSize: '14px',
+  fontSize: '16px',
   fontWeight: 500,
   color: cssVarV2('text/primary'),
 });
