@@ -1,5 +1,4 @@
 // Import is already correct, no changes needed
-import { Tabs } from '@affine/component/ui/tabs';
 import {
   // AddPageButton,
   // AppDownloadButton,
@@ -49,6 +48,7 @@ import { RecordButton } from '../learnify/sources/buttons/record-button';
 import { UploadButton } from '../learnify/sources/buttons/upload-button';
 import { NavigationPanelSources } from '../learnify/sources/navigator';
 import { WorkspaceNavigator } from '../workspace-selector';
+import { Tabs } from './hover-tabs';
 import {
   bottomContainer,
   featurePanelWrapper,
@@ -228,7 +228,7 @@ export const RootAppSidebar = memo((): ReactElement => {
         </div>
         {/* <AIChatButton /> */}
         <div className={featurePanelWrapper}>
-          <Tabs.Root defaultValue="mindmap" className={tabsWrapper}>
+          <Tabs.Root defaultValue="mindmap" className={tabsWrapper} triggerMode="hover">
             <Tabs.List className={tabsListCustom}>
               <Tabs.Trigger value="mindmap">MindMaps</Tabs.Trigger>
               <Tabs.Trigger value="notes">Notes</Tabs.Trigger>
