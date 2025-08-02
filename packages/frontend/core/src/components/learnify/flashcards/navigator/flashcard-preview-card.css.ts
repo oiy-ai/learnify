@@ -140,3 +140,75 @@ export const hideAnswerButton = style({
     color: 'var(--affine-primary-color)',
   },
 });
+
+export const quizOptions = style({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(2, 1fr)',
+  gap: '8px',
+  width: '100%',
+  maxWidth: '600px',
+});
+
+export const quizOptionButton = style({
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  padding: '8px 12px',
+  border: '1px solid var(--affine-border-color)',
+  borderRadius: '6px',
+  backgroundColor: 'var(--affine-background-primary-color)',
+  cursor: 'pointer',
+  transition: 'all 0.2s ease',
+  textAlign: 'left',
+  fontSize: '14px',
+  color: 'var(--affine-text-primary-color)',
+  minHeight: '40px',
+
+  ':hover': {
+    backgroundColor: 'var(--affine-hover-background)',
+    borderColor: 'var(--affine-primary-color)',
+  },
+
+  ':disabled': {
+    cursor: 'default',
+  },
+
+  selectors: {
+    '&[data-correct="true"]': {
+      backgroundColor: 'var(--affine-success-background, #e8f5e9)',
+      borderColor: 'var(--affine-success-color, #4caf50)',
+      color: 'var(--affine-success-color, #4caf50)',
+    },
+    '&[data-wrong="true"]': {
+      backgroundColor: 'var(--affine-error-background, #ffebee)',
+      borderColor: 'var(--affine-error-color, #f44336)',
+      color: 'var(--affine-error-color, #f44336)',
+    },
+    '&[data-selected="true"]:not([data-correct="true"]):not([data-wrong="true"])':
+      {
+        backgroundColor: 'var(--affine-hover-background)',
+        borderColor: 'var(--affine-primary-color)',
+      },
+  },
+});
+
+export const quizResultMessage = style({
+  marginTop: '12px',
+  padding: '8px 12px',
+  borderRadius: '6px',
+  textAlign: 'center',
+  fontWeight: 500,
+  fontSize: '14px',
+  transition: 'all 0.3s ease',
+
+  selectors: {
+    '&[data-correct="true"]': {
+      backgroundColor: 'var(--affine-success-background, #e8f5e9)',
+      color: 'var(--affine-success-color, #4caf50)',
+    },
+    '&[data-incorrect="true"]': {
+      backgroundColor: 'var(--affine-error-background, #ffebee)',
+      color: 'var(--affine-error-color, #f44336)',
+    },
+  },
+});
