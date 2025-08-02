@@ -19,6 +19,14 @@ jobs:
       build-type: ${{ github.ref_name == 'dev' && 'beta' || 'canary' }}
       app-version: 0.0.0-${{ github.ref_name == 'dev' && 'beta' || 'canary' }}.${{ github.run_number }}
       git-short-hash: ${{ github.sha }}
+
+  deploy-to-tencent-cloud:
+    name: Deploy to Tencent Cloud
+    needs: build-image
+    uses: ./.github/workflows/deploy-to-tencent-cloud.yml
+    with:
+      flavor: ${{ github.ref_name == 'dev' && 'beta' || 'canary' }}
+    secrets: inherit
 #  deploy-to-cloud-run:
 #    name: Deploy to Cloud Run
 #    needs: build-image

@@ -1,0 +1,73 @@
+name: Deploy to Cloud Run
+
+on:
+  workflow_call:
+    inputs:
+      flavor:
+        type: string
+        required: true
+        description: 'The flavor to deploy (canary, beta)'
+  workflow_dispatch:
+    inputs:
+      flavor:
+        type: choice
+        required: true
+        description: 'The flavor to deploy'
+        options:
+          - canary
+          - beta
+
+permissions:
+  contents: 'read'
+  id-token: 'write'
+
+jobs:
+  deploy:
+    name: Deploy to Tencent Cloud
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up environment variables
+        run: |
+          echo "RELEASE_FLAVOR=${{ inputs.flavor }}" >> "$GITHUB_ENV"
+          echo "GCP_PROJECT=learnify-463605" >> "$GITHUB_ENV"
+          echo "ARTIFACT_REGISTRY_REPO=learnify-docker-repo" >> "$GITHUB_ENV"
+          echo "SERVICE_NAME=learnify-${{ inputs.flavor }}" >> "$GITHUB_ENV"
+
+          # 根据不同 flavor 设置对应的区域和存储桶
+          if [ "${{ inputs.flavor }}" = "canary" ]; then
+            echo "GCP_REGION=asia-east2" >> "$GITHUB_ENV"
+            echo "STORAGE_BUCKET=learnify_canary_storage" >> "$GITHUB_ENV"
+            echo "CONFIG_BUCKET=learnify_canary_config" >> "$GITHUB_ENV"
+          else
+            echo "GCP_REGION=australia-southeast2" >> "$GITHUB_ENV"
+            echo "STORAGE_BUCKET=learnify_beta_storage" >> "$GITHUB_ENV"
+            echo "CONFIG_BUCKET=learnify_beta_config" >> "$GITHUB_ENV"
+          fi
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy to Tencent Cloud Server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.TCLOUD_IP }}
+          username: ${{ secrets.TCLOUD_USERNAME }}
+          password: ${{ secrets.TCLOUD_PASSWORD }}
+          port: 22
+          script: |
+            # Set flavor variable
+            FLAVOR="${{ inputs.flavor }}"
+
+            # Navigate to the deployment directory
+            cd /opt/learnify/${FLAVOR}
+
+            # Stop existing containers and start new ones
+            docker compose down
+            docker compose up -d
+
+            # Clean up old images
+            docker image prune -f
