@@ -85,7 +85,7 @@ export const NotePreviewCard = ({ collection }: { collection: Collection }) => {
     const subscription = collectionRulesService
       .watch({
         filters: rules.filters,
-        orderBy: { key: 'updatedDate', method: 'desc' },
+        orderBy: { key: 'updatedDate', type: 'updatedDate', desc: true },
         extraAllowList: allowList,
         extraFilters: [
           {
