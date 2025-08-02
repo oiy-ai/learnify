@@ -1,5 +1,6 @@
 import { Button } from '@affine/component';
 import { WorkbenchService } from '@affine/core/modules/workbench';
+import { useI18n } from '@affine/i18n';
 import {
   ArrowLeftSmallIcon,
   ArrowRightSmallIcon,
@@ -16,6 +17,7 @@ import * as styles from './index.css';
 export const PodcastsNavigator = () => {
   const { resolvedTheme } = useTheme();
   const workbench = useService(WorkbenchService).workbench;
+  const t = useI18n();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime] = useState(45);
   const totalTime = 180;
@@ -43,8 +45,12 @@ export const PodcastsNavigator = () => {
               <HeadphonePanelIcon className={styles.albumIcon} />
             </div>
             <div className={styles.playerInfo}>
-              <div className={styles.podcastTitle}>AI Learning Strategies</div>
-              <div className={styles.podcastAuthor}>Dr. Sarah Johnson</div>
+              <div className={styles.podcastTitle}>
+                {t['com.learnify.podcasts.player.title']()}
+              </div>
+              <div className={styles.podcastAuthor}>
+                {t['com.learnify.podcasts.player.author']()}
+              </div>
             </div>
           </div>
           <div className={styles.progressBar}>
@@ -79,8 +85,13 @@ export const PodcastsNavigator = () => {
         onClick={handleNavigateToPodcasts}
         prefix={<HeadphonePanelIcon />}
       >
-        Go to Podcasts
+        {t['com.learnify.podcasts.go-to-podcasts']()}
       </Button>
+      <div className={styles.overlay} data-theme={resolvedTheme}>
+        <div className={styles.overlayText}>
+          {t['com.learnify.podcasts.feature-in-development']()}
+        </div>
+      </div>
     </div>
   );
 };
