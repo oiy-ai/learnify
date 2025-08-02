@@ -97,6 +97,66 @@ const MindMapDocumentPreview = ({ docId }: { docId: string }) => {
     return editor;
   }, [doc.scope]);
 
+  const containerRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node) return;
+
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+
+      const handleMouseDown = (e: MouseEvent) => {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        node.style.cursor = 'grabbing';
+        e.preventDefault();
+      };
+
+      const handleMouseMove = (e: MouseEvent) => {
+        if (!isDragging || !editor.editorContainer$.value) return;
+
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+
+        // Get the edgeless root element and viewport
+        const edgelessRoot = editor.editorContainer$.value.host?.querySelector(
+          'affine-edgeless-root'
+        );
+        if (edgelessRoot && 'gfx' in edgelessRoot) {
+          const gfx = (edgelessRoot as any).gfx;
+          if (gfx?.viewport) {
+            const { zoom, centerX, centerY } = gfx.viewport;
+            // Pan the viewport by the delta
+            gfx.viewport.setViewport(zoom, [
+              centerX - deltaX / zoom,
+              centerY - deltaY / zoom,
+            ]);
+          }
+        }
+
+        startX = e.clientX;
+        startY = e.clientY;
+      };
+
+      const handleMouseUp = () => {
+        isDragging = false;
+        node.style.cursor = 'grab';
+      };
+
+      node.addEventListener('mousedown', handleMouseDown);
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+
+      return () => {
+        node.removeEventListener('mousedown', handleMouseDown);
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    },
+    [editor.editorContainer$]
+  );
+
   useEffect(() => {
     return () => {
       editor.dispose();
@@ -122,7 +182,11 @@ const MindMapDocumentPreview = ({ docId }: { docId: string }) => {
   return (
     <FrameworkScope scope={doc.scope}>
       <FrameworkScope scope={editor.scope}>
-        <div className={styles.previewContainer}>
+        <div
+          ref={containerRef}
+          className={styles.previewContainer}
+          style={{ cursor: 'grab', userSelect: 'none' }}
+        >
           <div className={styles.previewWindow}>
             <div className={styles.editorContainer}>
               <BlockSuiteEditor
