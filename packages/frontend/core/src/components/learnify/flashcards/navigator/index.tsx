@@ -1,16 +1,22 @@
 import { Button } from '@affine/component';
+import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
+import { CollectionService } from '@affine/core/modules/collection';
 import { WorkbenchService } from '@affine/core/modules/workbench';
 import { FlashPanelIcon } from '@blocksuite/icons/rc';
-import { useService } from '@toeverything/infra';
+import { useLiveData, useService } from '@toeverything/infra';
 import { useTheme } from 'next-themes';
 import { useCallback } from 'react';
 
-import demoImage from './demo.png';
+import { FlashcardPreviewCard } from './flashcard-preview-card';
 import * as styles from './index.css';
 
 export const FlashcardsNavigator = () => {
   const { resolvedTheme } = useTheme();
   const workbench = useService(WorkbenchService).workbench;
+  const collectionService = useService(CollectionService);
+  const collection = useLiveData(
+    collectionService.collection$(LEARNIFY_COLLECTIONS.FLASHCARDS)
+  );
 
   const handleNavigateToFlashcards = useCallback(() => {
     workbench.openFlashcards();
@@ -19,11 +25,11 @@ export const FlashcardsNavigator = () => {
   return (
     <div className={styles.container}>
       <div className={styles.root} data-theme={resolvedTheme}>
-        <img
-          src={demoImage}
-          alt="Flashcards Navigator"
-          className={styles.image}
-        />
+        {collection ? (
+          <FlashcardPreviewCard collection={collection} />
+        ) : (
+          <div className={styles.loadingContainer}>Loading...</div>
+        )}
       </div>
       <Button
         className={styles.floatingButton}
