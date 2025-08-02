@@ -11,6 +11,7 @@ export const previewContainer = style({
   overflow: 'hidden',
   position: 'relative',
   cursor: 'grab',
+  userSelect: 'none',
   transition: 'transform 0.2s',
 });
 
@@ -93,4 +94,22 @@ export const emptyText = style({
 export const emptySubtext = style({
   fontSize: '14px',
   color: 'var(--affine-text-secondary-color)',
+});
+
+export const zoomControls = style({
+  position: 'absolute',
+  top: '8px',
+  right: '8px',
+  display: 'flex',
+  gap: '4px',
+  background: 'var(--affine-background-overlay-panel-color)',
+  borderRadius: '8px',
+  padding: '4px',
+  boxShadow: 'var(--affine-shadow-1)',
+  zIndex: 10,
+  opacity: 0.7,
+  transition: 'opacity 0.2s',
+  ':hover': {
+    opacity: 1,
+  },
 });

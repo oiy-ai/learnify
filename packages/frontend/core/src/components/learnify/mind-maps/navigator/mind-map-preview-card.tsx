@@ -1,7 +1,9 @@
+import { IconButton } from '@affine/component/ui/button';
 import type { Collection } from '@affine/core/modules/collection';
 import { CollectionRulesService } from '@affine/core/modules/collection-rules';
 import { DocsService } from '@affine/core/modules/doc';
 import { EditorsService } from '@affine/core/modules/editor';
+import { MinusIcon, PlusIcon } from '@blocksuite/icons/rc';
 import { FrameworkScope, useService } from '@toeverything/infra';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -97,6 +99,29 @@ const MindMapDocumentPreview = ({ docId }: { docId: string }) => {
     return editor;
   }, [doc.scope]);
 
+  const handleZoom = useCallback(
+    (zoomIn: boolean) => {
+      if (!editor.editorContainer$.value) return;
+
+      const edgelessRoot = editor.editorContainer$.value.host?.querySelector(
+        'affine-edgeless-root'
+      );
+      if (edgelessRoot && 'gfx' in edgelessRoot) {
+        const gfx = (edgelessRoot as any).gfx;
+        if (gfx?.viewport) {
+          const { zoom, centerX, centerY } = gfx.viewport;
+          const zoomStep = 0.1;
+          const newZoom = zoomIn
+            ? Math.min(zoom + zoomStep, 2.0) // Max zoom 200%
+            : Math.max(zoom - zoomStep, 0.1); // Min zoom 10%
+
+          gfx.viewport.setViewport(newZoom, [centerX, centerY]);
+        }
+      }
+    },
+    [editor.editorContainer$]
+  );
+
   const containerRef = useCallback(
     (node: HTMLDivElement | null) => {
       if (!node) return;
@@ -182,11 +207,7 @@ const MindMapDocumentPreview = ({ docId }: { docId: string }) => {
   return (
     <FrameworkScope scope={doc.scope}>
       <FrameworkScope scope={editor.scope}>
-        <div
-          ref={containerRef}
-          className={styles.previewContainer}
-          style={{ cursor: 'grab', userSelect: 'none' }}
-        >
+        <div ref={containerRef} className={styles.previewContainer}>
           <div className={styles.previewWindow}>
             <div className={styles.editorContainer}>
               <BlockSuiteEditor
@@ -197,6 +218,22 @@ const MindMapDocumentPreview = ({ docId }: { docId: string }) => {
                 readonly
               />
             </div>
+          </div>
+          <div className={styles.zoomControls}>
+            <IconButton
+              size="20"
+              onClick={() => handleZoom(false)}
+              tooltip="Zoom out"
+            >
+              <MinusIcon />
+            </IconButton>
+            <IconButton
+              size="20"
+              onClick={() => handleZoom(true)}
+              tooltip="Zoom in"
+            >
+              <PlusIcon />
+            </IconButton>
           </div>
         </div>
       </FrameworkScope>
