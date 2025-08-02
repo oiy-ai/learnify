@@ -61,3 +61,13 @@ export const floatingButton = style({
     boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)',
   },
 });
+
+export const loadingContainer = style({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '14px',
+  color: cssVarV2('text/secondary'),
+});
