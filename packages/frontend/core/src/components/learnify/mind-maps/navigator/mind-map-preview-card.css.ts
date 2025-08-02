@@ -8,19 +8,10 @@ export const previewContainer = style({
   gap: '12px',
   height: '100%',
   width: '100%',
-  padding: '6px',
   overflow: 'hidden',
   position: 'relative',
   cursor: 'grab',
   transition: 'transform 0.2s',
-  selectors: {
-    '&:hover': {
-      transform: 'scale(1.02)',
-    },
-    '&[data-dragging="true"]': {
-      cursor: 'grabbing',
-    },
-  },
 });
 
 export const mindMapTitle = style({
@@ -39,6 +30,14 @@ export const previewWindow = style({
   flex: 1,
   overflow: 'hidden',
   borderRadius: '8px',
+  selectors: {
+    '&:hover': {
+      transform: 'scale(1.02)',
+    },
+    '&[data-dragging="true"]': {
+      cursor: 'grabbing',
+    },
+  },
 });
 
 export const editorContainer = style({

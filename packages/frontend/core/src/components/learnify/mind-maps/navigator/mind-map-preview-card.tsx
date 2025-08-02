@@ -2,11 +2,11 @@ import type { Collection } from '@affine/core/modules/collection';
 import { CollectionRulesService } from '@affine/core/modules/collection-rules';
 import { DocsService } from '@affine/core/modules/doc';
 import { EditorsService } from '@affine/core/modules/editor';
-import { FrameworkScope, useLiveData, useService } from '@toeverything/infra';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FrameworkScope, useService } from '@toeverything/infra';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { BlockSuiteEditor } from '../../../../blocksuite/block-suite-editor';
-import * as styles from './mind-map-preview-card.css.ts';
+import * as styles from './mind-map-preview-card.css';
 
 export const MindMapPreviewCard = ({
   collection,
@@ -14,7 +14,6 @@ export const MindMapPreviewCard = ({
   collection: Collection;
 }) => {
   const collectionRulesService = useService(CollectionRulesService);
-  const docsService = useService(DocsService);
   const [firstDocId, setFirstDocId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -25,7 +24,7 @@ export const MindMapPreviewCard = ({
     const subscription = collectionRulesService
       .watch({
         filters: rules.filters,
-        orderBy: { key: 'updatedDate', method: 'desc' },
+        orderBy: { type: 'updated', key: 'updatedDate', desc: true },
         extraAllowList: allowList,
         extraFilters: [
           {
@@ -44,7 +43,6 @@ export const MindMapPreviewCard = ({
       })
       .subscribe({
         next: result => {
-          // Get first document
           const docs = result.groups.flatMap(group => group.items);
           if (docs.length > 0) {
             setFirstDocId(docs[0]);
@@ -90,14 +88,12 @@ const MindMapDocumentPreview = ({ docId }: { docId: string }) => {
     () => docsService.open(docId),
     [docsService, docId]
   );
-  const docRecord = useLiveData(docsService.list.doc$(docId));
-  const title = useLiveData(docRecord?.title$);
 
   const editor = useMemo(() => {
     const editorsService = doc.scope.get(EditorsService);
     const editor = editorsService.createEditor();
     editor.setMode('edgeless');
-    editor.doc.readonly = true;
+    editor.doc.blockSuiteDoc.readonly = true;
     return editor;
   }, [doc.scope]);
 
