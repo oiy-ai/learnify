@@ -1,4 +1,4 @@
-import { MenuLinkItem } from '@affine/core/modules/app-sidebar/views';
+import { MenuItem, MenuLinkItem } from '@affine/core/modules/app-sidebar/views';
 import {
   HistoryIcon,
   MindmapIcon,
@@ -116,15 +116,14 @@ export const ProgressNavigator = () => {
 
   return (
     <div className={styles.root}>
-      <MenuLinkItem
-        to="/notes"
+      <MenuItem
         icon={isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className={styles.progressItem}>
           <Progress name="Overall Progress" percent={overallPercent} />
         </div>
-      </MenuLinkItem>
+      </MenuItem>
       {isExpanded && (
         <>
           <MenuLinkItem to="/mind-maps" icon={<MindmapIcon />}>
