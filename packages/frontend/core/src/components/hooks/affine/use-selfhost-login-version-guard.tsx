@@ -45,7 +45,7 @@ const rules = [
  */
 export const useSelfhostLoginVersionGuard = (server: Server) => {
   const serverVersion =
-    useLiveData(server.config$.selector(c => c.version)) ?? '0.0.0';
+    useLiveData(server.config$.selector(c => c.version)) ?? '0.23.0';
 
   for (const rule of rules) {
     if (semver.lt(serverVersion, rule.min)) {
