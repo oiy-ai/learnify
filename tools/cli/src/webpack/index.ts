@@ -136,75 +136,55 @@ export function createHTMLTargetConfig(
             {
               test: /\.ts$/,
               exclude: /node_modules/,
-              use: [
-                // Apply brand replacement after TypeScript compilation
-                process.env.ENABLE_BRAND_REPLACE === 'true' && {
-                  loader: Path.dir(import.meta.url).join(
-                    'brand-replace-loader.cjs'
-                  ).value,
-                },
-                {
-                  loader: 'swc-loader',
-                  options: {
-                    // https://swc.rs/docs/configuring-swc/
-                    jsc: {
-                      preserveAllComments: true,
-                      parser: {
-                        syntax: 'typescript',
-                        dynamicImport: true,
-                        topLevelAwait: false,
-                        tsx: false,
-                        decorators: true,
-                      },
-                      target: 'es2022',
-                      externalHelpers: false,
-                      transform: {
-                        useDefineForClassFields: false,
-                        decoratorVersion: '2022-03',
-                      },
-                    },
-                    sourceMaps: true,
-                    inlineSourcesContent: true,
+              loader: 'swc-loader',
+              options: {
+                // https://swc.rs/docs/configuring-swc/
+                jsc: {
+                  preserveAllComments: true,
+                  parser: {
+                    syntax: 'typescript',
+                    dynamicImport: true,
+                    topLevelAwait: false,
+                    tsx: false,
+                    decorators: true,
+                  },
+                  target: 'es2022',
+                  externalHelpers: false,
+                  transform: {
+                    useDefineForClassFields: false,
+                    decoratorVersion: '2022-03',
                   },
                 },
-              ].filter(Boolean),
+                sourceMaps: true,
+                inlineSourcesContent: true,
+              },
             },
             {
               test: /\.tsx$/,
               exclude: /node_modules/,
-              use: [
-                // Apply brand replacement after TypeScript compilation
-                process.env.ENABLE_BRAND_REPLACE === 'true' && {
-                  loader: Path.dir(import.meta.url).join(
-                    'brand-replace-loader.cjs'
-                  ).value,
-                },
-                {
-                  loader: 'swc-loader',
-                  options: {
-                    // https://swc.rs/docs/configuring-swc/
-                    jsc: {
-                      preserveAllComments: true,
-                      parser: {
-                        syntax: 'typescript',
-                        dynamicImport: true,
-                        topLevelAwait: false,
-                        tsx: true,
-                        decorators: true,
-                      },
-                      target: 'es2022',
-                      externalHelpers: false,
-                      transform: {
-                        react: { runtime: 'automatic' },
-                        useDefineForClassFields: false,
-                        decoratorVersion: '2022-03',
-                      },
-                    },
-                    sourceMaps: true,
-                    inlineSourcesContent: true,
+              loader: 'swc-loader',
+              options: {
+                // https://swc.rs/docs/configuring-swc/
+                jsc: {
+                  preserveAllComments: true,
+                  parser: {
+                    syntax: 'typescript',
+                    dynamicImport: true,
+                    topLevelAwait: false,
+                    tsx: true,
+                    decorators: true,
+                  },
+                  target: 'es2022',
+                  externalHelpers: false,
+                  transform: {
+                    react: { runtime: 'automatic' },
+                    useDefineForClassFields: false,
+                    decoratorVersion: '2022-03',
                   },
                 },
-              ].filter(Boolean),
+                sourceMaps: true,
+                inlineSourcesContent: true,
+              },
             },
             {
               test: /\.(png|jpg|gif|svg|webp|mp4|zip)$/,
@@ -249,13 +229,7 @@ export function createHTMLTargetConfig(
                     },
                   },
                 },
-                // Apply brand replacement to CSS files
-                process.env.ENABLE_BRAND_REPLACE === 'true' && {
-                  loader: Path.dir(import.meta.url).join(
-                    'brand-replace-loader.cjs'
-                  ).value,
-                },
-              ].filter(Boolean),
+              ],
             },
           ],
         },
@@ -447,38 +421,28 @@ export function createWorkerTargetConfig(
             {
               test: /\.ts$/,
               exclude: /node_modules/,
-              use: [
-                // Apply brand replacement after TypeScript compilation
-                process.env.ENABLE_BRAND_REPLACE === 'true' && {
-                  loader: Path.dir(import.meta.url).join(
-                    'brand-replace-loader.cjs'
-                  ).value,
-                },
-                {
-                  loader: 'swc-loader',
-                  options: {
-                    // https://swc.rs/docs/configuring-swc/
-                    jsc: {
-                      preserveAllComments: true,
-                      parser: {
-                        syntax: 'typescript',
-                        dynamicImport: true,
-                        topLevelAwait: false,
-                        tsx: false,
-                        decorators: true,
-                      },
-                      target: 'es2022',
-                      externalHelpers: false,
-                      transform: {
-                        useDefineForClassFields: false,
-                        decoratorVersion: '2022-03',
-                      },
-                    },
-                    sourceMaps: true,
-                    inlineSourcesContent: true,
+              loader: 'swc-loader',
+              options: {
+                // https://swc.rs/docs/configuring-swc/
+                jsc: {
+                  preserveAllComments: true,
+                  parser: {
+                    syntax: 'typescript',
+                    dynamicImport: true,
+                    topLevelAwait: false,
+                    tsx: false,
+                    decorators: true,
+                  },
+                  target: 'es2022',
+                  externalHelpers: false,
+                  transform: {
+                    useDefineForClassFields: false,
+                    decoratorVersion: '2022-03',
                   },
                 },
-              ].filter(Boolean),
+                sourceMaps: true,
+                inlineSourcesContent: true,
+              },
             },
           ],
         },
