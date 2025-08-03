@@ -25,9 +25,9 @@ interface SourceCardProps {
   url?: string;
   checked: boolean;
   description: string;
-  // eslint-disable-next-line no-unused-vars
+   
   onCheckedChange: (id: string, checked: boolean) => void;
-  // eslint-disable-next-line no-unused-vars
+   
   onClick?: (id: string) => void;
 }
 
@@ -64,18 +64,23 @@ const SourceCard = ({
   };
 
   return (
-    <div className={styles.sourceCard} onClick={() => onClick?.(id)}>
+    <div className={styles.sourceCard}>
       <Checkbox
         className={styles.checkbox}
         checked={checked}
         onChange={() => {
           onCheckedChange(id, !checked);
         }}
+        onClick={e => {
+          e.stopPropagation();
+        }}
       />
-      {getIcon()}
-      <div className={styles.sourceInfo}>
-        <div className={styles.sourceName}>{name}</div>
-        <div className={styles.sourceDescription}>{description}</div>
+      <div className={styles.sourceContent} onClick={() => onClick?.(id)}>
+        {getIcon()}
+        <div className={styles.sourceInfo}>
+          <div className={styles.sourceName}>{name}</div>
+          <div className={styles.sourceDescription}>{description}</div>
+        </div>
       </div>
     </div>
   );
@@ -200,6 +205,10 @@ export const NavigationPanelSources = () => {
         open={hasSelection}
         onDelete={handleDeleteSources}
         onClose={handleCloseFloatingToolbar}
+        onAdd={() => {
+          // TODO: Implement add to collection functionality
+          console.log('Add to collection clicked');
+        }}
         content={
           <Trans
             i18nKey="com.affine.page.toolbar.selected"
