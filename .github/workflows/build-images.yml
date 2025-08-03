@@ -48,6 +48,9 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           PERFSEE_TOKEN: ${{ secrets.PERFSEE_TOKEN }}
           MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
+      - name: Replace AFFiNE with Learnify in dist
+        run: |
+          find ./packages/frontend/apps/web/dist -type f \( -name "*.js" -o -name "*.html" -o -name "*.css" -o -name "*.json" \) -exec sed -i 's/AFFiNE/Learnify/g' {} +
       - name: Upload web artifact
         uses: actions/upload-artifact@v4
         with:
@@ -83,6 +86,9 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           PERFSEE_TOKEN: ${{ secrets.PERFSEE_TOKEN }}
           MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
+      - name: Replace AFFiNE with Learnify in dist
+        run: |
+          find ./packages/frontend/admin/dist -type f \( -name "*.js" -o -name "*.html" -o -name "*.css" -o -name "*.json" \) -exec sed -i 's/AFFiNE/Learnify/g' {} +
       - name: Upload admin artifact
         uses: actions/upload-artifact@v4
         with:
@@ -118,6 +124,9 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           PERFSEE_TOKEN: ${{ secrets.PERFSEE_TOKEN }}
           MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
+      - name: Replace AFFiNE with Learnify in dist
+        run: |
+          find ./packages/frontend/apps/mobile/dist -type f \( -name "*.js" -o -name "*.html" -o -name "*.css" -o -name "*.json" \) -exec sed -i 's/AFFiNE/Learnify/g' {} +
       - name: Upload mobile artifact
         uses: actions/upload-artifact@v4
         with:
@@ -197,6 +206,9 @@ jobs:
         run: yarn workspace @affine/reader build
       - name: Build Server
         run: yarn workspace @affine/server build
+      - name: Replace AFFiNE with Learnify in dist
+        run: |
+          find ./packages/backend/server/dist -type f \( -name "*.js" -o -name "*.html" -o -name "*.css" -o -name "*.json" \) -exec sed -i 's/AFFiNE/Learnify/g' {} +
       - name: Upload server dist
         uses: actions/upload-artifact@v4
         with:
