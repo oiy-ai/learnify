@@ -1,0 +1,21 @@
+name: learnify
+services:
+  learnify_migration:
+    image: ghcr.io/a1exsun/learnify
+    container_name: learnify_migration_job
+    volumes:
+      # custom configurations
+      - ${UPLOAD_LOCATION}:/root/.affine/storage
+      - ${CONFIG_LOCATION}:/root/.affine/config
+    command: ['sh', '-c', 'node ./scripts/self-host-predeploy.js']
+    env_file:
+      - .env
+    environment:
+      - REDIS_SERVER_HOST=${REDIS_HOST}
+      - REDIS_SERVER_PORT=${REDIS_PORT}
+      - REDIS_SERVER_USERNAME=${REDIS_USERNAME}
+      - REDIS_SERVER_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_SERVER_TLS=${REDIS_TLS}
+      - REDIS_SERVER_DATABASE=${REDIS_DATABASE}
+      - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_URL}:${DB_PORT}/${DB_DATABASE}
+      - AFFINE_INDEXER_ENABLED=false
