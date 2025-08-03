@@ -10,6 +10,10 @@ on:
         options:
           - canary
           - beta
+      build-version:
+        description: 'Select build version'
+        type: string
+        default: 0.0.1
 
 permissions:
   contents: 'write'
@@ -22,5 +26,5 @@ jobs:
     uses: ./.github/workflows/build-images.yml
     with:
       build-type: ${{ github.event.inputs.build-type }}
-      app-version: 0.0.0-${{ github.event.inputs.build-type }}.${{ github.run_number }}
+      app-version: ${{ github.event.inputs.build-version }}-${{ github.event.inputs.build-type }}.${{ github.run_number }}
       git-short-hash: ${{ github.sha }}

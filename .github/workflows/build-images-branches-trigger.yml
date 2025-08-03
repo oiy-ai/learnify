@@ -17,7 +17,7 @@ jobs:
     uses: ./.github/workflows/build-images.yml
     with:
       build-type: ${{ github.ref_name == 'dev' && 'beta' || 'canary' }}
-      app-version: 0.0.0-${{ github.ref_name == 'dev' && 'beta' || 'canary' }}.${{ github.run_number }}
+      app-version: 0.0.1-${{ github.ref_name == 'dev' && 'beta' || 'canary' }}.${{ github.run_number }}
       git-short-hash: ${{ github.sha }}
 
   deploy-to-tencent-cloud:
