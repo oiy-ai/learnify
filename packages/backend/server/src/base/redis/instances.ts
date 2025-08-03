@@ -44,10 +44,12 @@ class Redis extends IORedis implements OnModuleInit, OnModuleDestroy {
     return super.set(this.keyPrefix + key, value, ...args);
   }
 
+  // @ts-expect-error Override method signature differs from parent class
   override async del(...keys: (string | Buffer)[]): Promise<number> {
     return super.del(...keys.map(key => this.keyPrefix + String(key)));
   }
 
+  // @ts-expect-error Override method signature differs from parent class
   override async exists(...keys: (string | Buffer)[]): Promise<number> {
     return super.exists(...keys.map(key => this.keyPrefix + String(key)));
   }
