@@ -628,18 +628,6 @@ const FlashcardDocumentPreview = ({ docId }: { docId: string }) => {
               );
             })}
           </div>
-
-          {showResult && (
-            <div
-              className={styles.quizResultMessage}
-              data-correct={selectedAnswer === quizCard.correctAnswer}
-              data-incorrect={selectedAnswer !== quizCard.correctAnswer}
-            >
-              {selectedAnswer === quizCard.correctAnswer
-                ? 'Correct!'
-                : `Incorrect. The correct answer is ${quizCard.correctAnswer}.`}
-            </div>
-          )}
         </div>
       </div>
     );
