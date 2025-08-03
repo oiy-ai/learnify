@@ -27,7 +27,6 @@ import {
   useState,
 } from 'react';
 
-import { useSelfhostLoginVersionGuard } from '../hooks/affine/use-selfhost-login-version-guard';
 import type { SignInState } from '.';
 import { Back } from './back';
 import * as style from './style.css';
@@ -55,7 +54,7 @@ export const SignInStep = ({
   const serverName = useLiveData(
     serverService.server.config$.selector(c => c.serverName)
   );
-  const versionError = useSelfhostLoginVersionGuard(serverService.server);
+  const versionError = null;
   const isSelfhosted = useLiveData(
     serverService.server.config$.selector(
       c => c.type === ServerDeploymentType.Selfhosted
