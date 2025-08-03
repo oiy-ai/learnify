@@ -43,41 +43,84 @@ class Redis extends IORedis implements OnModuleInit, OnModuleDestroy {
 @Injectable()
 export class CacheRedis extends Redis {
   constructor(config: Config) {
-    super({ ...config.redis, ...config.redis.ioredis });
+    const { tls, ...redisConfig } = config.redis;
+    const options: RedisOptions = {
+      ...redisConfig,
+      ...config.redis.ioredis,
+    };
+
+    // Add TLS configuration if enabled
+    if (tls) {
+      options.tls = {
+        rejectUnauthorized: false,
+      };
+    }
+
+    super(options);
   }
 }
 
 @Injectable()
 export class SessionRedis extends Redis {
   constructor(config: Config) {
-    super({
-      ...config.redis,
+    const { tls, ...redisConfig } = config.redis;
+    const options: RedisOptions = {
+      ...redisConfig,
       ...config.redis.ioredis,
       db: (config.redis.db ?? 0) + 2,
-    });
+    };
+
+    // Add TLS configuration if enabled
+    if (tls) {
+      options.tls = {
+        rejectUnauthorized: false,
+      };
+    }
+
+    super(options);
   }
 }
 
 @Injectable()
 export class SocketIoRedis extends Redis {
   constructor(config: Config) {
-    super({
-      ...config.redis,
+    const { tls, ...redisConfig } = config.redis;
+    const options: RedisOptions = {
+      ...redisConfig,
       ...config.redis.ioredis,
       db: (config.redis.db ?? 0) + 3,
-    });
+    };
+
+    // Add TLS configuration if enabled
+    if (tls) {
+      options.tls = {
+        rejectUnauthorized: false,
+      };
+    }
+
+    super(options);
   }
 }
 
 @Injectable()
 export class QueueRedis extends Redis {
   constructor(config: Config) {
-    super({
-      ...config.redis,
+    const { tls, ...redisConfig } = config.redis;
+    const options: RedisOptions = {
+      ...redisConfig,
       ...config.redis.ioredis,
       db: (config.redis.db ?? 0) + 4,
       // required explicitly set to `null` by bullmq
       maxRetriesPerRequest: null,
-    });
+    };
+
+    // Add TLS configuration if enabled
+    if (tls) {
+      options.tls = {
+        rejectUnauthorized: false,
+      };
+    }
+
+    super(options);
   }
 }

@@ -11,6 +11,7 @@ declare global {
       db: number;
       username: string;
       password: string;
+      tls: boolean;
       ioredis: ConfigItem<
         Omit<RedisOptions, 'host' | 'port' | 'db' | 'username' | 'password'>
       >;
@@ -45,6 +46,11 @@ defineModuleConfig('redis', {
     desc: 'The password of the redis server.',
     default: '',
     env: ['REDIS_SERVER_PASSWORD', 'string'],
+  },
+  tls: {
+    desc: 'Whether to use TLS connection to the redis server.',
+    default: false,
+    env: ['REDIS_SERVER_TLS', 'boolean'],
   },
   ioredis: {
     desc: 'The config for the ioredis client.',
