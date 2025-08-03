@@ -29,6 +29,42 @@ class Redis extends IORedis implements OnModuleInit, OnModuleDestroy {
     return client;
   }
 
+  protected keyPrefix: string = '';
+
+  // Override get/set methods to add prefix
+  override async get(key: string): Promise<string | null> {
+    return super.get(this.keyPrefix + key);
+  }
+
+  override async set(
+    key: string,
+    value: string | Buffer | number,
+    ...args: any[]
+  ): Promise<any> {
+    return super.set(this.keyPrefix + key, value, ...args);
+  }
+
+  override async del(...keys: (string | Buffer)[]): Promise<number> {
+    return super.del(...keys.map(key => this.keyPrefix + String(key)));
+  }
+
+  override async exists(...keys: (string | Buffer)[]): Promise<number> {
+    return super.exists(...keys.map(key => this.keyPrefix + String(key)));
+  }
+
+  override async expire(key: string, seconds: number): Promise<number> {
+    return super.expire(this.keyPrefix + key, seconds);
+  }
+
+  override async ttl(key: string): Promise<number> {
+    return super.ttl(this.keyPrefix + key);
+  }
+
+  override async keys(pattern: string): Promise<string[]> {
+    const keys = await super.keys(this.keyPrefix + pattern);
+    return keys.map(key => key.slice(this.keyPrefix.length));
+  }
+
   assertValidDBIndex(db: number) {
     if (db && db > 15) {
       throw new Error(
@@ -47,6 +83,7 @@ export class CacheRedis extends Redis {
     const options: RedisOptions = {
       ...redisConfig,
       ...config.redis.ioredis,
+      db: 0, // Upstash only supports database 0
     };
 
     // Add TLS configuration if enabled
@@ -57,6 +94,7 @@ export class CacheRedis extends Redis {
     }
 
     super(options);
+    this.keyPrefix = 'cache:';
   }
 }
 
@@ -67,7 +105,7 @@ export class SessionRedis extends Redis {
     const options: RedisOptions = {
       ...redisConfig,
       ...config.redis.ioredis,
-      db: (config.redis.db ?? 0) + 2,
+      db: 0, // Upstash only supports database 0
     };
 
     // Add TLS configuration if enabled
@@ -78,6 +116,7 @@ export class SessionRedis extends Redis {
     }
 
     super(options);
+    this.keyPrefix = 'session:';
   }
 }
 
@@ -88,7 +127,7 @@ export class SocketIoRedis extends Redis {
     const options: RedisOptions = {
       ...redisConfig,
       ...config.redis.ioredis,
-      db: (config.redis.db ?? 0) + 3,
+      db: 0, // Upstash only supports database 0
     };
 
     // Add TLS configuration if enabled
@@ -99,6 +138,7 @@ export class SocketIoRedis extends Redis {
     }
 
     super(options);
+    this.keyPrefix = 'socketio:';
   }
 }
 
@@ -109,7 +149,7 @@ export class QueueRedis extends Redis {
     const options: RedisOptions = {
       ...redisConfig,
       ...config.redis.ioredis,
-      db: (config.redis.db ?? 0) + 4,
+      db: 0, // Upstash only supports database 0
       // required explicitly set to `null` by bullmq
       maxRetriesPerRequest: null,
     };
@@ -122,5 +162,6 @@ export class QueueRedis extends Redis {
     }
 
     super(options);
+    this.keyPrefix = 'queue:';
   }
 }
