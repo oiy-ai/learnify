@@ -4,7 +4,7 @@ services:
     image: ghcr.io/a1exsun/learnify
     container_name: learnify
     ports:
-      - '${PORT:-80}:80'
+      - '${PORT:-80}:3010'
     volumes:
       # custom configurations
       - ${UPLOAD_LOCATION}:/root/.affine/storage
