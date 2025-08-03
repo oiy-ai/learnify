@@ -8,7 +8,7 @@ test.describe('AIChatWith/Attachments', () => {
   test.beforeEach(async ({ loggedInPage: page, utils }) => {
     await utils.testUtils.setupTestEnvironment(
       page,
-      'claude-sonnet-4@20250514'
+      'claude-sonnet-4-20250514'
     );
     await utils.chatPanel.openChatPanel(page);
   });

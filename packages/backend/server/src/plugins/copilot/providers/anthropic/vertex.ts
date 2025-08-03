@@ -23,7 +23,7 @@ export class AnthropicVertexProvider extends AnthropicProvider<AnthropicVertexCo
       ],
     },
     {
-      id: 'claude-sonnet-4@20250514',
+      id: 'claude-sonnet-4-20250514',
       capabilities: [
         {
           input: [ModelInputType.Text, ModelInputType.Image],
