@@ -7,8 +7,11 @@ import {
   MindmapIcon,
   PlayIcon,
 } from '@blocksuite/icons/rc';
+import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useState } from 'react';
 
+import type { MaterialItem } from '../../../components/learnify/sources/services/materials-doc';
+import { MaterialsDocService } from '../../../components/learnify/sources/services/materials-doc';
 import * as styles from './index.css';
 
 export interface MaterialCreationDialogProps {
@@ -42,11 +45,47 @@ const creationOptions = [
   },
 ];
 
+// Function to create mindmap from materials
+const createMindmap = (materialIds: string[], materials: MaterialItem[]) => {
+  console.log('Creating mindmap from material IDs:', materialIds);
+  console.log('Material objects:', materials);
+  // TODO: Implement mindmap creation logic
+};
+
+// Function to create notes from materials
+const createNotes = (materialIds: string[], materials: MaterialItem[]) => {
+  console.log('Creating notes from material IDs:', materialIds);
+  console.log('Material objects:', materials);
+  // TODO: Implement notes creation logic
+};
+
+// Function to create flashcards from materials
+const createFlashcards = (materialIds: string[], materials: MaterialItem[]) => {
+  console.log('Creating flashcards from material IDs:', materialIds);
+  console.log('Material objects:', materials);
+  // TODO: Implement flashcards creation logic
+};
+
+// Function to create podcast from materials
+const createPodcast = (materialIds: string[], materials: MaterialItem[]) => {
+  console.log('Creating podcast from material IDs:', materialIds);
+  console.log('Material objects:', materials);
+  // TODO: Implement podcast creation logic
+};
+
 export const MaterialCreationDialog = ({
   materialIds,
   close,
 }: DialogComponentProps<MaterialCreationDialogProps>) => {
   const t = useI18n();
+  const materialsService = useService(MaterialsDocService);
+  const allMaterials = useLiveData(materialsService.materials$);
+
+  // Filter materials based on provided IDs
+  const selectedMaterials = allMaterials.filter(material =>
+    materialIds.includes(material.id)
+  );
+
   const [selectedOptions, setSelectedOptions] = useState<Set<string>>(
     new Set()
   );
@@ -79,26 +118,22 @@ export const MaterialCreationDialog = ({
     selectedOptions.forEach(optionId => {
       switch (optionId) {
         case 'mindmap':
-          // TODO: Call API to create mindmap from materials
-          console.log('Creating mindmap from materials');
+          createMindmap(materialIds, selectedMaterials);
           break;
         case 'notes':
-          // TODO: Call API to create notes from materials
-          console.log('Creating notes from materials');
+          createNotes(materialIds, selectedMaterials);
           break;
         case 'flashcards':
-          // TODO: Call API to create flashcards from materials
-          console.log('Creating flashcards from materials');
+          createFlashcards(materialIds, selectedMaterials);
           break;
         case 'podcast':
-          // TODO: Call API to create podcast from materials
-          console.log('Creating podcast from materials');
+          createPodcast(materialIds, selectedMaterials);
           break;
       }
     });
 
     close();
-  }, [close, materialIds, selectedOptions]);
+  }, [close, materialIds, selectedMaterials, selectedOptions]);
 
   return (
     <Modal
