@@ -27,11 +27,18 @@ export const sourceCard = style({
   gap: 8,
   padding: 8,
   borderRadius: 8,
-  cursor: 'pointer',
   transition: 'background-color 0.2s ease',
   ':hover': {
     backgroundColor: cssVarV2('layer/background/hoverOverlay'),
   },
+});
+
+export const sourceContent = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  flex: 1,
+  cursor: 'pointer',
 });
 
 export const sourceIcon = style({
