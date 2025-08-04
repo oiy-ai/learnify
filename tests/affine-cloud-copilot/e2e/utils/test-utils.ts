@@ -63,7 +63,7 @@ export class TestUtils {
 
   public async setupTestEnvironment(
     page: Page,
-    defaultModel = 'gemini-2.5-flash'
+    defaultModel = 'claude-sonnet-4-20250514'
   ) {
     await switchDefaultChatModel(defaultModel);
 

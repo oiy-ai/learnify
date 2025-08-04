@@ -303,8 +303,8 @@ const textActions: Prompt[] = [
   {
     name: 'Transcript audio',
     action: 'Transcript audio',
-    model: 'gemini-2.5-flash',
-    optionalModels: ['gemini-2.5-flash', 'gemini-2.5-pro'],
+    model: 'claude-sonnet-4-20250514',
+    optionalModels: ['claude-sonnet-4-20250514', 'gemini-2.5-pro'],
     messages: [
       {
         role: 'system',
@@ -520,7 +520,7 @@ A concise paragraph that captures the article's main argument and key conclusion
   {
     name: 'Explain this code',
     action: 'Explain this code',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -571,7 +571,7 @@ A concise paragraph that captures the article's main argument and key conclusion
   {
     name: 'Translate to',
     action: 'Translate',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -695,7 +695,7 @@ You are an assistant helping find actions of meeting summary. Use this format, r
   {
     name: 'Write an article about this',
     action: 'Write an article about this',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -787,7 +787,7 @@ You are an assistant helping find actions of meeting summary. Use this format, r
   {
     name: 'Write a poem about this',
     action: 'Write a poem about this',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -836,7 +836,7 @@ You are an assistant helping find actions of meeting summary. Use this format, r
   {
     name: 'Write a blog post about this',
     action: 'Write a blog post about this',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -887,7 +887,7 @@ You are an assistant helping find actions of meeting summary. Use this format, r
   {
     name: 'Write outline',
     action: 'Write outline',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -961,7 +961,7 @@ You are an assistant helping find actions of meeting summary. Use this format, r
   {
     name: 'Brainstorm ideas about this',
     action: 'Brainstorm ideas about this',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -1055,7 +1055,7 @@ You are an assistant helping find actions of meeting summary. Use this format, r
   {
     name: 'Improve writing for it',
     action: 'Improve writing for it',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -1127,7 +1127,7 @@ The output must be perfect. Adherence to every detail of these instructions is n
   {
     name: 'Fix spelling for it',
     action: 'Fix spelling for it',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -1281,7 +1281,7 @@ If there are items in the content that can be used as to-do tasks, please refer 
   {
     name: 'Create headings',
     action: 'Create headings',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -1389,7 +1389,7 @@ When sent new notes, respond ONLY with the contents of the html file.`,
   {
     name: 'Make it longer',
     action: 'Make it longer',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -1414,7 +1414,7 @@ When sent new notes, respond ONLY with the contents of the html file.`,
   {
     name: 'Make it shorter',
     action: 'Make it shorter',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -1439,7 +1439,7 @@ When sent new notes, respond ONLY with the contents of the html file.`,
   {
     name: 'Continue writing',
     action: 'Continue writing',
-    model: 'gemini-2.5-flash',
+    model: 'claude-sonnet-4-20250514',
     messages: [
       {
         role: 'system',
@@ -1814,7 +1814,7 @@ const CHAT_PROMPT: Omit<Prompt, 'name'> = {
     'gpt-4.1',
     'o3',
     'o4-mini',
-    'gemini-2.5-flash',
+    'claude-sonnet-4-20250514',
     'gemini-2.5-pro',
     'claude-opus-4@20250514',
     'claude-sonnet-4-20250514',

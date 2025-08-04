@@ -15,7 +15,7 @@ export class GeminiVertexProvider extends GeminiProvider<GeminiVertexConfig> {
   readonly models = [
     {
       name: 'Gemini 2.5 Flash',
-      id: 'gemini-2.5-flash',
+      id: 'claude-sonnet-4-20250514',
       capabilities: [
         {
           input: [

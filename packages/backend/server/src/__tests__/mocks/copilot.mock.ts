@@ -99,7 +99,7 @@ export class MockCopilotProvider extends OpenAIProvider {
       ],
     },
     {
-      id: 'gemini-2.5-flash',
+      id: 'claude-sonnet-4-20250514',
       capabilities: [
         {
           input: [ModelInputType.Text, ModelInputType.Image],
