@@ -20,7 +20,7 @@ interface FloatingToolbarProps {
 interface FloatingToolbarButtonProps extends HTMLAttributes<HTMLButtonElement> {
   icon: ReactNode;
   onClick: MouseEventHandler;
-  type?: 'danger' | 'default';
+  type?: 'danger' | 'default' | 'primary';
   label?: ReactNode;
 }
 
@@ -74,6 +74,7 @@ export function FloatingToolbarButton({
       className={clsx(
         styles.button,
         type === 'danger' && styles.danger,
+        type === 'primary' && styles.primary,
         className
       )}
       style={style}

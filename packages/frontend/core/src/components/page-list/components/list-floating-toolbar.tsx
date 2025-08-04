@@ -2,6 +2,7 @@ import {
   CloseIcon,
   DeleteIcon,
   DeletePermanentlyIcon,
+  PlusIcon,
   ResetIcon,
 } from '@blocksuite/icons/rc';
 import type { ReactNode } from 'react';
@@ -15,18 +16,28 @@ export const ListFloatingToolbar = ({
   open,
   onDelete,
   onRestore,
+  onAdd,
 }: {
   open: boolean;
   content: ReactNode;
   onClose: () => void;
   onDelete?: () => void;
   onRestore?: () => void;
+  onAdd?: () => void;
 }) => {
   return (
     <FloatingToolbar className={styles.floatingToolbar} open={open}>
       <FloatingToolbar.Item>{content}</FloatingToolbar.Item>
       <FloatingToolbar.Button onClick={onClose} icon={<CloseIcon />} />
-      {(!!onRestore || !!onDelete) && <FloatingToolbar.Separator />}
+      {(!!onRestore || !!onDelete || !!onAdd) && <FloatingToolbar.Separator />}
+      {!!onAdd && (
+        <FloatingToolbar.Button
+          onClick={onAdd}
+          icon={<PlusIcon />}
+          type="primary"
+          data-testid="list-toolbar-add"
+        />
+      )}
       {!!onRestore && (
         <FloatingToolbar.Button
           onClick={onRestore}

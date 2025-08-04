@@ -73,6 +73,13 @@ export const danger = style({
     color: cssVar('errorColor'),
   },
 });
+export const primary = style({
+  color: 'inherit',
+  ':hover': {
+    background: cssVar('backgroundProcessingColor'),
+    color: cssVar('processingColor'),
+  },
+});
 export const buttonIcon = style({
   display: 'flex',
   alignItems: 'center',
@@ -81,6 +88,9 @@ export const buttonIcon = style({
   selectors: {
     [`${danger}:hover &`]: {
       color: cssVar('errorColor'),
+    },
+    [`${primary}:hover &`]: {
+      color: cssVar('processingColor'),
     },
   },
 });
