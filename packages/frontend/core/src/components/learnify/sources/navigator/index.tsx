@@ -1,4 +1,5 @@
 import { Checkbox, useConfirmModal } from '@affine/component';
+import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { Trans, useI18n } from '@affine/i18n';
 import {
   AttachmentIcon,
@@ -25,9 +26,9 @@ interface SourceCardProps {
   url?: string;
   checked: boolean;
   description: string;
-   
+
   onCheckedChange: (id: string, checked: boolean) => void;
-   
+
   onClick?: (id: string) => void;
 }
 
@@ -89,6 +90,7 @@ const SourceCard = ({
 export const NavigationPanelSources = () => {
   const t = useI18n();
   const materialsService = useService(MaterialsDocService);
+  const workspaceDialogService = useService(WorkspaceDialogService);
   const materials = useLiveData(materialsService.materials$);
   const [checkedSources, setCheckedSources] = useState<Record<string, boolean>>(
     {}
@@ -206,8 +208,12 @@ export const NavigationPanelSources = () => {
         onDelete={handleDeleteSources}
         onClose={handleCloseFloatingToolbar}
         onAdd={() => {
-          // TODO: Implement add to collection functionality
-          console.log('Add to collection clicked');
+          // Open the material creation dialog with selected material IDs
+          workspaceDialogService.open('material-creation', {
+            materialIds: selectedSourceIds,
+          });
+          // Clear selection after opening dialog
+          setCheckedSources({});
         }}
         content={
           <Trans
