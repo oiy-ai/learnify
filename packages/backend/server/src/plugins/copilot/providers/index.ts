@@ -1,7 +1,4 @@
-import {
-  AnthropicOfficialProvider,
-  AnthropicVertexProvider,
-} from './anthropic';
+import { AnthropicOfficialProvider } from './anthropic';
 import { FalProvider } from './fal';
 import { GeminiGenerativeProvider, GeminiVertexProvider } from './gemini';
 import { MorphProvider } from './morph';
@@ -15,14 +12,10 @@ export const CopilotProviders = [
   GeminiVertexProvider,
   PerplexityProvider,
   AnthropicOfficialProvider,
-  AnthropicVertexProvider,
   MorphProvider,
 ];
 
-export {
-  AnthropicOfficialProvider,
-  AnthropicVertexProvider,
-} from './anthropic';
+export { AnthropicOfficialProvider } from './anthropic';
 export { CopilotProviderFactory } from './factory';
 export { FalProvider } from './fal';
 export { GeminiGenerativeProvider, GeminiVertexProvider } from './gemini';

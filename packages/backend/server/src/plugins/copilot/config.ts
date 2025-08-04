@@ -3,10 +3,7 @@ import {
   StorageJSONSchema,
   StorageProviderConfig,
 } from '../../base';
-import {
-  AnthropicOfficialConfig,
-  AnthropicVertexConfig,
-} from './providers/anthropic';
+import { AnthropicOfficialConfig } from './providers/anthropic';
 import type { FalConfig } from './providers/fal';
 import { GeminiGenerativeConfig, GeminiVertexConfig } from './providers/gemini';
 import { MorphConfig } from './providers/morph';
@@ -31,7 +28,6 @@ declare global {
         geminiVertex: ConfigItem<GeminiVertexConfig>;
         perplexity: ConfigItem<PerplexityConfig>;
         anthropic: ConfigItem<AnthropicOfficialConfig>;
-        anthropicVertex: ConfigItem<AnthropicVertexConfig>;
         morph: ConfigItem<MorphConfig>;
       };
     };
@@ -78,11 +74,6 @@ defineModuleConfig('copilot', {
     default: {
       apiKey: '',
     },
-  },
-  'providers.anthropicVertex': {
-    desc: 'The config for the anthropic provider in Google Vertex AI.',
-    default: {},
-    schema: VertexSchema,
   },
   'providers.morph': {
     desc: 'The config for the morph provider.',
