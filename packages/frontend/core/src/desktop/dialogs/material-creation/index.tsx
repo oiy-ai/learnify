@@ -1,10 +1,16 @@
 import { Button, Modal } from '@affine/component';
+import { getStoreManager } from '@affine/core/blocksuite/manager/store';
 import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
 import { CollectionService } from '@affine/core/modules/collection';
 import type { DialogComponentProps } from '@affine/core/modules/dialogs';
 import { DocsService } from '@affine/core/modules/doc';
-import { WorkspaceService } from '@affine/core/modules/workspace';
+import { WorkbenchService } from '@affine/core/modules/workbench';
+import {
+  getAFFiNEWorkspaceSchema,
+  WorkspaceService,
+} from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
+import { MarkdownTransformer } from '@blocksuite/affine/widgets/linked-doc';
 import {
   EdgelessIcon,
   FlashPanelIcon,
@@ -14,6 +20,7 @@ import {
 import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useState } from 'react';
 
+import { AIProvider } from '../../../blocksuite/ai/provider';
 import type { MaterialItem } from '../../../components/learnify/sources/services/materials-doc';
 import { MaterialsDocService } from '../../../components/learnify/sources/services/materials-doc';
 import * as styles from './index.css';
@@ -55,9 +62,10 @@ export const MaterialCreationDialog = ({
 }: DialogComponentProps<MaterialCreationDialogProps>) => {
   const t = useI18n();
   const materialsService = useService(MaterialsDocService);
-  const _workspaceService = useService(WorkspaceService);
+  const workspaceService = useService(WorkspaceService);
   const docsService = useService(DocsService);
   const collectionService = useService(CollectionService);
+  const workbenchService = useService(WorkbenchService);
   const allMaterials = useLiveData(materialsService.materials$);
 
   // Filter materials based on provided IDs
@@ -85,57 +93,146 @@ export const MaterialCreationDialog = ({
       console.log('Creating notes from material IDs:', materialIds);
       console.log('Material objects:', materials);
 
+      let tempDoc: any = null;
+      let releaseTempDoc: any = null;
+
       try {
-        // 1. Create a new document
-        const newDoc = docsService.createDoc({
-          primaryMode: 'page',
+        // Prepare the prompt for AI to summarize materials
+        let prompt = `Please summarize the following materials into comprehensive notes:\n\n`;
+
+        materials.forEach((material, index) => {
+          prompt += `${index + 1}. ${material.name}\n`;
+          prompt += `   Type: ${material.category}\n`;
+          if (material.description) {
+            prompt += `   Description: ${material.description}\n`;
+          }
+          prompt += `\n`;
         });
 
-        // 2. Add the document to the NOTES collection
-        const notesCollection = collectionService.collection$(
-          LEARNIFY_COLLECTIONS.NOTES
-        ).value;
-        if (notesCollection) {
-          collectionService.addDocToCollection(notesCollection.id, newDoc.id);
-        }
+        prompt += `\nPlease create well-structured notes with:\n`;
+        prompt += `- A clear title\n`;
+        prompt += `- Main concepts and key points\n`;
+        prompt += `- Important details from each material\n`;
+        prompt += `- A summary section\n`;
 
-        // 3. Open the document and add content
-        const { doc, release } = docsService.open(newDoc.id);
-        const blockSuiteDoc = doc.blockSuiteDoc;
+        console.log('Calling AI with prompt:', prompt);
 
-        // 4. Get the root note block
-        const rootBlocks = blockSuiteDoc.getBlocksByFlavour('affine:note');
-        const noteBlock = rootBlocks[0];
+        // Create a temporary doc for the AI session context
+        tempDoc = docsService.createDoc({ primaryMode: 'page' });
+        console.log('Created temp doc for AI context:', tempDoc.id);
 
-        if (noteBlock) {
-          // 5. Create content from materials
-          let content = `# Notes from Materials\n\n`;
+        // Open the temp doc to get access to its collection
+        const { release } = docsService.open(tempDoc.id);
+        releaseTempDoc = release;
 
-          materials.forEach((material, index) => {
-            content += `## ${index + 1}. ${material.name}\n\n`;
-            content += `**Type**: ${material.category}\n\n`;
-            if (material.description) {
-              content += `**Description**: ${material.description}\n\n`;
+        // Call AI to generate notes content with streaming
+        const aiResponse = await AIProvider.actions.chat({
+          input: prompt,
+          workspaceId: workspaceService.workspace.id,
+          docId: tempDoc.id,
+          stream: true,
+        });
+
+        // Collect the AI response from stream
+        let generatedContent = '';
+        let title = 'Notes from Materials';
+
+        console.log('AI response type:', typeof aiResponse);
+
+        if (
+          aiResponse &&
+          typeof aiResponse === 'object' &&
+          Symbol.asyncIterator in aiResponse
+        ) {
+          // Handle streaming response
+          console.log('Handling streaming response...');
+          for await (const chunk of aiResponse) {
+            if (typeof chunk === 'string') {
+              generatedContent += chunk;
+            } else if (
+              chunk &&
+              typeof chunk === 'object' &&
+              'content' in chunk
+            ) {
+              generatedContent += chunk.content || '';
             }
-            content += `---\n\n`;
-          });
-
-          // 6. Add content to the note
-          // For now, just log the content
-          console.log('Note content:', content);
-          // TODO: Use insertFromMarkdown or similar to add content
+          }
+        } else if (typeof aiResponse === 'string') {
+          generatedContent = aiResponse;
+        } else {
+          console.error('Unexpected AI response type:', aiResponse);
+          throw new Error('Invalid AI response format');
         }
 
-        release();
+        // Extract title from the generated content (usually the first line)
+        const lines = generatedContent.split('\n');
+        if (lines.length > 0 && lines[0].startsWith('#')) {
+          title = lines[0].replace(/^#+\s*/, '').trim();
+        }
 
-        console.log('Note created successfully with ID:', newDoc.id);
-        return newDoc.id;
+        console.log(
+          'AI generated content preview:',
+          generatedContent.substring(0, 200) + '...'
+        );
+        console.log('Extracted title:', title);
+
+        // Create the document using MarkdownTransformer
+        const docId = await MarkdownTransformer.importMarkdownToDoc({
+          collection: workspaceService.workspace.docCollection,
+          schema: getAFFiNEWorkspaceSchema(),
+          markdown: generatedContent,
+          fileName: title,
+          extensions: getStoreManager().config.init().value.get('store'),
+        });
+
+        console.log('Document created with ID:', docId);
+
+        if (docId) {
+          // Add the document to the NOTES collection
+          const notesCollection = collectionService.collection$(
+            LEARNIFY_COLLECTIONS.NOTES
+          ).value;
+          if (notesCollection) {
+            collectionService.addDocToCollection(notesCollection.id, docId);
+            console.log('Document added to NOTES collection');
+          }
+
+          // Navigate to the newly created document
+          workbenchService.workbench.openDoc(docId);
+          console.log('Navigated to new document');
+        }
+
+        // Clean up temp doc
+        releaseTempDoc();
+        if (tempDoc) {
+          try {
+            workspaceService.workspace.docCollection.removeDoc(tempDoc.id);
+            console.log('Cleaned up temp doc');
+          } catch (e) {
+            console.warn('Failed to clean up temp doc:', e);
+          }
+        }
+
+        return docId;
       } catch (error) {
         console.error('Failed to create notes:', error);
+
+        // Clean up temp doc on error
+        if (releaseTempDoc) {
+          releaseTempDoc();
+        }
+        if (tempDoc) {
+          try {
+            workspaceService.workspace.docCollection.removeDoc(tempDoc.id);
+          } catch (e) {
+            console.warn('Failed to clean up temp doc:', e);
+          }
+        }
+
         throw error;
       }
     },
-    [docsService, collectionService]
+    [collectionService, workspaceService, workbenchService, docsService]
   );
 
   // Function to create flashcards from materials
