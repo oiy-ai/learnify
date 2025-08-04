@@ -1,5 +1,9 @@
 import { Button, Modal } from '@affine/component';
+import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
+import { CollectionService } from '@affine/core/modules/collection';
 import type { DialogComponentProps } from '@affine/core/modules/dialogs';
+import { DocsService } from '@affine/core/modules/doc';
+import { WorkspaceService } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
 import {
   EdgelessIcon,
@@ -45,40 +49,15 @@ const creationOptions = [
   },
 ];
 
-// Function to create mindmap from materials
-const createMindmap = (materialIds: string[], materials: MaterialItem[]) => {
-  console.log('Creating mindmap from material IDs:', materialIds);
-  console.log('Material objects:', materials);
-  // TODO: Implement mindmap creation logic
-};
-
-// Function to create notes from materials
-const createNotes = (materialIds: string[], materials: MaterialItem[]) => {
-  console.log('Creating notes from material IDs:', materialIds);
-  console.log('Material objects:', materials);
-  // TODO: Implement notes creation logic
-};
-
-// Function to create flashcards from materials
-const createFlashcards = (materialIds: string[], materials: MaterialItem[]) => {
-  console.log('Creating flashcards from material IDs:', materialIds);
-  console.log('Material objects:', materials);
-  // TODO: Implement flashcards creation logic
-};
-
-// Function to create podcast from materials
-const createPodcast = (materialIds: string[], materials: MaterialItem[]) => {
-  console.log('Creating podcast from material IDs:', materialIds);
-  console.log('Material objects:', materials);
-  // TODO: Implement podcast creation logic
-};
-
 export const MaterialCreationDialog = ({
   materialIds,
   close,
 }: DialogComponentProps<MaterialCreationDialogProps>) => {
   const t = useI18n();
   const materialsService = useService(MaterialsDocService);
+  const _workspaceService = useService(WorkspaceService);
+  const docsService = useService(DocsService);
+  const collectionService = useService(CollectionService);
   const allMaterials = useLiveData(materialsService.materials$);
 
   // Filter materials based on provided IDs
@@ -88,6 +67,95 @@ export const MaterialCreationDialog = ({
 
   const [selectedOptions, setSelectedOptions] = useState<Set<string>>(
     new Set()
+  );
+
+  // Function to create mindmap from materials
+  const createMindmap = useCallback(
+    (materialIds: string[], materials: MaterialItem[]) => {
+      console.log('Creating mindmap from material IDs:', materialIds);
+      console.log('Material objects:', materials);
+      // TODO: Implement mindmap creation logic
+    },
+    []
+  );
+
+  // Function to create notes from materials
+  const createNotes = useCallback(
+    async (materialIds: string[], materials: MaterialItem[]) => {
+      console.log('Creating notes from material IDs:', materialIds);
+      console.log('Material objects:', materials);
+
+      try {
+        // 1. Create a new document
+        const newDoc = docsService.createDoc({
+          primaryMode: 'page',
+        });
+
+        // 2. Add the document to the NOTES collection
+        const notesCollection = collectionService.collection$(
+          LEARNIFY_COLLECTIONS.NOTES
+        ).value;
+        if (notesCollection) {
+          collectionService.addDocToCollection(notesCollection.id, newDoc.id);
+        }
+
+        // 3. Open the document and add content
+        const { doc, release } = docsService.open(newDoc.id);
+        const blockSuiteDoc = doc.blockSuiteDoc;
+
+        // 4. Get the root note block
+        const rootBlocks = blockSuiteDoc.getBlocksByFlavour('affine:note');
+        const noteBlock = rootBlocks[0];
+
+        if (noteBlock) {
+          // 5. Create content from materials
+          let content = `# Notes from Materials\n\n`;
+
+          materials.forEach((material, index) => {
+            content += `## ${index + 1}. ${material.name}\n\n`;
+            content += `**Type**: ${material.category}\n\n`;
+            if (material.description) {
+              content += `**Description**: ${material.description}\n\n`;
+            }
+            content += `---\n\n`;
+          });
+
+          // 6. Add content to the note
+          // For now, just log the content
+          console.log('Note content:', content);
+          // TODO: Use insertFromMarkdown or similar to add content
+        }
+
+        release();
+
+        console.log('Note created successfully with ID:', newDoc.id);
+        return newDoc.id;
+      } catch (error) {
+        console.error('Failed to create notes:', error);
+        throw error;
+      }
+    },
+    [docsService, collectionService]
+  );
+
+  // Function to create flashcards from materials
+  const createFlashcards = useCallback(
+    (materialIds: string[], materials: MaterialItem[]) => {
+      console.log('Creating flashcards from material IDs:', materialIds);
+      console.log('Material objects:', materials);
+      // TODO: Implement flashcards creation logic
+    },
+    []
+  );
+
+  // Function to create podcast from materials
+  const createPodcast = useCallback(
+    (materialIds: string[], materials: MaterialItem[]) => {
+      console.log('Creating podcast from material IDs:', materialIds);
+      console.log('Material objects:', materials);
+      // TODO: Implement podcast creation logic
+    },
+    []
   );
 
   const handleOptionToggle = useCallback((optionId: string) => {
@@ -102,7 +170,7 @@ export const MaterialCreationDialog = ({
     });
   }, []);
 
-  const handleCreate = useCallback(() => {
+  const handleCreate = useCallback(async () => {
     if (selectedOptions.size === 0) {
       return; // Nothing selected
     }
@@ -115,25 +183,38 @@ export const MaterialCreationDialog = ({
     );
 
     // Create content for each selected option
-    selectedOptions.forEach(optionId => {
-      switch (optionId) {
-        case 'mindmap':
-          createMindmap(materialIds, selectedMaterials);
-          break;
-        case 'notes':
-          createNotes(materialIds, selectedMaterials);
-          break;
-        case 'flashcards':
-          createFlashcards(materialIds, selectedMaterials);
-          break;
-        case 'podcast':
-          createPodcast(materialIds, selectedMaterials);
-          break;
+    for (const optionId of selectedOptions) {
+      try {
+        switch (optionId) {
+          case 'mindmap':
+            createMindmap(materialIds, selectedMaterials);
+            break;
+          case 'notes':
+            await createNotes(materialIds, selectedMaterials);
+            break;
+          case 'flashcards':
+            createFlashcards(materialIds, selectedMaterials);
+            break;
+          case 'podcast':
+            createPodcast(materialIds, selectedMaterials);
+            break;
+        }
+      } catch (error) {
+        console.error(`Failed to create ${optionId}:`, error);
       }
-    });
+    }
 
     close();
-  }, [close, materialIds, selectedMaterials, selectedOptions]);
+  }, [
+    close,
+    materialIds,
+    selectedMaterials,
+    selectedOptions,
+    createMindmap,
+    createNotes,
+    createFlashcards,
+    createPodcast,
+  ]);
 
   return (
     <Modal
@@ -171,7 +252,7 @@ export const MaterialCreationDialog = ({
         </Button>
         <Button
           variant="primary"
-          onClick={handleCreate}
+          onClick={() => void handleCreate()}
           disabled={selectedOptions.size === 0}
         >
           {t['com.learnify.material-creation.create-from-materials']()}{' '}
