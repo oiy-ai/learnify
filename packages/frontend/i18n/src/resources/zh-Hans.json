@@ -2104,6 +2104,7 @@
   "com.learnify.podcasts.player.title": "AI 学习策略",
   "com.learnify.podcasts.player.author": "莎拉·约翰逊博士",
   "com.learnify.podcasts.feature-in-development": "功能开发中",
+  "com.learnify.material-creation.create-from-materials": "根据材料创建",
   "error.INTERNAL_SERVER_ERROR": "发生内部错误。",
   "error.NETWORK_ERROR": "网络错误。",
   "error.TOO_MANY_REQUEST": "请求过多。",

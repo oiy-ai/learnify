@@ -100,17 +100,6 @@ export const MaterialCreationDialog = ({
     close();
   }, [close, materialIds, selectedOptions]);
 
-  const handleCreateAll = useCallback(() => {
-    // Select all options
-    const allOptionIds = creationOptions.map(opt => opt.id);
-    setSelectedOptions(new Set(allOptionIds));
-
-    // Then create
-    setTimeout(() => {
-      handleCreate();
-    }, 100);
-  }, [handleCreate]);
-
   return (
     <Modal
       open
@@ -150,11 +139,8 @@ export const MaterialCreationDialog = ({
           onClick={handleCreate}
           disabled={selectedOptions.size === 0}
         >
-          创建选中的内容{' '}
+          {t['com.learnify.material-creation.create-from-materials']()}{' '}
           {selectedOptions.size > 0 && `(${selectedOptions.size})`}
-        </Button>
-        <Button variant="primary" onClick={handleCreateAll}>
-          全部创建
         </Button>
       </div>
     </Modal>
