@@ -83,12 +83,20 @@ export function setupAIProvider(
 
   //#region actions
   AIProvider.provide('chat', async options => {
+    console.log('[AI_PROVIDER.chat] Called with options:', {
+      inputPreview: options.input?.substring(0, 100) + '...',
+      workspaceId: options.workspaceId,
+      docId: options.docId,
+      attachments: options.attachments?.length || 0,
+      stream: options.stream,
+    });
     const { input, contexts, webSearch } = options;
 
     const sessionId = await createSession({
       promptName: 'Chat With AFFiNE AI',
       ...options,
     });
+    console.log('[AI_PROVIDER.chat] Session created:', sessionId);
     return textToText({
       ...options,
       modelId: options.modelId,

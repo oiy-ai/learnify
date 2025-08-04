@@ -154,11 +154,23 @@ export class DocComposeTool extends ArtifactTool<
 
     const saveAsDoc = async () => {
       try {
+        console.log(
+          '[DOC_COMPOSE.saveAsDoc] Called with successResult:',
+          successResult
+        );
         if (!successResult) {
           return;
         }
         const workspace = std.store.workspace;
         const refNodeSlots = std.getOptional(RefNodeSlotsProvider);
+        console.log(
+          '[DOC_COMPOSE.saveAsDoc] Importing markdown to doc with params:',
+          {
+            title,
+            markdownPreview: successResult.markdown.substring(0, 200) + '...',
+            workspace: workspace.id,
+          }
+        );
         const docId = await MarkdownTransformer.importMarkdownToDoc({
           collection: workspace,
           schema: getAFFiNEWorkspaceSchema(),
@@ -166,6 +178,7 @@ export class DocComposeTool extends ArtifactTool<
           fileName: title,
           extensions: getStoreManager().config.init().value.get('store'),
         });
+        console.log('[DOC_COMPOSE.saveAsDoc] Created doc with ID:', docId);
         if (docId) {
           const open = await this.notificationService.confirm({
             title: 'Open the doc you just created',

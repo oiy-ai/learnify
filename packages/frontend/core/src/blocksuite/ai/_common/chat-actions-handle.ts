@@ -475,13 +475,19 @@ export const SAVE_AS_DOC = {
   showWhen: () => true,
   toast: 'New doc created',
   handler: (host: EditorHost, content: string) => {
+    console.log(
+      '[SAVE_AS_DOC] Handler called with content:',
+      content.substring(0, 200) + '...'
+    );
     reportResponse('result:add-page');
     const doc = host.store.workspace.createDoc();
+    console.log('[SAVE_AS_DOC] Created doc:', doc.id);
     const newDoc = doc.getStore();
     newDoc.load();
     const rootId = newDoc.addBlock('affine:page');
     newDoc.addBlock('affine:surface', {}, rootId);
     const noteId = newDoc.addBlock('affine:note', {}, rootId);
+    console.log('[SAVE_AS_DOC] Doc structure created, noteId:', noteId);
 
     host.std.getOptional(RefNodeSlotsProvider)?.docLinkClicked.next({
       pageId: newDoc.id,

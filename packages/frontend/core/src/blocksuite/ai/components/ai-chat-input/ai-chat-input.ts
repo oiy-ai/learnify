@@ -604,8 +604,15 @@ export class AIChatInput extends SignalWatcher(
   };
 
   send = async (text: string) => {
+    console.log('[AI_CHAT_INPUT.send] Starting with text:', text);
     try {
       const { status, markdown, images } = this.chatContextValue;
+      console.log(
+        '[AI_CHAT_INPUT.send] Current status:',
+        status,
+        'images:',
+        images?.length || 0
+      );
       if (status === 'loading' || status === 'transmitting') return;
       if (!text) return;
       if (!AIProvider.actions.chat) return;
@@ -633,6 +640,15 @@ export class AIChatInput extends SignalWatcher(
       if (abortController.signal.aborted) {
         return;
       }
+      console.log(
+        '[AI_CHAT_INPUT.send] Calling AIProvider.actions.chat with:',
+        {
+          sessionId,
+          inputPreview: userInput.substring(0, 100) + '...',
+          workspaceId: this.workspaceId,
+          attachmentsCount: images?.length || 0,
+        }
+      );
       const stream = await AIProvider.actions.chat({
         sessionId,
         input: userInput,
