@@ -20,7 +20,9 @@ import {
 import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useState } from 'react';
 
+import { StreamObjectSchema } from '../../../blocksuite/ai/components/ai-chat-messages';
 import { AIProvider } from '../../../blocksuite/ai/provider';
+import { mergeStreamContent } from '../../../blocksuite/ai/utils/stream-objects';
 import type { MaterialItem } from '../../../components/learnify/sources/services/materials-doc';
 import { MaterialsDocService } from '../../../components/learnify/sources/services/materials-doc';
 import * as styles from './index.css';
@@ -136,6 +138,7 @@ export const MaterialCreationDialog = ({
         // Collect the AI response from stream
         let generatedContent = '';
         let title = 'Notes from Materials';
+        const streamObjects = [];
 
         console.log('AI response type:', typeof aiResponse);
 
@@ -147,15 +150,23 @@ export const MaterialCreationDialog = ({
           // Handle streaming response
           console.log('Handling streaming response...');
           for await (const chunk of aiResponse) {
-            if (typeof chunk === 'string') {
+            try {
+              // Parse the JSON chunk
+              const parsed = StreamObjectSchema.parse(JSON.parse(chunk));
+              streamObjects.push(parsed);
+            } catch (e) {
+              // If parsing fails, try treating it as plain text
+              console.warn(
+                'Failed to parse chunk as JSON, treating as text:',
+                e
+              );
               generatedContent += chunk;
-            } else if (
-              chunk &&
-              typeof chunk === 'object' &&
-              'content' in chunk
-            ) {
-              generatedContent += chunk.content || '';
             }
+          }
+
+          // Extract text content from stream objects
+          if (streamObjects.length > 0) {
+            generatedContent = mergeStreamContent(streamObjects);
           }
         } else if (typeof aiResponse === 'string') {
           generatedContent = aiResponse;
