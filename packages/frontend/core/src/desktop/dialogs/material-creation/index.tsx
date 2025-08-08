@@ -10,6 +10,7 @@ import {
   WorkspaceService,
 } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
+import type { AttachmentBlockModel } from '@blocksuite/affine/model';
 import { MarkdownTransformer } from '@blocksuite/affine/widgets/linked-doc';
 import {
   EdgelessIcon,
@@ -21,7 +22,7 @@ import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useState } from 'react';
 
 import { StreamObjectSchema } from '../../../blocksuite/ai/components/ai-chat-messages';
-import { AIProvider } from '../../../blocksuite/ai/provider';
+import { AIProvider } from '../../../blocksuite/ai/provider/ai-provider';
 import { mergeStreamContent } from '../../../blocksuite/ai/utils/stream-objects';
 import type { MaterialItem } from '../../../components/learnify/sources/services/materials-doc';
 import { MaterialsDocService } from '../../../components/learnify/sources/services/materials-doc';
@@ -31,7 +32,18 @@ export interface MaterialCreationDialogProps {
   materialIds: string[];
 }
 
-const creationOptions = [
+type MaterialContent =
+  | { type: 'text'; content: string }
+  | { type: 'image'; content: Blob; name: string; description?: string };
+
+type CreationOptionId = 'mindmap' | 'notes' | 'flashcards' | 'podcast';
+
+const creationOptions: Array<{
+  id: CreationOptionId;
+  name: string;
+  icon: React.ReactNode;
+  description: string;
+}> = [
   {
     id: 'mindmap',
     name: '思维导图',
@@ -75,119 +87,233 @@ export const MaterialCreationDialog = ({
     materialIds.includes(material.id)
   );
 
-  const [selectedOptions, setSelectedOptions] = useState<Set<string>>(
+  const [selectedOptions, setSelectedOptions] = useState<Set<CreationOptionId>>(
     new Set()
   );
 
   // Function to create mindmap from materials
   const createMindmap = useCallback(
-    (materialIds: string[], materials: MaterialItem[]) => {
-      console.log('Creating mindmap from material IDs:', materialIds);
-      console.log('Material objects:', materials);
+    (_materialIds: string[], _materials: MaterialItem[]) => {
       // TODO: Implement mindmap creation logic
     },
     []
   );
 
+  // Helper function to get content from materials
+  const getMaterialContent = useCallback(
+    async (material: MaterialItem): Promise<MaterialContent> => {
+      // Handle attachments (images, PDFs)
+      if (['image', 'pdf', 'attachment'].includes(material.category)) {
+        const materialsDoc = await materialsService.getMaterialsDoc();
+        if (!materialsDoc) {
+          return {
+            type: 'text' as const,
+            content: `${material.name} (${material.category})`,
+          };
+        }
+
+        const attachmentBlock = materialsDoc
+          .getBlocksByFlavour('affine:attachment')
+          .find(b => b.id === material.id);
+
+        if (attachmentBlock) {
+          const model = attachmentBlock.model as AttachmentBlockModel;
+          const sourceId = model.props.sourceId;
+
+          if (sourceId) {
+            const blob = await materialsDoc.blobSync.get(sourceId);
+
+            if (blob && material.category === 'image') {
+              return {
+                type: 'image' as const,
+                content: blob,
+                name: material.name,
+                description: material.description,
+              };
+            }
+
+            // For PDFs and other attachments, return metadata
+            // TODO: Implement PDF text extraction
+            if (blob) {
+              return {
+                type: 'text' as const,
+                content: `File: ${material.name}\nType: ${material.mimeType}\nSize: ${material.size} bytes\nDescription: ${material.description || 'No description'}`,
+              };
+            }
+          }
+        }
+      }
+
+      // Handle links
+      if (material.category === 'link') {
+        return {
+          type: 'text' as const,
+          content: `Link: ${material.name}\nURL: ${material.blobId}\nDescription: ${material.description || 'No description'}`,
+        };
+      }
+
+      // Default fallback
+      return {
+        type: 'text' as const,
+        content: `${material.name} (${material.category})\nDescription: ${material.description || 'No description'}`,
+      };
+    },
+    [materialsService]
+  );
+
+  // Build AI prompt from materials
+  const buildPromptFromMaterials = useCallback(
+    async (
+      materials: MaterialItem[]
+    ): Promise<{ prompt: string; attachments: Blob[] }> => {
+      const promptParts: string[] = [
+        'Please summarize the following materials into comprehensive notes:\n',
+      ];
+      const attachments: Blob[] = [];
+
+      for (let i = 0; i < materials.length; i++) {
+        const material = materials[i];
+        const content = await getMaterialContent(material);
+
+        promptParts.push(`\n${i + 1}. ${material.name}`);
+        promptParts.push(`   Type: ${material.category}`);
+
+        if (content.type === 'text') {
+          promptParts.push(`   Content: ${content.content}`);
+        } else if (content.type === 'image' && content.content) {
+          const blob = new Blob([content.content], { type: 'image/png' });
+          attachments.push(blob);
+          promptParts.push(`   [Image ${attachments.length}]`);
+          if (content.description) {
+            promptParts.push(`   Description: ${content.description}`);
+          }
+        }
+      }
+
+      promptParts.push('\nPlease create well-structured notes with:');
+      promptParts.push('- A clear title');
+      promptParts.push('- Main concepts and key points');
+      promptParts.push('- Important details from each material');
+      promptParts.push('- A summary section');
+
+      return {
+        prompt: promptParts.join('\n'),
+        attachments,
+      };
+    },
+    [getMaterialContent]
+  );
+
+  // Process AI streaming response
+  const processAIResponse = useCallback(
+    async (aiResponse: any): Promise<string> => {
+      if (!aiResponse) {
+        throw new Error('No response from AI service');
+      }
+
+      // Handle streaming response
+      if (
+        typeof aiResponse === 'object' &&
+        Symbol.asyncIterator in aiResponse
+      ) {
+        const streamObjects = [];
+        let fallbackContent = '';
+
+        for await (const chunk of aiResponse) {
+          try {
+            const parsed = StreamObjectSchema.parse(JSON.parse(chunk));
+            streamObjects.push(parsed);
+          } catch {
+            // Fallback to plain text if JSON parsing fails
+            fallbackContent += chunk;
+          }
+        }
+
+        return streamObjects.length > 0
+          ? mergeStreamContent(streamObjects)
+          : fallbackContent;
+      }
+
+      // Handle string response
+      if (typeof aiResponse === 'string') {
+        return aiResponse;
+      }
+
+      throw new Error('Invalid AI response format');
+    },
+    []
+  );
+
+  // Extract title from markdown content
+  const extractTitle = useCallback((content: string): string => {
+    const lines = content.split('\n');
+    const firstLine = lines[0] || '';
+
+    if (firstLine.startsWith('#')) {
+      return firstLine.replace(/^#+\s*/, '').trim();
+    }
+
+    return 'Notes from Materials';
+  }, []);
+
+  // Clean up temporary document
+  const cleanupTempDoc = useCallback(
+    (tempDoc: any, release: (() => void) | null) => {
+      if (release) {
+        release();
+      }
+
+      if (tempDoc) {
+        try {
+          workspaceService.workspace.docCollection.removeDoc(tempDoc.id);
+        } catch {
+          // Silently ignore cleanup errors
+        }
+      }
+    },
+    [workspaceService]
+  );
+
   // Function to create notes from materials
   const createNotes = useCallback(
-    async (materialIds: string[], materials: MaterialItem[]) => {
-      console.log('Creating notes from material IDs:', materialIds);
-      console.log('Material objects:', materials);
-
+    async (
+      _materialIds: string[],
+      materials: MaterialItem[]
+    ): Promise<string | null> => {
       let tempDoc: any = null;
-      let releaseTempDoc: any = null;
+      let releaseTempDoc: (() => void) | null = null;
 
       try {
-        // Prepare the prompt for AI to summarize materials
-        let prompt = `Please summarize the following materials into comprehensive notes:\n\n`;
+        // Build prompt and get attachments
+        const { prompt, attachments } =
+          await buildPromptFromMaterials(materials);
 
-        materials.forEach((material, index) => {
-          prompt += `${index + 1}. ${material.name}\n`;
-          prompt += `   Type: ${material.category}\n`;
-          if (material.description) {
-            prompt += `   Description: ${material.description}\n`;
-          }
-          prompt += `\n`;
-        });
-
-        prompt += `\nPlease create well-structured notes with:\n`;
-        prompt += `- A clear title\n`;
-        prompt += `- Main concepts and key points\n`;
-        prompt += `- Important details from each material\n`;
-        prompt += `- A summary section\n`;
-
-        console.log('Calling AI with prompt:', prompt);
-
-        // Create a temporary doc for the AI session context
+        // Create temporary doc for AI session
         tempDoc = docsService.createDoc({ primaryMode: 'page' });
-        console.log('Created temp doc for AI context:', tempDoc.id);
-
-        // Open the temp doc to get access to its collection
         const { release } = docsService.open(tempDoc.id);
         releaseTempDoc = release;
 
-        // Call AI to generate notes content with streaming
+        // Check AI availability
+        if (!AIProvider.actions.chat) {
+          throw new Error(
+            'AI service is not available. Please try again later.'
+          );
+        }
+
+        // Call AI service
         const aiResponse = await AIProvider.actions.chat({
           input: prompt,
           workspaceId: workspaceService.workspace.id,
           docId: tempDoc.id,
+          attachments: attachments.length > 0 ? attachments : undefined,
           stream: true,
         });
 
-        // Collect the AI response from stream
-        let generatedContent = '';
-        let title = 'Notes from Materials';
-        const streamObjects = [];
+        // Process AI response
+        const generatedContent = await processAIResponse(aiResponse);
+        const title = extractTitle(generatedContent);
 
-        console.log('AI response type:', typeof aiResponse);
-
-        if (
-          aiResponse &&
-          typeof aiResponse === 'object' &&
-          Symbol.asyncIterator in aiResponse
-        ) {
-          // Handle streaming response
-          console.log('Handling streaming response...');
-          for await (const chunk of aiResponse) {
-            try {
-              // Parse the JSON chunk
-              const parsed = StreamObjectSchema.parse(JSON.parse(chunk));
-              streamObjects.push(parsed);
-            } catch (e) {
-              // If parsing fails, try treating it as plain text
-              console.warn(
-                'Failed to parse chunk as JSON, treating as text:',
-                e
-              );
-              generatedContent += chunk;
-            }
-          }
-
-          // Extract text content from stream objects
-          if (streamObjects.length > 0) {
-            generatedContent = mergeStreamContent(streamObjects);
-          }
-        } else if (typeof aiResponse === 'string') {
-          generatedContent = aiResponse;
-        } else {
-          console.error('Unexpected AI response type:', aiResponse);
-          throw new Error('Invalid AI response format');
-        }
-
-        // Extract title from the generated content (usually the first line)
-        const lines = generatedContent.split('\n');
-        if (lines.length > 0 && lines[0].startsWith('#')) {
-          title = lines[0].replace(/^#+\s*/, '').trim();
-        }
-
-        console.log(
-          'AI generated content preview:',
-          generatedContent.substring(0, 200) + '...'
-        );
-        console.log('Extracted title:', title);
-
-        // Create the document using MarkdownTransformer
+        // Create document from markdown
         const docId = await MarkdownTransformer.importMarkdownToDoc({
           collection: workspaceService.workspace.docCollection,
           schema: getAFFiNEWorkspaceSchema(),
@@ -196,61 +322,44 @@ export const MaterialCreationDialog = ({
           extensions: getStoreManager().config.init().value.get('store'),
         });
 
-        console.log('Document created with ID:', docId);
-
         if (docId) {
-          // Add the document to the NOTES collection
+          // Add to NOTES collection
           const notesCollection = collectionService.collection$(
             LEARNIFY_COLLECTIONS.NOTES
           ).value;
+
           if (notesCollection) {
             collectionService.addDocToCollection(notesCollection.id, docId);
-            console.log('Document added to NOTES collection');
           }
 
-          // Navigate to the newly created document
+          // Navigate to the new document
           workbenchService.workbench.openDoc(docId);
-          console.log('Navigated to new document');
         }
 
-        // Clean up temp doc
-        releaseTempDoc();
-        if (tempDoc) {
-          try {
-            workspaceService.workspace.docCollection.removeDoc(tempDoc.id);
-            console.log('Cleaned up temp doc');
-          } catch (e) {
-            console.warn('Failed to clean up temp doc:', e);
-          }
-        }
-
-        return docId;
+        return docId || null;
       } catch (error) {
         console.error('Failed to create notes:', error);
-
-        // Clean up temp doc on error
-        if (releaseTempDoc) {
-          releaseTempDoc();
-        }
-        if (tempDoc) {
-          try {
-            workspaceService.workspace.docCollection.removeDoc(tempDoc.id);
-          } catch (e) {
-            console.warn('Failed to clean up temp doc:', e);
-          }
-        }
-
         throw error;
+      } finally {
+        // Always clean up temp doc
+        cleanupTempDoc(tempDoc, releaseTempDoc);
       }
     },
-    [collectionService, workspaceService, workbenchService, docsService]
+    [
+      buildPromptFromMaterials,
+      processAIResponse,
+      extractTitle,
+      cleanupTempDoc,
+      collectionService,
+      workspaceService,
+      workbenchService,
+      docsService,
+    ]
   );
 
   // Function to create flashcards from materials
   const createFlashcards = useCallback(
-    (materialIds: string[], materials: MaterialItem[]) => {
-      console.log('Creating flashcards from material IDs:', materialIds);
-      console.log('Material objects:', materials);
+    (_materialIds: string[], _materials: MaterialItem[]) => {
       // TODO: Implement flashcards creation logic
     },
     []
@@ -258,15 +367,13 @@ export const MaterialCreationDialog = ({
 
   // Function to create podcast from materials
   const createPodcast = useCallback(
-    (materialIds: string[], materials: MaterialItem[]) => {
-      console.log('Creating podcast from material IDs:', materialIds);
-      console.log('Material objects:', materials);
+    (_materialIds: string[], _materials: MaterialItem[]) => {
       // TODO: Implement podcast creation logic
     },
     []
   );
 
-  const handleOptionToggle = useCallback((optionId: string) => {
+  const handleOptionToggle = useCallback((optionId: CreationOptionId) => {
     setSelectedOptions(prev => {
       const newSet = new Set(prev);
       if (newSet.has(optionId)) {
@@ -280,35 +387,25 @@ export const MaterialCreationDialog = ({
 
   const handleCreate = useCallback(async () => {
     if (selectedOptions.size === 0) {
-      return; // Nothing selected
+      return;
     }
 
-    console.log(
-      'Creating content types:',
-      Array.from(selectedOptions),
-      'from materials:',
-      materialIds
-    );
+    const creationHandlers: Record<CreationOptionId, () => Promise<void>> = {
+      mindmap: async () => createMindmap(materialIds, selectedMaterials),
+      notes: async () => {
+        await createNotes(materialIds, selectedMaterials);
+      },
+      flashcards: async () => createFlashcards(materialIds, selectedMaterials),
+      podcast: async () => createPodcast(materialIds, selectedMaterials),
+    };
 
-    // Create content for each selected option
+    // Process each selected option
     for (const optionId of selectedOptions) {
       try {
-        switch (optionId) {
-          case 'mindmap':
-            createMindmap(materialIds, selectedMaterials);
-            break;
-          case 'notes':
-            await createNotes(materialIds, selectedMaterials);
-            break;
-          case 'flashcards':
-            createFlashcards(materialIds, selectedMaterials);
-            break;
-          case 'podcast':
-            createPodcast(materialIds, selectedMaterials);
-            break;
-        }
+        await creationHandlers[optionId]();
       } catch (error) {
         console.error(`Failed to create ${optionId}:`, error);
+        // Continue with other options even if one fails
       }
     }
 
@@ -345,7 +442,7 @@ export const MaterialCreationDialog = ({
           <div
             key={option.id}
             className={`${styles.optionCard} ${selectedOptions.has(option.id) ? styles.optionCardSelected : ''}`}
-            onClick={() => handleOptionToggle(option.id)}
+            onClick={() => handleOptionToggle(option.id as CreationOptionId)}
           >
             <div className={styles.optionIcon}>{option.icon}</div>
             <div className={styles.optionName}>{option.name}</div>

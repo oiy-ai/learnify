@@ -36,7 +36,7 @@ export interface LinkData {
 export class MaterialsDocService extends Service {
   materials$ = new LiveData<MaterialItem[]>([]);
 
-  // eslint-disable-next-line no-unused-vars
+   
   constructor(private readonly docsService: DocsService) {
     super();
 
@@ -48,7 +48,7 @@ export class MaterialsDocService extends Service {
     this.disposables.push(() => subscription.unsubscribe());
   }
 
-  private async getMaterialsDoc(): Promise<Store | null> {
+  async getMaterialsDoc(): Promise<Store | null> {
     const docRecord = this.docsService.list.doc$(
       LEARNIFY_DOCUMENTS.MATERIALS
     ).value;
