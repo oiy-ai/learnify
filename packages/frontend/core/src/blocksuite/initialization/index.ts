@@ -1,6 +1,5 @@
 import type { DocCreateOptions } from '@affine/core/modules/doc/types';
 import {
-  NoteDisplayMode,
   type NoteProps,
   type ParagraphProps,
   type RootBlockProps,
@@ -38,22 +37,10 @@ export function initDocFromProps(
       props?.surface || {},
       pageBlockId
     );
-    const noteBlockId = doc.addBlock(
-      'affine:note',
-      {
-        ...props?.note,
-        displayMode: NoteDisplayMode.DocAndEdgeless,
-      },
-      pageBlockId
-    );
-    const paragraphBlockId = doc.addBlock(
-      'affine:paragraph',
-      props?.paragraph || {},
-      noteBlockId
-    );
+
     props?.onStoreLoad?.(doc, {
-      noteId: noteBlockId,
-      paragraphId: paragraphBlockId,
+      noteId: '',
+      paragraphId: '',
       surfaceId,
     });
     doc.history.undoManager.clear();
