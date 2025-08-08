@@ -19,25 +19,24 @@ interface DetailQuizCardProps {
 }
 
 const parseQuizContent = (
-  paragraphs: string[],
+  content: string,
   docId: string
 ): QuizCardData | null => {
-  console.log('Parsing quiz card content, paragraphs:', paragraphs);
+  const lines = content.split('\n').map(line => line.trim());
 
   let typeIndex = -1;
   let questionIndex = -1;
   let optionsIndex = -1;
   let answerIndex = -1;
 
-  paragraphs.forEach((text, index) => {
-    const trimmed = text.trim();
-    if (trimmed === '[single-choice]') {
+  lines.forEach((line, index) => {
+    if (line === '[single-choice]') {
       typeIndex = index;
-    } else if (trimmed === '[Question]') {
+    } else if (line === '[Question]') {
       questionIndex = index;
-    } else if (trimmed === '[Options]') {
+    } else if (line === '[Options]') {
       optionsIndex = index;
-    } else if (trimmed === '[Answer]') {
+    } else if (line === '[Answer]') {
       answerIndex = index;
     }
   });
@@ -61,7 +60,7 @@ const parseQuizContent = (
 
   const questionParts: string[] = [];
   for (let i = questionIndex + 1; i < optionsIndex; i++) {
-    const text = paragraphs[i].trim();
+    const text = lines[i];
     if (text) {
       questionParts.push(text);
     }
@@ -78,10 +77,10 @@ const parseQuizContent = (
   const options: Array<{ key: string; text: string }> = [];
   const optionRegex = /^([a-d])\)\s*(.+)/;
 
-  const endIndex = answerIndex !== -1 ? answerIndex : paragraphs.length;
+  const endIndex = answerIndex !== -1 ? answerIndex : lines.length;
 
   for (let i = optionsIndex + 1; i < endIndex; i++) {
-    const text = paragraphs[i].trim();
+    const text = lines[i];
     if (text) {
       const match = text.match(optionRegex);
       if (match) {
@@ -100,8 +99,8 @@ const parseQuizContent = (
 
   let correctAnswer = '';
 
-  if (answerIndex !== -1 && answerIndex + 1 < paragraphs.length) {
-    const answerText = paragraphs[answerIndex + 1].trim();
+  if (answerIndex !== -1 && answerIndex + 1 < lines.length) {
+    const answerText = lines[answerIndex + 1];
     if (answerText && /^[a-d]$/.test(answerText)) {
       correctAnswer = answerText;
       console.log('Found answer from [Answer] section:', correctAnswer);
@@ -146,16 +145,14 @@ export const DetailQuizCard = ({ doc, pageId }: DetailQuizCardProps) => {
 
         const paragraphBlocks =
           doc.blockSuiteDoc.getBlocksByFlavour('affine:paragraph');
-        const paragraphs: string[] = [];
 
-        paragraphBlocks.forEach((block: any) => {
-          const text = block.model.text?.toString() || '';
-          paragraphs.push(text);
-        });
+        // Get all paragraph content and join
+        const content = paragraphBlocks
+          .map((block: any) => block.model.text?.toString() || '')
+          .join('\n')
+          .trim();
 
-        console.log('Found paragraphs:', paragraphs);
-
-        if (paragraphs.every(p => !p.trim())) {
+        if (!content) {
           setError(
             t['com.learnify.flashcard.error.no-content']?.() ||
               'No content found in this card'
@@ -163,7 +160,7 @@ export const DetailQuizCard = ({ doc, pageId }: DetailQuizCardProps) => {
           return;
         }
 
-        const parsedCard = parseQuizContent(paragraphs, doc.id);
+        const parsedCard = parseQuizContent(content, doc.id);
         if (parsedCard) {
           setCurrentCard(parsedCard);
           setError(null);

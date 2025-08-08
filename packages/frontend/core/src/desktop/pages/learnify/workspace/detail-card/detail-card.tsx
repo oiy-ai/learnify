@@ -14,12 +14,10 @@ import { DetailQuizCard } from './detail-quiz-card';
 
 type CardType = 'quiz' | 'flashcard' | 'unknown';
 
-const detectCardType = (paragraphs: string[]): CardType => {
-  if (paragraphs.length === 0) return 'unknown';
+const detectCardType = (content: string): CardType => {
+  if (!content) return 'unknown';
 
-  const firstLine = paragraphs[0].trim();
-
-  console.log('firstLine', firstLine);
+  const firstLine = content.split('\n')[0].trim();
 
   if (firstLine === '[single-choice]') {
     return 'quiz';
@@ -76,24 +74,16 @@ const DetailCardPageImpl = () => {
         // 等待文档同步完成
         await doc.waitForSyncReady();
 
-        const docId = doc.blockSuiteDoc.id;
-        console.log('docId', docId);
-        const blocks = doc.blockSuiteDoc.getAllModels();
-        console.log('blocks', blocks);
-
         const paragraphBlocks =
           doc.blockSuiteDoc.getBlocksByFlavour('affine:paragraph');
-        const paragraphs: string[] = [];
 
-        paragraphBlocks.forEach((block: any) => {
-          const text = block.model.text?.toString() || '';
-          paragraphs.push(text);
-        });
+        // Get all paragraph content and join
+        const content = paragraphBlocks
+          .map((block: any) => block.model.text?.toString() || '')
+          .join('\n')
+          .trim();
 
-        console.log('paragraphBlocks', paragraphBlocks);
-        console.log('paragraphs', paragraphs);
-
-        const detectedType = detectCardType(paragraphs);
+        const detectedType = detectCardType(content);
         setCardType(detectedType);
       } catch (error) {
         console.error('Error detecting card type:', error);

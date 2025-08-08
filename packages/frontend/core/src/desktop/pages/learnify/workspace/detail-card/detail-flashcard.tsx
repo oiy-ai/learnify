@@ -15,68 +15,59 @@ interface DetailFlashcardProps {
 }
 
 const parseFlashcardContent = (
-  paragraphs: string[],
+  content: string,
   docId: string
 ): FlashcardData | null => {
-  console.log('Parsing flashcard content, paragraphs:', paragraphs);
+  const lines = content.split('\n').map(line => line.trim());
 
   let typeIndex = -1;
   let questionIndex = -1;
   let answerIndex = -1;
 
-  paragraphs.forEach((text, index) => {
-    const trimmed = text.trim();
-    if (trimmed === '[flashcard]') {
+  lines.forEach((line, index) => {
+    if (line === '[flashcard]') {
       typeIndex = index;
-    } else if (trimmed === '[Question]') {
+    } else if (line === '[Question]') {
       questionIndex = index;
-    } else if (trimmed === '[Answer]') {
+    } else if (line === '[Answer]') {
       answerIndex = index;
     }
   });
 
-  console.log('Marker indices:', { typeIndex, questionIndex, answerIndex });
-
   if (typeIndex === -1 || questionIndex === -1 || answerIndex === -1) {
-    console.log('Missing required markers');
     return null;
   }
 
   if (!(typeIndex < questionIndex && questionIndex < answerIndex)) {
-    console.log('Invalid marker order');
     return null;
   }
 
   const questionParts: string[] = [];
   for (let i = questionIndex + 1; i < answerIndex; i++) {
-    const text = paragraphs[i].trim();
+    const text = lines[i];
     if (text) {
       questionParts.push(text);
     }
   }
 
   if (questionParts.length === 0) {
-    console.log('No question content found');
     return null;
   }
 
   const answerParts: string[] = [];
-  for (let i = answerIndex + 1; i < paragraphs.length; i++) {
-    const text = paragraphs[i].trim();
+  for (let i = answerIndex + 1; i < lines.length; i++) {
+    const text = lines[i];
     if (text) {
       answerParts.push(text);
     }
   }
 
   if (answerParts.length === 0) {
-    console.log('No answer content found');
     return null;
   }
 
   const question = questionParts.join(' ');
   const answer = answerParts.join(' ');
-
-  console.log('Parsed flashcard:', { question, answer });
 
   return {
     id: docId,
@@ -107,16 +98,14 @@ export const DetailFlashcard = ({ doc, pageId }: DetailFlashcardProps) => {
 
         const paragraphBlocks =
           doc.blockSuiteDoc.getBlocksByFlavour('affine:paragraph');
-        const paragraphs: string[] = [];
 
-        paragraphBlocks.forEach((block: any) => {
-          const text = block.model.text?.toString() || '';
-          paragraphs.push(text);
-        });
+        // Get all paragraph content and join
+        const content = paragraphBlocks
+          .map((block: any) => block.model.text?.toString() || '')
+          .join('\n')
+          .trim();
 
-        console.log('Found paragraphs:', paragraphs);
-
-        if (paragraphs.every(p => !p.trim())) {
+        if (!content) {
           setError(
             t['com.learnify.flashcard.error.no-content']?.() ||
               'No content found in this card'
@@ -124,7 +113,7 @@ export const DetailFlashcard = ({ doc, pageId }: DetailFlashcardProps) => {
           return;
         }
 
-        const parsedCard = parseFlashcardContent(paragraphs, doc.id);
+        const parsedCard = parseFlashcardContent(content, doc.id);
         if (parsedCard) {
           setCurrentCard(parsedCard);
           setError(null);
