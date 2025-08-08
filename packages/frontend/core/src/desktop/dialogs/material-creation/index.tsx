@@ -161,7 +161,7 @@ export const MaterialCreationDialog = ({
     [materialsService]
   );
 
-  // Build AI prompt from materials
+  // Build AI prompt from materials for notes
   const buildPromptFromMaterials = useCallback(
     async (
       materials: MaterialItem[]
@@ -195,6 +195,85 @@ export const MaterialCreationDialog = ({
       promptParts.push('- Main concepts and key points');
       promptParts.push('- Important details from each material');
       promptParts.push('- A summary section');
+
+      return {
+        prompt: promptParts.join('\n'),
+        attachments,
+      };
+    },
+    [getMaterialContent]
+  );
+
+  // Build AI prompt from materials for flashcards
+  const buildFlashcardsPrompt = useCallback(
+    async (
+      materials: MaterialItem[]
+    ): Promise<{ prompt: string; attachments: Blob[] }> => {
+      const promptParts: string[] = [
+        'Please create EXACTLY 10 flashcards from the following materials. Return them as a JSON array where each item has this structure:\n',
+      ];
+      const attachments: Blob[] = [];
+
+      // Add format specification
+      promptParts.push('\n```json');
+      promptParts.push('[');
+      promptParts.push('  {');
+      promptParts.push('    "type": "flashcard",');
+      promptParts.push('    "question": "Your question here",');
+      promptParts.push('    "answer": "Your answer here"');
+      promptParts.push('  },');
+      promptParts.push('  {');
+      promptParts.push('    "type": "single-choice",');
+      promptParts.push('    "question": "Your question here",');
+      promptParts.push('    "options": [');
+      promptParts.push('      "a) Option 1",');
+      promptParts.push('      "b) Option 2",');
+      promptParts.push('      "c) Option 3",');
+      promptParts.push('      "d) Option 4"');
+      promptParts.push('    ],');
+      promptParts.push('    "answer": "b"');
+      promptParts.push('  }');
+      promptParts.push(']');
+      promptParts.push('```');
+
+      promptParts.push('\n\nMATERIALS TO CONVERT:');
+
+      for (let i = 0; i < materials.length; i++) {
+        const material = materials[i];
+        const content = await getMaterialContent(material);
+
+        promptParts.push(`\n${i + 1}. ${material.name}`);
+        promptParts.push(`   Type: ${material.category}`);
+
+        if (content.type === 'text') {
+          promptParts.push(`   Content: ${content.content}`);
+        } else if (content.type === 'image' && content.content) {
+          const blob = new Blob([content.content], { type: 'image/png' });
+          attachments.push(blob);
+          promptParts.push(`   [Image ${attachments.length}]`);
+          if (content.description) {
+            promptParts.push(`   Description: ${content.description}`);
+          }
+        }
+      }
+
+      promptParts.push('\n\nREQUIREMENTS:');
+      promptParts.push('1. Create EXACTLY 10 flashcards total');
+      promptParts.push(
+        '2. Mix both "flashcard" and "single-choice" types (aim for 5 of each)'
+      );
+      promptParts.push('3. Return ONLY valid JSON array with 10 items');
+      promptParts.push(
+        '4. For single-choice cards, always provide exactly 4 options (a, b, c, d)'
+      );
+      promptParts.push(
+        '5. For single-choice cards, answer must be a single letter (a, b, c, or d)'
+      );
+      promptParts.push('6. Make questions clear and answers comprehensive');
+      promptParts.push('7. Cover different aspects of the material');
+      promptParts.push(
+        '\nReturn ONLY the JSON array, no other text or formatting.'
+      );
 
       return {
         prompt: promptParts.join('\n'),
@@ -357,12 +436,182 @@ export const MaterialCreationDialog = ({
     ]
   );
 
+  // Parse flashcards from JSON and create individual documents
+  const parseAndCreateFlashcards = useCallback(
+    async (
+      jsonContent: string,
+      materials: MaterialItem[]
+    ): Promise<string[]> => {
+      const docIds: string[] = [];
+
+      try {
+        // Try to extract JSON from the response
+        let flashcardsData: any[];
+
+        // Try to find JSON array in the content
+        const jsonMatch = jsonContent.match(/\[\s*\{[\s\S]*\}\s*\]/);
+        if (jsonMatch) {
+          flashcardsData = JSON.parse(jsonMatch[0]);
+        } else {
+          // Fallback: try to parse the whole content as JSON
+          flashcardsData = JSON.parse(jsonContent);
+        }
+
+        // Validate we have an array with 10 items
+        if (!Array.isArray(flashcardsData)) {
+          throw new Error('Response is not a valid array of flashcards');
+        }
+
+        // Get flashcards collection
+        const flashcardsCollection = collectionService.collection$(
+          LEARNIFY_COLLECTIONS.FLASHCARDS
+        ).value;
+
+        // Create a document for each flashcard
+        for (let i = 0; i < Math.min(flashcardsData.length, 10); i++) {
+          const card = flashcardsData[i];
+          let cardContent = '';
+          let title = '';
+
+          if (card.type === 'flashcard') {
+            // Format as flashcard
+            cardContent = `[flashcard]\n[Question]\n${card.question}\n[Answer]\n${card.answer}`;
+            title = `Card ${i + 1}: ${card.question.substring(0, 50)}${card.question.length > 50 ? '...' : ''}`;
+          } else if (card.type === 'single-choice') {
+            // Format as single-choice quiz
+            const optionsText = card.options ? card.options.join('\n') : '';
+            cardContent = `[single-choice]\n[Question]\n${card.question}\n[Options]\n${optionsText}\n[Answer]\n${card.answer}`;
+            title = `Quiz ${i + 1}: ${card.question.substring(0, 50)}${card.question.length > 50 ? '...' : ''}`;
+          } else {
+            // Skip invalid card types
+            continue;
+          }
+
+          // Create document for this flashcard
+          const docId = await MarkdownTransformer.importMarkdownToDoc({
+            collection: workspaceService.workspace.docCollection,
+            schema: getAFFiNEWorkspaceSchema(),
+            markdown: cardContent,
+            fileName: title,
+            extensions: getStoreManager().config.init().value.get('store'),
+          });
+
+          if (docId) {
+            docIds.push(docId);
+
+            // Add to FLASHCARDS collection
+            if (flashcardsCollection) {
+              collectionService.addDocToCollection(
+                flashcardsCollection.id,
+                docId
+              );
+            }
+          }
+        }
+
+        // If we created less than 10 cards, create empty placeholders
+        const cardsCreated = docIds.length;
+        if (cardsCreated < 10) {
+          const materialName = materials[0]?.name || 'Materials';
+          for (let i = cardsCreated; i < 10; i++) {
+            const placeholderContent = `[flashcard]\n[Question]\nFlashcard ${i + 1} from ${materialName}\n[Answer]\nPlease edit this flashcard with your content.`;
+            const title = `Card ${i + 1}: Placeholder`;
+
+            const docId = await MarkdownTransformer.importMarkdownToDoc({
+              collection: workspaceService.workspace.docCollection,
+              schema: getAFFiNEWorkspaceSchema(),
+              markdown: placeholderContent,
+              fileName: title,
+              extensions: getStoreManager().config.init().value.get('store'),
+            });
+
+            if (docId) {
+              docIds.push(docId);
+              if (flashcardsCollection) {
+                collectionService.addDocToCollection(
+                  flashcardsCollection.id,
+                  docId
+                );
+              }
+            }
+          }
+        }
+
+        return docIds;
+      } catch (error) {
+        console.error('Failed to parse flashcards JSON:', error);
+        throw new Error('Failed to parse flashcards from AI response');
+      }
+    },
+    [collectionService, workspaceService]
+  );
+
   // Function to create flashcards from materials
   const createFlashcards = useCallback(
-    (_materialIds: string[], _materials: MaterialItem[]) => {
-      // TODO: Implement flashcards creation logic
+    async (
+      _materialIds: string[],
+      materials: MaterialItem[]
+    ): Promise<string[] | null> => {
+      let tempDoc: any = null;
+      let releaseTempDoc: (() => void) | null = null;
+
+      try {
+        // Build prompt and get attachments
+        const { prompt, attachments } = await buildFlashcardsPrompt(materials);
+
+        // Create temporary doc for AI session
+        tempDoc = docsService.createDoc({ primaryMode: 'page' });
+        const { release } = docsService.open(tempDoc.id);
+        releaseTempDoc = release;
+
+        // Check AI availability
+        if (!AIProvider.actions.chat) {
+          throw new Error(
+            'AI service is not available. Please try again later.'
+          );
+        }
+
+        // Call AI service
+        const aiResponse = await AIProvider.actions.chat({
+          input: prompt,
+          workspaceId: workspaceService.workspace.id,
+          docId: tempDoc.id,
+          attachments: attachments.length > 0 ? attachments : undefined,
+          stream: true,
+        });
+
+        // Process AI response
+        const generatedContent = await processAIResponse(aiResponse);
+
+        // Parse the JSON response and create individual flashcard documents
+        const docIds = await parseAndCreateFlashcards(
+          generatedContent,
+          materials
+        );
+
+        // Navigate to the first created document
+        if (docIds.length > 0) {
+          workbenchService.workbench.openDoc(docIds[0]);
+        }
+
+        return docIds.length > 0 ? docIds : null;
+      } catch (error) {
+        console.error('Failed to create flashcards:', error);
+        throw error;
+      } finally {
+        // Always clean up temp doc
+        cleanupTempDoc(tempDoc, releaseTempDoc);
+      }
     },
-    []
+    [
+      buildFlashcardsPrompt,
+      processAIResponse,
+      parseAndCreateFlashcards,
+      cleanupTempDoc,
+      workspaceService,
+      workbenchService,
+      docsService,
+    ]
   );
 
   // Function to create podcast from materials
@@ -395,7 +644,9 @@ export const MaterialCreationDialog = ({
       notes: async () => {
         await createNotes(materialIds, selectedMaterials);
       },
-      flashcards: async () => createFlashcards(materialIds, selectedMaterials),
+      flashcards: async () => {
+        await createFlashcards(materialIds, selectedMaterials);
+      },
       podcast: async () => createPodcast(materialIds, selectedMaterials),
     };
 
