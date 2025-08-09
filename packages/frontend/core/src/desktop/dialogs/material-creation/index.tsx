@@ -10,6 +10,7 @@ import {
   WorkspaceService,
 } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
+import { getSurfaceBlock } from '@blocksuite/affine/blocks/surface';
 import type { AttachmentBlockModel } from '@blocksuite/affine/model';
 import { MarkdownTransformer } from '@blocksuite/affine/widgets/linked-doc';
 import {
@@ -37,6 +38,48 @@ type MaterialContent =
   | { type: 'image'; content: Blob; name: string; description?: string };
 
 type CreationOptionId = 'mindmap' | 'notes' | 'flashcards' | 'podcast';
+
+// type MindmapNode = {
+//   text: string;
+//   children: MindmapNode[];
+//   xywh?: string;
+// };
+
+// Parse markdown list to mindmap node structure
+// const parseMarkdownToMindmapNode = (markdown: string): MindmapNode | null => {
+//   const lines = markdown.split('\n');
+//   const root: MindmapNode = { text: 'Root', children: [] };
+//   const stack: { node: MindmapNode; level: number }[] = [{ node: root, level: -1 }];
+
+//   for (const line of lines) {
+//     const trimmed = line.trimEnd();
+//     if (!trimmed) continue;
+
+//     // Count leading spaces/dashes to determine level
+//     const match = trimmed.match(/^(\s*)[-*]\s+(.+)$/);
+//     if (!match) continue;
+
+//     const [, indent, text] = match;
+//     const level = indent.length / 2; // Assuming 2 spaces per level
+
+//     const newNode: MindmapNode = { text, children: [] };
+
+//     // Find parent at the appropriate level
+//     while (stack.length > 1 && stack[stack.length - 1].level >= level) {
+//       stack.pop();
+//     }
+
+//     // Add to parent's children
+//     const parent = stack[stack.length - 1];
+//     parent.node.children.push(newNode);
+
+//     // Add to stack for potential children
+//     stack.push({ node: newNode, level });
+//   }
+
+//   // Return the first child as root (skip our artificial root)
+//   return root.children.length > 0 ? root.children[0] : null;
+// };
 
 const creationOptions: Array<{
   id: CreationOptionId;
@@ -91,12 +134,131 @@ export const MaterialCreationDialog = ({
     new Set()
   );
 
+  // Clean up temporary document
+  const cleanupTempDoc = useCallback(
+    (tempDoc: any, release: (() => void) | null) => {
+      if (release) {
+        release();
+      }
+
+      if (tempDoc) {
+        try {
+          workspaceService.workspace.docCollection.removeDoc(tempDoc.id);
+        } catch {
+          // Silently ignore cleanup errors
+        }
+      }
+    },
+    [workspaceService]
+  );
+
   // Function to create mindmap from materials
   const createMindmap = useCallback(
-    (_materialIds: string[], _materials: MaterialItem[]) => {
-      // TODO: Implement mindmap creation logic
+    async (
+      _materialIds: string[],
+      materials: MaterialItem[]
+    ): Promise<string | null> => {
+      let tempDoc: any = null;
+      let releaseTempDoc: (() => void) | null = null;
+
+      try {
+        // Create temporary doc for AI session
+        tempDoc = docsService.createDoc({ primaryMode: 'page' });
+        const { release } = docsService.open(tempDoc.id);
+        releaseTempDoc = release;
+
+        // TODO: Uncomment for production
+        // const { prompt, attachments } = await buildMindmapPrompt(materials);
+        // const aiResponse = await AIProvider.actions.chat({
+        //   input: prompt,
+        //   workspaceId: workspaceService.workspace.id,
+        //   docId: tempDoc.id,
+        //   attachments: attachments.length > 0 ? attachments : undefined,
+        //   stream: true,
+        // });
+        // const markdownContent = await processAIResponse(aiResponse);
+
+        // Create edgeless document for mindmap
+        const mindmapDoc = docsService.createDoc({ primaryMode: 'edgeless' });
+        const { doc: edgelessDoc, release: releaseEdgeless } = docsService.open(
+          mindmapDoc.id
+        );
+
+        // Wait for doc to be ready
+        await edgelessDoc.waitForSyncReady();
+        const blockSuiteDoc = edgelessDoc.blockSuiteDoc;
+
+        // Get surface block
+        const surface = getSurfaceBlock(blockSuiteDoc);
+        if (surface) {
+          // Add a text note with instructions
+          const noteId = blockSuiteDoc.addBlock(
+            'affine:note',
+            {
+              xywh: '[100, 100, 400, 200]',
+            },
+            blockSuiteDoc.root?.id
+          );
+
+          if (noteId) {
+            const noteBlock = blockSuiteDoc.getBlock(noteId);
+            if (noteBlock?.model) {
+              blockSuiteDoc.addBlock(
+                'affine:paragraph',
+                {
+                  text: {
+                    insert:
+                      '📝 点击左侧工具栏的思维导图图标来创建您的思维导图\n\n素材：\n' +
+                      materials.map(m => `• ${m.name}`).join('\n'),
+                  },
+                },
+                noteBlock.model.id
+              );
+            }
+          }
+        }
+
+        // Generate title for the mindmap
+        const title = `Mindmap: ${materials.map(m => m.name).join(', ')}`;
+        workspaceService.workspace.docCollection.meta.setDocMeta(
+          mindmapDoc.id,
+          { title }
+        );
+
+        // Add to MIND_MAPS collection
+        const mindmapsCollection = collectionService.collection$(
+          LEARNIFY_COLLECTIONS.MIND_MAPS
+        ).value;
+
+        if (mindmapsCollection) {
+          collectionService.addDocToCollection(
+            mindmapsCollection.id,
+            mindmapDoc.id
+          );
+        }
+
+        // Navigate to the new mindmap
+        workbenchService.workbench.openDoc(mindmapDoc.id);
+
+        // Clean up
+        releaseEdgeless();
+
+        return mindmapDoc.id;
+      } catch (error) {
+        console.error('[Mindmap] Failed to create mindmap:', error);
+        throw error;
+      } finally {
+        // Always clean up temp doc
+        cleanupTempDoc(tempDoc, releaseTempDoc);
+      }
     },
-    []
+    [
+      cleanupTempDoc,
+      collectionService,
+      workspaceService,
+      workbenchService,
+      docsService,
+    ]
   );
 
   // Helper function to get content from materials
@@ -334,24 +496,6 @@ export const MaterialCreationDialog = ({
 
     return 'Notes from Materials';
   }, []);
-
-  // Clean up temporary document
-  const cleanupTempDoc = useCallback(
-    (tempDoc: any, release: (() => void) | null) => {
-      if (release) {
-        release();
-      }
-
-      if (tempDoc) {
-        try {
-          workspaceService.workspace.docCollection.removeDoc(tempDoc.id);
-        } catch {
-          // Silently ignore cleanup errors
-        }
-      }
-    },
-    [workspaceService]
-  );
 
   // Function to create notes from materials
   const createNotes = useCallback(
@@ -640,7 +784,9 @@ export const MaterialCreationDialog = ({
     }
 
     const creationHandlers: Record<CreationOptionId, () => Promise<void>> = {
-      mindmap: async () => createMindmap(materialIds, selectedMaterials),
+      mindmap: async () => {
+        await createMindmap(materialIds, selectedMaterials);
+      },
       notes: async () => {
         await createNotes(materialIds, selectedMaterials);
       },
@@ -704,14 +850,14 @@ export const MaterialCreationDialog = ({
 
       <div className={styles.modalFooter}>
         <Button variant="secondary" onClick={() => close()}>
-          {t['com.affine.confirmModal.button.cancel']()}
+          {t.t('com.affine.confirmModal.button.cancel')}
         </Button>
         <Button
           variant="primary"
           onClick={() => void handleCreate()}
           disabled={selectedOptions.size === 0}
         >
-          {t['com.learnify.material-creation.create-from-materials']()}{' '}
+          {t.t('com.learnify.material-creation.create-from-materials')}{' '}
           {selectedOptions.size > 0 && `(${selectedOptions.size})`}
         </Button>
       </div>
