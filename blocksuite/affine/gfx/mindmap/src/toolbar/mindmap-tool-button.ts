@@ -30,19 +30,10 @@ import { getMindMaps } from './assets.js';
 import {
   type DraggableTool,
   getMindmapRender,
-  mediaConfig,
-  mediaRender,
   mindmapConfig,
-  textConfig,
-  textRender,
   toolConfig2StyleObj,
 } from './basket-elements.js';
-import {
-  basketIconDark,
-  basketIconLight,
-  mindmapMenuMediaIcon,
-  textIcon,
-} from './icons.js';
+import { basketIconDark, basketIconLight } from './icons.js';
 import { importMindmap } from './utils/import-mindmap.js';
 
 export class EdgelessMindmapToolButton extends EdgelessToolbarToolMixin(
@@ -162,20 +153,6 @@ export class EdgelessMindmapToolButton extends EdgelessToolbarToolMixin(
       this.mindmaps.find(m => m.style === style) || this.mindmaps[0];
     return [
       {
-        name: 'media',
-        icon: mindmapMenuMediaIcon,
-        config: mediaConfig,
-        standardWidth: 100,
-        render: mediaRender,
-      },
-      {
-        name: 'text',
-        icon: textIcon,
-        config: textConfig,
-        standardWidth: 100,
-        render: textRender,
-      },
-      {
         name: 'mindmap',
         icon: mindmap.icon,
         config: mindmapConfig,
@@ -257,9 +234,6 @@ export class EdgelessMindmapToolButton extends EdgelessToolbarToolMixin(
         if (data.name === 'mindmap') {
           overlay.element.style.left = _left + 3 + 'px';
           overlay.element.style.top = _top + 5 + 'px';
-        } else if (data.name === 'text') {
-          overlay.element.style.left = _left + 0 + 'px';
-          overlay.element.style.top = _top + 3 + 'px';
         }
         this.readyToDrop = true;
       },
@@ -280,8 +254,6 @@ export class EdgelessMindmapToolButton extends EdgelessToolbarToolMixin(
                 elements: [id],
                 editing: false,
               });
-            } else if (el.data.name === 'text') {
-              this.setEdgelessTool(DefaultTool);
             }
           })
           .catch(console.error);
@@ -351,7 +323,7 @@ export class EdgelessMindmapToolButton extends EdgelessToolbarToolMixin(
     return html`<edgeless-toolbar-button
       class="edgeless-mindmap-button"
       ?withHover=${true}
-      .tooltip=${popper ? '' : 'Others'}
+      .tooltip=${popper ? '' : 'Mind Map'}
       .tooltipOffset=${4}
       @click=${this._toggleMenu}
       style="width: 100%; height: 100%; display: inline-block"
