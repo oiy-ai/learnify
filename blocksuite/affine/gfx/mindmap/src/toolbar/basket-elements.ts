@@ -44,9 +44,9 @@ export const textConfig: ToolConfig = {
   next: { x: -22, y: 64, r: 0 },
 };
 export const mindmapConfig: ToolConfig = {
-  default: { x: 4, y: -4, s: 1, r: -7, z: 2 },
-  active: { x: 11, y: -14, r: 9, s: 1 },
-  hover: { x: 11, y: -14, r: 9, s: 1.16, z: 3 },
+  default: { x: 0, y: -8, s: 1, r: 0, z: 2 },
+  active: { x: 0, y: -16, r: 0, s: 1 },
+  hover: { x: 0, y: -16, r: 0, s: 1.16, z: 3 },
   next: { y: 64, r: 0 },
 };
 export const mediaConfig: ToolConfig = {
