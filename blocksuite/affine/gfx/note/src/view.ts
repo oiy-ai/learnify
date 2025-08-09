@@ -5,7 +5,6 @@ import {
 
 import { effects } from './effects';
 import { NoteTool } from './note-tool';
-import { noteSeniorTool } from './toolbar/senior-tool';
 
 export class NoteViewExtension extends ViewExtensionProvider {
   override name = 'affine-note-gfx';
@@ -18,6 +17,6 @@ export class NoteViewExtension extends ViewExtensionProvider {
   override setup(context: ViewExtensionContext) {
     super.setup(context);
     context.register(NoteTool);
-    context.register(noteSeniorTool);
+    // context.register(noteSeniorTool); // Removed Note toolbar control
   }
 }
