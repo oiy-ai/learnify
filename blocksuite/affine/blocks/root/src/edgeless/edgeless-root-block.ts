@@ -9,7 +9,11 @@ import {
 import { isSingleMindMapNode } from '@blocksuite/affine-gfx-mindmap';
 import { PanTool } from '@blocksuite/affine-gfx-pointer';
 import { mountShapeTextEditor } from '@blocksuite/affine-gfx-shape';
-import { NoteBlockModel, type RootBlockModel } from '@blocksuite/affine-model';
+import {
+  NoteBlockModel,
+  type RootBlockModel,
+  type ShapeElementModel,
+} from '@blocksuite/affine-model';
 import {
   EditorSettingProvider,
   EditPropsStore,

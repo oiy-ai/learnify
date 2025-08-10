@@ -12,6 +12,7 @@ import {
   brushToolbarExtension,
   highlighterToolbarExtension,
 } from './toolbar/configs';
+import { penSeniorTool } from './toolbar/senior-tool';
 
 export class BrushViewExtension extends ViewExtensionProvider {
   override name = 'affine-brush-gfx';
@@ -33,6 +34,6 @@ export class BrushViewExtension extends ViewExtensionProvider {
     context.register(brushToolbarExtension);
     context.register(highlighterToolbarExtension);
 
-    // context.register(penSeniorTool); // Removed Pen and Eraser toolbar controls
+    context.register(penSeniorTool);
   }
 }

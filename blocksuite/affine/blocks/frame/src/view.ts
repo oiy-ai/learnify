@@ -4,7 +4,7 @@ import {
 } from '@blocksuite/affine-ext-loader';
 
 import { EdgelessClipboardFrameConfig } from './edgeless-clipboard-config';
-// import { frameQuickTool } from './edgeless-toolbar';
+import { frameQuickTool } from './edgeless-toolbar';
 import { effects } from './effects';
 import { FrameBlockInteraction } from './frame-block';
 import { FrameHighlightManager } from './frame-highlight-manager';
@@ -29,8 +29,7 @@ export class FrameViewExtension extends ViewExtensionProvider {
       context.register(FrameHighlightManager);
       context.register(FrameTool);
       context.register(PresentTool);
-      // Commented out to remove Frame tool from toolbar
-      // context.register(frameQuickTool);
+      context.register(frameQuickTool);
       context.register(frameToolbarExtension);
       context.register(edgelessNavigatorBgWidget);
       context.register(EdgelessClipboardFrameConfig);
