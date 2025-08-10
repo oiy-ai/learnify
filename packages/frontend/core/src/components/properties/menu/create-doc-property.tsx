@@ -58,36 +58,47 @@ export const CreatePropertyMenuItems = ({
         {t['com.affine.page-properties.create-property.menu.header']()}
       </div>
       <MenuSeparator />
-      {Object.entries(WorkspacePropertyTypes).map(([type, info]) => {
-        const name = t.t(info.name);
-        const uniqueId = info.uniqueId;
-        const isUniqueExist = properties.some(meta => meta.id === uniqueId);
-        const Icon = info.icon;
-        return (
-          <MenuItem
-            key={type}
-            prefixIcon={<Icon />}
-            disabled={isUniqueExist}
-            onClick={() => {
-              onAddProperty({
-                name: name,
-                type: type as WorkspacePropertyType,
-              });
-            }}
-            data-testid="create-property-menu-item"
-            data-property-type={type}
-          >
-            <div className={styles.propertyItem}>
-              {name}
-              {isUniqueExist && (
-                <span>
-                  {t['com.affine.page-properties.create-property.added']()}
-                </span>
-              )}
-            </div>
-          </MenuItem>
-        );
-      })}
+      {Object.entries(WorkspacePropertyTypes)
+        .filter(
+          ([type]) =>
+            ![
+              'edgelessTheme',
+              'pageWidth',
+              'journal',
+              'docPrimaryMode',
+              'unknown',
+            ].includes(type)
+        )
+        .map(([type, info]) => {
+          const name = t.t(info.name);
+          const uniqueId = info.uniqueId;
+          const isUniqueExist = properties.some(meta => meta.id === uniqueId);
+          const Icon = info.icon;
+          return (
+            <MenuItem
+              key={type}
+              prefixIcon={<Icon />}
+              disabled={isUniqueExist}
+              onClick={() => {
+                onAddProperty({
+                  name: name,
+                  type: type as WorkspacePropertyType,
+                });
+              }}
+              data-testid="create-property-menu-item"
+              data-property-type={type}
+            >
+              <div className={styles.propertyItem}>
+                {name}
+                {isUniqueExist && (
+                  <span>
+                    {t['com.affine.page-properties.create-property.added']()}
+                  </span>
+                )}
+              </div>
+            </MenuItem>
+          );
+        })}
     </>
   );
 };
