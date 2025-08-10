@@ -1,4 +1,4 @@
-import { notify, toast, useConfirmModal } from '@affine/component';
+import { toast, useConfirmModal } from '@affine/component';
 import {
   Menu,
   MenuItem,
@@ -26,7 +26,6 @@ import { track } from '@affine/track';
 import type { Store } from '@blocksuite/affine/store';
 import {
   DuplicateIcon,
-  EdgelessIcon,
   EditIcon,
   FrameIcon,
   HistoryIcon,
@@ -34,7 +33,6 @@ import {
   InformationIcon,
   LocalWorkspaceIcon,
   OpenInNewIcon,
-  PageIcon,
   ShareIcon,
   SplitViewIcon,
   TocIcon,
@@ -147,7 +145,6 @@ const PageHeaderMenuItem = ({
   const guardService = useService(GuardService);
   const editorService = useService(EditorService);
   const currentMode = useLiveData(editorService.editor.mode$);
-  const primaryMode = useLiveData(editorService.editor.doc.primaryMode$);
 
   const workbench = useService(WorkbenchService).workbench;
   const openInAppService = useServiceOptional(OpenInAppService);
@@ -221,25 +218,6 @@ const PageHeaderMenuItem = ({
     rename?.();
     track.$.header.docOptions.renameDoc();
   }, [rename]);
-
-  const handleSwitchMode = useCallback(() => {
-    const mode = primaryMode === 'page' ? 'edgeless' : 'page';
-    editorService.editor.setMode(mode);
-    editorService.editor.doc.setPrimaryMode(mode);
-    track.$.header.docOptions.switchPageMode({
-      mode,
-    });
-    notify.success({
-      title:
-        primaryMode === 'page'
-          ? t['com.affine.toastMessage.defaultMode.edgeless.title']()
-          : t['com.affine.toastMessage.defaultMode.page.title'](),
-      message:
-        primaryMode === 'page'
-          ? t['com.affine.toastMessage.defaultMode.edgeless.message']()
-          : t['com.affine.toastMessage.defaultMode.page.message'](),
-    });
-  }, [primaryMode, editorService, t]);
 
   const exportHandler = useExportPage();
 
@@ -354,16 +332,6 @@ const PageHeaderMenuItem = ({
           {t['Rename']()}
         </MenuItem>
       )}
-      <MenuItem
-        prefixIcon={primaryMode === 'page' ? <EdgelessIcon /> : <PageIcon />}
-        data-testid="editor-option-menu-edgeless"
-        onSelect={handleSwitchMode}
-        disabled={!canEdit}
-      >
-        {primaryMode === 'page'
-          ? t['com.affine.editorDefaultMode.edgeless']()
-          : t['com.affine.editorDefaultMode.page']()}
-      </MenuItem>
       <MenuItem
         data-testid="editor-option-menu-favorite"
         onSelect={handleToggleFavorite}
