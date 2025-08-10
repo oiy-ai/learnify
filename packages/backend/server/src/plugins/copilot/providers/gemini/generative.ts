@@ -35,24 +35,6 @@ export class GeminiGenerativeProvider extends GeminiProvider<GeminiGenerativeCon
       ],
     },
     {
-      name: 'Gemini 2.5 Flash',
-      id: 'claude-sonnet-4-20250514',
-      capabilities: [
-        {
-          input: [
-            ModelInputType.Text,
-            ModelInputType.Image,
-            ModelInputType.Audio,
-          ],
-          output: [
-            ModelOutputType.Text,
-            ModelOutputType.Object,
-            ModelOutputType.Structured,
-          ],
-        },
-      ],
-    },
-    {
       name: 'Gemini 2.5 Pro',
       id: 'gemini-2.5-pro',
       capabilities: [
@@ -80,18 +62,17 @@ export class GeminiGenerativeProvider extends GeminiProvider<GeminiGenerativeCon
         },
       ],
     },
-    // not exists yet
-    // {
-    //   name: 'Gemini Embedding',
-    //   id: 'gemini-embedding-001',
-    //   capabilities: [
-    //     {
-    //       input: [ModelInputType.Text],
-    //       output: [ModelOutputType.Embedding],
-    //       defaultForOutputType: true,
-    //     },
-    //   ],
-    // },
+    {
+      name: 'Gemini Embedding',
+      id: 'gemini-embedding-001',
+      capabilities: [
+        {
+          input: [ModelInputType.Text],
+          output: [ModelOutputType.Embedding],
+          defaultForOutputType: true,
+        },
+      ],
+    },
   ];
 
   protected instance!: GoogleGenerativeAIProvider;
