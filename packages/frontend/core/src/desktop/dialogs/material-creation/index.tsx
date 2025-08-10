@@ -9,6 +9,7 @@ import {
   getAFFiNEWorkspaceSchema,
   WorkspaceService,
 } from '@affine/core/modules/workspace';
+import { createMindmap as createMindmapElement } from '@affine/core/utils/mindmap-creator';
 import { useI18n } from '@affine/i18n';
 import { getSurfaceBlock } from '@blocksuite/affine/blocks/surface';
 import type { AttachmentBlockModel } from '@blocksuite/affine/model';
@@ -152,115 +153,6 @@ export const MaterialCreationDialog = ({
     [workspaceService]
   );
 
-  // Function to create mindmap from materials
-  const createMindmap = useCallback(
-    async (
-      _materialIds: string[],
-      materials: MaterialItem[]
-    ): Promise<string | null> => {
-      let tempDoc: any = null;
-      let releaseTempDoc: (() => void) | null = null;
-
-      try {
-        // Create temporary doc for AI session
-        tempDoc = docsService.createDoc({ primaryMode: 'page' });
-        const { release } = docsService.open(tempDoc.id);
-        releaseTempDoc = release;
-
-        // TODO: Uncomment for production
-        // const { prompt, attachments } = await buildMindmapPrompt(materials);
-        // const aiResponse = await AIProvider.actions.chat({
-        //   input: prompt,
-        //   workspaceId: workspaceService.workspace.id,
-        //   docId: tempDoc.id,
-        //   attachments: attachments.length > 0 ? attachments : undefined,
-        //   stream: true,
-        // });
-        // const markdownContent = await processAIResponse(aiResponse);
-
-        // Create edgeless document for mindmap
-        const mindmapDoc = docsService.createDoc({ primaryMode: 'edgeless' });
-        const { doc: edgelessDoc, release: releaseEdgeless } = docsService.open(
-          mindmapDoc.id
-        );
-
-        // Wait for doc to be ready
-        await edgelessDoc.waitForSyncReady();
-        const blockSuiteDoc = edgelessDoc.blockSuiteDoc;
-
-        // Get surface block
-        const surface = getSurfaceBlock(blockSuiteDoc);
-        if (surface) {
-          // Add a text note with instructions
-          const noteId = blockSuiteDoc.addBlock(
-            'affine:note',
-            {
-              xywh: '[100, 100, 400, 200]',
-            },
-            blockSuiteDoc.root?.id
-          );
-
-          if (noteId) {
-            const noteBlock = blockSuiteDoc.getBlock(noteId);
-            if (noteBlock?.model) {
-              blockSuiteDoc.addBlock(
-                'affine:paragraph',
-                {
-                  text: {
-                    insert:
-                      '📝 点击左侧工具栏的思维导图图标来创建您的思维导图\n\n素材：\n' +
-                      materials.map(m => `• ${m.name}`).join('\n'),
-                  },
-                },
-                noteBlock.model.id
-              );
-            }
-          }
-        }
-
-        // Generate title for the mindmap
-        const title = `Mindmap: ${materials.map(m => m.name).join(', ')}`;
-        workspaceService.workspace.docCollection.meta.setDocMeta(
-          mindmapDoc.id,
-          { title }
-        );
-
-        // Add to MIND_MAPS collection
-        const mindmapsCollection = collectionService.collection$(
-          LEARNIFY_COLLECTIONS.MIND_MAPS
-        ).value;
-
-        if (mindmapsCollection) {
-          collectionService.addDocToCollection(
-            mindmapsCollection.id,
-            mindmapDoc.id
-          );
-        }
-
-        // Navigate to the new mindmap
-        workbenchService.workbench.openDoc(mindmapDoc.id);
-
-        // Clean up
-        releaseEdgeless();
-
-        return mindmapDoc.id;
-      } catch (error) {
-        console.error('[Mindmap] Failed to create mindmap:', error);
-        throw error;
-      } finally {
-        // Always clean up temp doc
-        cleanupTempDoc(tempDoc, releaseTempDoc);
-      }
-    },
-    [
-      cleanupTempDoc,
-      collectionService,
-      workspaceService,
-      workbenchService,
-      docsService,
-    ]
-  );
-
   // Helper function to get content from materials
   const getMaterialContent = useCallback(
     async (material: MaterialItem): Promise<MaterialContent> => {
@@ -364,6 +256,259 @@ export const MaterialCreationDialog = ({
       };
     },
     [getMaterialContent]
+  );
+
+  // Process AI response for mindmap
+  const processAIMindmapResponse = useCallback(
+    async (aiResponse: any): Promise<any> => {
+      let content = '';
+
+      // Handle streaming response - similar to processAIResponse for notes
+      if (
+        aiResponse &&
+        typeof aiResponse === 'object' &&
+        Symbol.asyncIterator in aiResponse
+      ) {
+        const streamObjects = [];
+        let fallbackContent = '';
+
+        for await (const chunk of aiResponse) {
+          try {
+            const parsed = StreamObjectSchema.parse(JSON.parse(chunk));
+            streamObjects.push(parsed);
+          } catch {
+            // Fallback to plain text if JSON parsing fails
+            fallbackContent += chunk;
+          }
+        }
+
+        content =
+          streamObjects.length > 0
+            ? mergeStreamContent(streamObjects)
+            : fallbackContent;
+      } else if (typeof aiResponse === 'string') {
+        content = aiResponse;
+      }
+
+      // Try to extract JSON from the response
+      try {
+        // First, try to find a JSON object in the content
+        // Look for JSON that starts with { and ends with }
+        const jsonMatch = content.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/);
+        if (jsonMatch) {
+          const jsonStr = jsonMatch[0];
+          console.log('Found potential JSON:', jsonStr);
+          return JSON.parse(jsonStr);
+        }
+
+        // If no JSON found, try parsing the entire content
+        return JSON.parse(content);
+      } catch (error) {
+        console.error('Failed to parse mindmap JSON:', error);
+        console.log('Content that failed to parse:', content);
+      }
+
+      return null;
+    },
+    []
+  );
+
+  // Function to create mindmap from materials
+  const createMindmap = useCallback(
+    async (
+      _materialIds: string[],
+      materials: MaterialItem[]
+    ): Promise<string | null> => {
+      let tempDoc: any = null;
+      let releaseTempDoc: (() => void) | null = null;
+
+      try {
+        // Step 1: Generate mindmap structure using AI
+        let aiMindmapStructure;
+
+        try {
+          // Build prompt from materials
+          const { prompt, attachments } =
+            await buildPromptFromMaterials(materials);
+
+          // Modify prompt for mindmap generation
+          const mindmapPrompt = `${prompt}
+
+Instead of creating notes, please create a mind map structure in JSON format with the following requirements:
+1. Create a hierarchical knowledge structure based on the materials
+2. Include core concepts, knowledge categories, and learning objectives
+3. Each node should have clear hierarchical relationships
+4. Return ONLY the JSON object, no markdown, no code blocks, just pure JSON:
+{
+  "text": "Main Topic",
+  "children": [
+    {
+      "text": "Subtopic",
+      "children": []
+    }
+  ]
+}`;
+
+          // Create temporary doc for AI session
+          tempDoc = docsService.createDoc({ primaryMode: 'page' });
+          const { release } = docsService.open(tempDoc.id);
+          releaseTempDoc = release;
+
+          // Check AI availability
+          if (!AIProvider.actions.chat) {
+            throw new Error('AI service is not available.');
+          }
+
+          // Call AI service with streaming
+          const aiResponse = await AIProvider.actions.chat({
+            input: mindmapPrompt,
+            workspaceId: workspaceService.workspace.id,
+            docId: tempDoc.id,
+            attachments: attachments.length > 0 ? attachments : undefined,
+            stream: true,
+          });
+
+          // Process AI response to get mindmap JSON
+          const mindmapStructure = await processAIMindmapResponse(aiResponse);
+
+          if (mindmapStructure) {
+            aiMindmapStructure = mindmapStructure;
+          }
+        } catch (aiError) {
+          console.error('Failed to generate mindmap with AI:', aiError);
+        } finally {
+          // Clean up temp doc
+          cleanupTempDoc(tempDoc, releaseTempDoc);
+        }
+
+        // Fallback to simple structure if AI fails
+        if (!aiMindmapStructure) {
+          aiMindmapStructure = {
+            text: '学习资料知识图谱',
+            children: materials.slice(0, 3).map(m => ({
+              text: m.name,
+              children: [
+                { text: `类型: ${m.category}`, children: [] },
+                { text: m.description || '暂无描述', children: [] },
+              ],
+            })),
+          };
+        }
+
+        // Step 2: Create edgeless document
+        const mindmapDoc = docsService.createDoc({ primaryMode: 'edgeless' });
+        const { doc: edgelessDoc, release: releaseEdgeless } = docsService.open(
+          mindmapDoc.id
+        );
+
+        // Step 3: Wait for doc to be ready
+        await edgelessDoc.waitForSyncReady();
+        const blockSuiteDoc = edgelessDoc.blockSuiteDoc;
+
+        // Step 4: Create mindmap using the utility
+        const mindmapId = await createMindmapElement(blockSuiteDoc, {
+          tree: aiMindmapStructure,
+          style: 1,
+          layoutType: 0,
+          xywh: '[0, 0, 1200, 900]',
+        });
+
+        if (mindmapId) {
+          // Trigger layout after a delay to ensure proper rendering
+          setTimeout(() => {
+            try {
+              const surface = getSurfaceBlock(blockSuiteDoc);
+              if (surface) {
+                const surfaceModel = surface as any;
+                const mindmapElement = surfaceModel.getElementById?.(mindmapId);
+
+                if (mindmapElement) {
+                  // Ensure tree is built
+                  mindmapElement.buildTree?.();
+                  // Request layout with default options
+                  mindmapElement.requestLayout?.() || mindmapElement.layout?.();
+                }
+              }
+            } catch {
+              // Silently handle layout errors
+            }
+          }, 200);
+
+          // Set document title
+          const title = `思维导图: ${materials
+            .slice(0, 2)
+            .map(m => m.name)
+            .join(', ')}${
+            materials.length > 2 ? ` 等${materials.length}个素材` : ''
+          }`;
+
+          workspaceService.workspace.docCollection.meta.setDocMeta(
+            mindmapDoc.id,
+            { title }
+          );
+
+          // Add to MIND_MAPS collection
+          const mindmapsCollection = collectionService.collection$(
+            LEARNIFY_COLLECTIONS.MIND_MAPS
+          ).value;
+
+          if (mindmapsCollection) {
+            collectionService.addDocToCollection(
+              mindmapsCollection.id,
+              mindmapDoc.id
+            );
+          }
+
+          // Navigate to the new mindmap
+          workbenchService.workbench.openDoc(mindmapDoc.id);
+
+          // Clean up
+          releaseEdgeless();
+
+          return mindmapDoc.id;
+        } else {
+          // Fallback: Add instruction note
+          const surface = getSurfaceBlock(blockSuiteDoc);
+          if (surface) {
+            const noteId = blockSuiteDoc.addBlock(
+              'affine:note',
+              { xywh: '[100, 100, 400, 200]' },
+              blockSuiteDoc.root?.id
+            );
+
+            if (noteId) {
+              const noteBlock = blockSuiteDoc.getBlock(noteId);
+              if (noteBlock?.model) {
+                blockSuiteDoc.addBlock(
+                  'affine:paragraph',
+                  {
+                    text: {
+                      insert:
+                        '📝 思维导图创建失败\n\n请手动使用左侧工具栏的思维导图工具创建',
+                    },
+                  },
+                  noteBlock.model.id
+                );
+              }
+            }
+          }
+
+          releaseEdgeless();
+          return null;
+        }
+      } catch {
+        return null;
+      }
+    },
+    [
+      buildPromptFromMaterials,
+      processAIMindmapResponse,
+      cleanupTempDoc,
+      collectionService,
+      workspaceService,
+      workbenchService,
+      docsService,
+    ]
   );
 
   // Build AI prompt from materials for flashcards
@@ -762,6 +907,7 @@ export const MaterialCreationDialog = ({
   const createPodcast = useCallback(
     (_materialIds: string[], _materials: MaterialItem[]) => {
       // TODO: Implement podcast creation logic
+      return Promise.resolve(null);
     },
     []
   );
@@ -783,7 +929,7 @@ export const MaterialCreationDialog = ({
       return;
     }
 
-    const creationHandlers: Record<CreationOptionId, () => Promise<void>> = {
+    const creationHandlers: Record<CreationOptionId, () => Promise<any>> = {
       mindmap: async () => {
         await createMindmap(materialIds, selectedMaterials);
       },
@@ -793,7 +939,9 @@ export const MaterialCreationDialog = ({
       flashcards: async () => {
         await createFlashcards(materialIds, selectedMaterials);
       },
-      podcast: async () => createPodcast(materialIds, selectedMaterials),
+      podcast: async () => {
+        return createPodcast(materialIds, selectedMaterials);
+      },
     };
 
     // Process each selected option
