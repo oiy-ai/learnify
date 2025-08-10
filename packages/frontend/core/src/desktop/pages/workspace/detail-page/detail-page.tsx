@@ -102,7 +102,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
 
   const isActiveView = useIsActiveView();
   // TODO(@eyhn): remove jotai here
-   
+
   const [_, setActiveBlockSuiteEditor] = useActiveBlocksuiteEditor();
 
   const enableAI = useEnableAI();
@@ -345,23 +345,27 @@ const DetailPageImpl = memo(function DetailPageImpl() {
         </ViewSidebarTab>
       )}
 
-      <ViewSidebarTab tabId="outline" icon={<TocIcon />}>
-        <Scrollable.Root className={styles.sidebarScrollArea}>
-          <Scrollable.Viewport>
-            <EditorOutlinePanel editor={editorContainer?.host ?? null} />
-          </Scrollable.Viewport>
-          <Scrollable.Scrollbar />
-        </Scrollable.Root>
-      </ViewSidebarTab>
+      {mode === 'page' && (
+        <ViewSidebarTab tabId="outline" icon={<TocIcon />}>
+          <Scrollable.Root className={styles.sidebarScrollArea}>
+            <Scrollable.Viewport>
+              <EditorOutlinePanel editor={editorContainer?.host ?? null} />
+            </Scrollable.Viewport>
+            <Scrollable.Scrollbar />
+          </Scrollable.Root>
+        </ViewSidebarTab>
+      )}
 
-      <ViewSidebarTab tabId="frame" icon={<FrameIcon />}>
-        <Scrollable.Root className={styles.sidebarScrollArea}>
-          <Scrollable.Viewport>
-            <EditorFramePanel editor={editorContainer?.host ?? null} />
-          </Scrollable.Viewport>
-          <Scrollable.Scrollbar />
-        </Scrollable.Root>
-      </ViewSidebarTab>
+      {mode === 'edgeless' && (
+        <ViewSidebarTab tabId="frame" icon={<FrameIcon />}>
+          <Scrollable.Root className={styles.sidebarScrollArea}>
+            <Scrollable.Viewport>
+              <EditorFramePanel editor={editorContainer?.host ?? null} />
+            </Scrollable.Viewport>
+            <Scrollable.Scrollbar />
+          </Scrollable.Root>
+        </ViewSidebarTab>
+      )}
 
       {enableAdapterPanel && (
         <ViewSidebarTab tabId="adapter" icon={<ExportIcon />}>
