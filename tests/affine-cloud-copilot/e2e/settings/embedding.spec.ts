@@ -7,10 +7,7 @@ test.describe.configure({ mode: 'serial' });
 
 test.describe('AISettings/Embedding', () => {
   test.beforeEach(async ({ loggedInPage: page, utils }) => {
-    await utils.testUtils.setupTestEnvironment(
-      page,
-      'claude-sonnet-4-20250514'
-    );
+    await utils.testUtils.setupTestEnvironment(page, 'gpt-4.1-mini');
     await utils.chatPanel.openChatPanel(page);
   });
 

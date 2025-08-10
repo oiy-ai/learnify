@@ -1809,7 +1809,7 @@ Now apply the \`updates\` to the \`content\`, following the intent in \`op\`, an
 ];
 
 const CHAT_PROMPT: Omit<Prompt, 'name'> = {
-  model: 'claude-sonnet-4-20250514',
+  model: 'gpt-4.1-mini',
   optionalModels: [
     'gpt-4.1',
     'o3',

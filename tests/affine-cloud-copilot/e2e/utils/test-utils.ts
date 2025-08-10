@@ -61,10 +61,7 @@ export class TestUtils {
     await waitForEditorLoad(page);
   }
 
-  public async setupTestEnvironment(
-    page: Page,
-    defaultModel = 'claude-sonnet-4-20250514'
-  ) {
+  public async setupTestEnvironment(page: Page, defaultModel = 'gpt-4.1-mini') {
     await switchDefaultChatModel(defaultModel);
 
     await skipOnboarding(page.context());

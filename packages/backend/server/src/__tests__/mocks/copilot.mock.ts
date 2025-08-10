@@ -99,7 +99,7 @@ export class MockCopilotProvider extends OpenAIProvider {
       ],
     },
     {
-      id: 'claude-sonnet-4-20250514',
+      id: 'gpt-4.1-mini',
       capabilities: [
         {
           input: [ModelInputType.Text, ModelInputType.Image],
