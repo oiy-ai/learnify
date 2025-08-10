@@ -14,7 +14,6 @@ import { useEnableAI } from '@affine/core/components/hooks/affine/use-enable-ai'
 import { useRegisterBlocksuiteEditorCommands } from '@affine/core/components/hooks/affine/use-register-blocksuite-editor-commands';
 import { useActiveBlocksuiteEditor } from '@affine/core/components/hooks/use-block-suite-editor';
 import { PageDetailEditor } from '@affine/core/components/page-detail-editor';
-import { WorkspacePropertySidebar } from '@affine/core/components/properties/sidebar';
 import { TrashPageFooter } from '@affine/core/components/pure/trash-page-footer';
 import { TopTip } from '@affine/core/components/top-tip';
 import { ServerService } from '@affine/core/modules/cloud';
@@ -43,9 +42,7 @@ import {
   CommentIcon,
   ExportIcon,
   FrameIcon,
-  PropertyIcon,
   TocIcon,
-  TodayIcon,
 } from '@blocksuite/icons/rc';
 import {
   FrameworkScope,
@@ -66,7 +63,6 @@ import { DetailPageWrapper } from './detail-page-wrapper';
 import { EditorAdapterPanel } from './tabs/adapter';
 import { EditorChatPanel } from './tabs/chat';
 import { EditorFramePanel } from './tabs/frame';
-import { EditorJournalPanel } from './tabs/journal';
 import { EditorOutlinePanel } from './tabs/outline';
 
 const DetailPageImpl = memo(function DetailPageImpl() {
@@ -106,7 +102,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
 
   const isActiveView = useIsActiveView();
   // TODO(@eyhn): remove jotai here
-  // eslint-disable-next-line no-unused-vars
+   
   const [_, setActiveBlockSuiteEditor] = useActiveBlocksuiteEditor();
 
   const enableAI = useEnableAI();
@@ -348,24 +344,6 @@ const DetailPageImpl = memo(function DetailPageImpl() {
           <EditorChatPanel editor={editorContainer} ref={chatPanelRef} />
         </ViewSidebarTab>
       )}
-
-      <ViewSidebarTab tabId="properties" icon={<PropertyIcon />}>
-        <Scrollable.Root className={styles.sidebarScrollArea}>
-          <Scrollable.Viewport>
-            <WorkspacePropertySidebar />
-          </Scrollable.Viewport>
-          <Scrollable.Scrollbar />
-        </Scrollable.Root>
-      </ViewSidebarTab>
-
-      <ViewSidebarTab tabId="journal" icon={<TodayIcon />}>
-        <Scrollable.Root className={styles.sidebarScrollArea}>
-          <Scrollable.Viewport>
-            <EditorJournalPanel />
-          </Scrollable.Viewport>
-          <Scrollable.Scrollbar />
-        </Scrollable.Root>
-      </ViewSidebarTab>
 
       <ViewSidebarTab tabId="outline" icon={<TocIcon />}>
         <Scrollable.Root className={styles.sidebarScrollArea}>
