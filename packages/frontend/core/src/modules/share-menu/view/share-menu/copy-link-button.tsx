@@ -1,15 +1,12 @@
-import { Button, Menu, MenuItem, MenuTrigger } from '@affine/component';
-import {
-  getSelectedNodes,
-  useSharingUrl,
-} from '@affine/core/components/hooks/affine/use-share-url';
+import { Button } from '@affine/component';
+import { useSharingUrl } from '@affine/core/components/hooks/affine/use-share-url';
+import { DocService } from '@affine/core/modules/doc';
 import { EditorService } from '@affine/core/modules/editor';
 import { useI18n } from '@affine/i18n';
 import type { DocMode } from '@blocksuite/affine/model';
-import { BlockIcon, EdgelessIcon, PageIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
 import clsx from 'clsx';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 import * as styles from './copy-link-button.css';
 
@@ -23,31 +20,22 @@ export const CopyLinkButton = ({
   const t = useI18n();
 
   const editor = useService(EditorService).editor;
-  const currentMode = useLiveData(editor.mode$);
-  const editorContainer = useLiveData(editor.editorContainer$);
+  const docService = useService(DocService);
 
-  const { blockIds, elementIds } = useMemo(
-    () => getSelectedNodes(editorContainer?.host || null, currentMode),
-    [editorContainer, currentMode]
-  );
+  // Get the document's primary mode
+  const primaryMode = useLiveData(docService.doc.primaryMode$);
+
   const { onClickCopyLink } = useSharingUrl({
     workspaceId,
     pageId: editor.doc.id,
   });
 
-  const onCopyPageLink = useCallback(() => {
-    onClickCopyLink('page' as DocMode);
-  }, [onClickCopyLink]);
-  const onCopyEdgelessLink = useCallback(() => {
-    onClickCopyLink('edgeless' as DocMode);
-  }, [onClickCopyLink]);
-  const onCopyBlockLink = useCallback(() => {
-    onClickCopyLink(currentMode, blockIds, elementIds);
-  }, [onClickCopyLink, currentMode, blockIds, elementIds]);
-
+  // Copy link with the document's primary mode
   const onCopyLink = useCallback(() => {
-    onClickCopyLink();
-  }, [onClickCopyLink]);
+    // If primary mode is edgeless, share as edgeless, otherwise share as page
+    const shareMode: DocMode = primaryMode === 'edgeless' ? 'edgeless' : 'page';
+    onClickCopyLink(shareMode);
+  }, [onClickCopyLink, primaryMode]);
 
   return (
     <div
@@ -58,6 +46,8 @@ export const CopyLinkButton = ({
         onClick={onCopyLink}
         withoutHover
         variant={secondary ? 'secondary' : 'primary'}
+        data-testid="share-menu-copy-link-button"
+        style={{ width: '100%' }}
       >
         <span
           className={clsx(styles.copyLinkLabelStyle, {
@@ -76,46 +66,6 @@ export const CopyLinkButton = ({
           </span>
         )}
       </Button>
-      <Menu
-        contentOptions={{
-          align: 'end',
-        }}
-        items={
-          <>
-            <MenuItem
-              prefixIcon={<PageIcon />}
-              onSelect={onCopyPageLink}
-              data-testid="share-link-menu-copy-page"
-            >
-              {t['com.affine.share-menu.copy.page']()}
-            </MenuItem>
-            <MenuItem
-              prefixIcon={<EdgelessIcon />}
-              onSelect={onCopyEdgelessLink}
-              data-testid="share-link-menu-copy-edgeless"
-            >
-              {t['com.affine.share-menu.copy.edgeless']()}
-            </MenuItem>
-            <MenuItem
-              prefixIcon={<BlockIcon />}
-              onSelect={onCopyBlockLink}
-              disabled={blockIds.length + elementIds.length === 0}
-            >
-              {t['com.affine.share-menu.copy.block']()}
-            </MenuItem>
-          </>
-        }
-      >
-        <MenuTrigger
-          variant={secondary ? 'secondary' : 'primary'}
-          className={clsx(styles.copyLinkTriggerStyle, {
-            secondary: secondary,
-          })}
-          data-testid="share-menu-copy-link-button"
-          suffixStyle={{ width: 20, height: 20 }}
-          withoutHover
-        />
-      </Menu>
     </div>
   );
 };
