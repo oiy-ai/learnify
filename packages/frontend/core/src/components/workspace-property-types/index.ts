@@ -8,7 +8,6 @@ import {
   CheckBoxCheckLinearIcon,
   DateTimeIcon,
   EdgelessIcon,
-  FileIcon,
   HistoryIcon,
   LongerIcon,
   MemberIcon,
@@ -17,7 +16,6 @@ import {
   TagIcon,
   TemplateIcon,
   TextIcon,
-  TodayIcon,
 } from '@blocksuite/icons/rc';
 
 import type { DocListPropertyProps, GroupHeaderProps } from '../explorer/types';
@@ -53,23 +51,11 @@ import {
   DateValue,
 } from './date';
 import {
-  DocPrimaryModeDocListProperty,
-  DocPrimaryModeFilterValue,
-  DocPrimaryModeGroupHeader,
-  DocPrimaryModeValue,
-} from './doc-primary-mode';
-import {
   EdgelessThemeDocListProperty,
   EdgelessThemeFilterValue,
   EdgelessThemeGroupHeader,
   EdgelessThemeValue,
 } from './edgeless-theme';
-import {
-  JournalDocListProperty,
-  JournalFilterValue,
-  JournalGroupHeader,
-  JournalValue,
-} from './journal';
 import {
   NumberDocListProperty,
   NumberFilterValue,
@@ -282,40 +268,6 @@ export const WorkspacePropertyTypes = {
     docListProperty: CreateAtDocListProperty,
     groupHeader: CreatedAtGroupHeader,
   },
-  docPrimaryMode: {
-    icon: FileIcon,
-    value: DocPrimaryModeValue,
-    name: 'com.affine.page-properties.property.docPrimaryMode',
-    description: 'com.affine.page-properties.property.docPrimaryMode.tooltips',
-    allowInGroupBy: false,
-    allowInOrderBy: false,
-    filterMethod: {
-      is: 'com.affine.editCollection.rules.include.is',
-      'is-not': 'com.affine.editCollection.rules.include.is-not',
-    },
-    filterValue: DocPrimaryModeFilterValue,
-    defaultFilter: { method: 'is', value: 'page' },
-    showInDocList: undefined,
-    docListProperty: DocPrimaryModeDocListProperty,
-    groupHeader: DocPrimaryModeGroupHeader,
-  },
-  journal: {
-    icon: TodayIcon,
-    value: JournalValue,
-    name: 'com.affine.page-properties.property.journal',
-    description: 'com.affine.page-properties.property.journal.tooltips',
-    allowInGroupBy: false,
-    allowInOrderBy: false,
-    filterMethod: {
-      is: 'com.affine.editCollection.rules.include.is',
-      'is-not': 'com.affine.editCollection.rules.include.is-not',
-    },
-    filterValue: JournalFilterValue,
-    defaultFilter: { method: 'is', value: 'true' },
-    showInDocList: undefined,
-    docListProperty: JournalDocListProperty,
-    groupHeader: JournalGroupHeader,
-  },
   edgelessTheme: {
     icon: EdgelessIcon,
     value: EdgelessThemeValue,
@@ -367,6 +319,18 @@ export const WorkspacePropertyTypes = {
     },
     filterValue: TemplateFilterValue,
     defaultFilter: { method: 'is', value: 'true' },
+  },
+  journal: {
+    icon: PropertyIcon,
+    name: 'com.affine.page-properties.property.journal',
+    renameable: false,
+    showInDocList: undefined,
+  },
+  docPrimaryMode: {
+    icon: PropertyIcon,
+    name: 'com.affine.page-properties.property.docPrimaryMode',
+    renameable: false,
+    showInDocList: undefined,
   },
   unknown: {
     icon: PropertyIcon,
