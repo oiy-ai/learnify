@@ -29,10 +29,22 @@ export const playerHeader = style({
   alignItems: 'center',
 });
 
+export const coverImageContainer = style({
+  position: 'relative',
+  width: '80px',
+  height: '80px',
+  borderRadius: '16px',
+  backgroundColor: 'var(--affine-background-primary-color)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+});
+
 export const coverImage = style({
   width: '80px',
   height: '80px',
-  borderRadius: '8px',
+  borderRadius: '16px',
   objectFit: 'cover',
 });
 

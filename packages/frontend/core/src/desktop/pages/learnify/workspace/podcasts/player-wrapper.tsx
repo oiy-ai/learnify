@@ -28,8 +28,7 @@ const mockPodcastData: PodcastData = {
   author: 'Tech Talks Podcast',
   duration: 100, // 100 seconds to match subtitle length
   audioUrl: 'https://example.com/podcast.mp3',
-  coverUrl:
-    'https://www.edigitalagency.com.au/wp-content/uploads/ChatGPT-logo-PNG-large-size-white-green-background.png',
+  coverUrl: '/imgs/logo.svg',
   subtitles: [
     {
       id: '1',
@@ -216,11 +215,13 @@ export const PlayerWrapper = ({ onLoad }: { onLoad: () => void }) => {
       <div className={styles.playerContainer}>
         <div className={styles.playerHeader}>
           {podcast.coverUrl && (
-            <img
-              src={podcast.coverUrl}
-              alt={podcast.title}
-              className={styles.coverImage}
-            />
+            <div className={styles.coverImageContainer}>
+              <img
+                src={podcast.coverUrl}
+                alt={podcast.title}
+                className={styles.coverImage}
+              />
+            </div>
           )}
           <div className={styles.podcastInfo}>
             <h2 className={styles.podcastTitle}>{podcast.title}</h2>
