@@ -10,7 +10,7 @@ import { ConnectorElementRendererExtension } from './element-renderer';
 import { ConnectorDomRendererExtension } from './element-renderer/connector-dom';
 import { ConnectorFilter } from './element-transform';
 import { connectorToolbarExtension } from './toolbar/config';
-import { connectorQuickTool } from './toolbar/quick-tool';
+// import { connectorQuickTool } from './toolbar/quick-tool';
 import { ConnectorElementView, ConnectorInteraction } from './view/view';
 
 export class ConnectorViewExtension extends ViewExtensionProvider {
@@ -29,7 +29,8 @@ export class ConnectorViewExtension extends ViewExtensionProvider {
     if (this.isEdgeless(context.scope)) {
       context.register(ConnectorTool);
       context.register(ConnectorFilter);
-      context.register(connectorQuickTool);
+      // Commented out to remove Connector (Curve) tool from toolbar
+      // context.register(connectorQuickTool);
       context.register(connectorToolbarExtension);
       context.register(ConnectionOverlay);
       context.register(ConnectorInteraction);
