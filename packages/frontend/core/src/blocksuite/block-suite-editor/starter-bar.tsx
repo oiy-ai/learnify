@@ -15,11 +15,7 @@ import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
 import { PageRootBlockComponent } from '@blocksuite/affine/blocks/root';
 import type { Store } from '@blocksuite/affine/store';
-import {
-  AiIcon,
-  EdgelessIcon,
-  TemplateColoredIcon,
-} from '@blocksuite/icons/rc';
+import { AiIcon, TemplateColoredIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
 import clsx from 'clsx';
 import {
@@ -79,12 +75,6 @@ const StarterBarNotEmpty = ({ doc }: { doc: Store }) => {
     },
     [doc.id, docsService]
   );
-
-  const startWithEdgeless = useCallback(() => {
-    const record = docsService.list.doc$(doc.id).value;
-    record?.setPrimaryMode('edgeless');
-    editorService.editor.setMode('edgeless');
-  }, [doc.id, docsService.list, editorService.editor]);
 
   const onTemplateMenuOpenChange = useCallback((open: boolean) => {
     if (open) track.doc.editor.starterBar.openTemplateListMenu();
@@ -155,12 +145,6 @@ const StarterBarNotEmpty = ({ doc }: { doc: Store }) => {
             />
           </TemplateListMenu>
         ) : null}
-
-        <Badge
-          icon={<EdgelessIcon />}
-          text={t['com.affine.page-starter-bar.edgeless']()}
-          onClick={startWithEdgeless}
-        />
       </ul>
     </div>
   );
