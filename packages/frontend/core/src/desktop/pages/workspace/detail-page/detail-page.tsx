@@ -93,6 +93,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
 
   const isInTrash = useLiveData(doc.meta$.map(meta => meta.trash));
   const editorContainer = useLiveData(editor.editorContainer$);
+  const primaryMode = useLiveData(doc.primaryMode$);
 
   const isSideBarOpen = useLiveData(workbench.sidebarOpen$);
   const { appSettings } = useAppSettingHelper();
@@ -119,6 +120,13 @@ const DetailPageImpl = memo(function DetailPageImpl() {
   const enableComment =
     workspace.flavour !== 'local' &&
     serverConfig.features.includes(ServerFeature.Comment);
+
+  // Automatically switch to document's primary mode when document changes
+  useEffect(() => {
+    if (primaryMode && isActiveView) {
+      editor.setMode(primaryMode);
+    }
+  }, [doc.id, primaryMode, editor, isActiveView]);
 
   useEffect(() => {
     if (isActiveView) {
