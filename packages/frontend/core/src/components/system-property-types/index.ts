@@ -4,12 +4,11 @@ import type { I18nString } from '@affine/i18n';
 import {
   CloudWorkspaceIcon,
   DateTimeIcon,
-  EdgelessIcon,
   FavoriteIcon,
   HistoryIcon,
   IntegrationsIcon,
-  LongerIcon,
   MemberIcon,
+  PropertyIcon,
   TagIcon,
   TemplateIcon,
   TitleIcon,
@@ -31,22 +30,12 @@ import {
   ModifiedByGroupHeader,
   UpdatedByDocListInlineProperty,
 } from './created-updated-by';
-import {
-  EdgelessThemeDocListProperty,
-  EdgelessThemeFilterValue,
-  EdgelessThemeGroupHeader,
-} from './edgeless-theme';
 import { FavoriteFilterValue } from './favorite';
 import {
   IntegrationTypeDocListProperty,
   IntegrationTypeFilterValue,
   IntegrationTypeGroupHeader,
 } from './integration-type';
-import {
-  PageWidthDocListProperty,
-  PageWidthFilterValue,
-  PageWidthGroupHeader,
-} from './page-width';
 import { SharedFilterValue } from './shared';
 import { TagsDocListProperty, TagsFilterValue, TagsGroupHeader } from './tags';
 import {
@@ -153,34 +142,14 @@ export const SystemPropertyTypes = {
     filterValue: SharedFilterValue,
   },
   edgelessTheme: {
-    icon: EdgelessIcon,
+    icon: PropertyIcon,
     name: 'com.affine.page-properties.property.edgelessTheme',
     showInDocList: undefined,
-    allowInGroupBy: false,
-    allowInOrderBy: false,
-    docListProperty: EdgelessThemeDocListProperty,
-    groupHeader: EdgelessThemeGroupHeader,
-    filterMethod: {
-      is: 'com.affine.editCollection.rules.include.is',
-      'is-not': 'com.affine.editCollection.rules.include.is-not',
-    },
-    filterValue: EdgelessThemeFilterValue,
-    defaultFilter: { method: 'is', value: 'system' },
   },
   pageWidth: {
-    icon: LongerIcon,
+    icon: PropertyIcon,
     name: 'com.affine.page-properties.property.pageWidth',
-    showInDocList: 'stack',
-    allowInGroupBy: false,
-    allowInOrderBy: false,
-    docListProperty: PageWidthDocListProperty,
-    groupHeader: PageWidthGroupHeader,
-    filterMethod: {
-      is: 'com.affine.editCollection.rules.include.is',
-      'is-not': 'com.affine.editCollection.rules.include.is-not',
-    },
-    filterValue: PageWidthFilterValue,
-    defaultFilter: { method: 'is', value: 'fullWidth' },
+    showInDocList: undefined,
   },
   template: {
     icon: TemplateIcon,

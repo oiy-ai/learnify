@@ -7,9 +7,7 @@ import type { I18nString } from '@affine/i18n';
 import {
   CheckBoxCheckLinearIcon,
   DateTimeIcon,
-  EdgelessIcon,
   HistoryIcon,
-  LongerIcon,
   MemberIcon,
   NumberIcon,
   PropertyIcon,
@@ -51,23 +49,11 @@ import {
   DateValue,
 } from './date';
 import {
-  EdgelessThemeDocListProperty,
-  EdgelessThemeFilterValue,
-  EdgelessThemeGroupHeader,
-  EdgelessThemeValue,
-} from './edgeless-theme';
-import {
   NumberDocListProperty,
   NumberFilterValue,
   NumberGroupHeader,
   NumberValue,
 } from './number';
-import {
-  PageWidthDocListProperty,
-  PageWidthFilterValue,
-  PageWidthGroupHeader,
-  PageWidthValue,
-} from './page-width';
 import {
   TagsDocListProperty,
   TagsFilterValue,
@@ -269,38 +255,16 @@ export const WorkspacePropertyTypes = {
     groupHeader: CreatedAtGroupHeader,
   },
   edgelessTheme: {
-    icon: EdgelessIcon,
-    value: EdgelessThemeValue,
+    icon: PropertyIcon,
     name: 'com.affine.page-properties.property.edgelessTheme',
-    description: 'com.affine.page-properties.property.edgelessTheme.tooltips',
+    renameable: false,
     showInDocList: undefined,
-    allowInGroupBy: true,
-    allowInOrderBy: true,
-    docListProperty: EdgelessThemeDocListProperty,
-    groupHeader: EdgelessThemeGroupHeader,
-    filterMethod: {
-      is: 'com.affine.editCollection.rules.include.is',
-      'is-not': 'com.affine.editCollection.rules.include.is-not',
-    },
-    filterValue: EdgelessThemeFilterValue,
-    defaultFilter: { method: 'is', value: 'system' },
   },
   pageWidth: {
-    icon: LongerIcon,
-    value: PageWidthValue,
+    icon: PropertyIcon,
     name: 'com.affine.page-properties.property.pageWidth',
-    description: 'com.affine.page-properties.property.pageWidth.tooltips',
-    showInDocList: 'stack',
-    allowInGroupBy: true,
-    allowInOrderBy: true,
-    docListProperty: PageWidthDocListProperty,
-    groupHeader: PageWidthGroupHeader,
-    filterMethod: {
-      is: 'com.affine.editCollection.rules.include.is',
-      'is-not': 'com.affine.editCollection.rules.include.is-not',
-    },
-    filterValue: PageWidthFilterValue,
-    defaultFilter: { method: 'is', value: 'fullWidth' },
+    renameable: false,
+    showInDocList: undefined,
   },
   template: {
     icon: TemplateIcon,
