@@ -60,6 +60,28 @@ async function resizeImage(blob: Blob | File): Promise<Blob | null> {
   return null;
 }
 
+async function processAttachment(blob: Blob | File): Promise<Blob | null> {
+  // Check if it's a PDF
+  if (
+    blob.type === 'application/pdf' ||
+    (blob instanceof File && blob.name.endsWith('.pdf'))
+  ) {
+    console.log('[processAttachment] Processing PDF:', blob.type, blob.size);
+    // For PDFs, return as-is without resizing
+    return blob;
+  }
+
+  // Check if it's an image
+  if (blob.type.startsWith('image/')) {
+    console.log('[processAttachment] Processing image:', blob.type);
+    return resizeImage(blob);
+  }
+
+  // For other types, return null (filter out)
+  console.log('[processAttachment] Unsupported type:', blob.type);
+  return null;
+}
+
 interface CreateMessageOptions {
   client: CopilotClient;
   sessionId: string;
@@ -90,7 +112,7 @@ async function createMessage({
     options.attachments = stringAttachments;
     options.blobs = (
       await Promise.all(
-        blobs.map(resizeImage).map(async blob => {
+        blobs.map(processAttachment).map(async blob => {
           const file = await blob;
           if (!file) return null;
           return new File([file], sessionId, {

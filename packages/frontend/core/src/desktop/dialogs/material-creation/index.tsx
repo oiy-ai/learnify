@@ -2,7 +2,10 @@ import { Button, Modal } from '@affine/component';
 import { getStoreManager } from '@affine/core/blocksuite/manager/store';
 import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
 import { CollectionService } from '@affine/core/modules/collection';
-import type { DialogComponentProps } from '@affine/core/modules/dialogs';
+import type {
+  DialogComponentProps,
+  WORKSPACE_DIALOG_SCHEMA,
+} from '@affine/core/modules/dialogs';
 import { DocsService } from '@affine/core/modules/doc';
 import { WorkbenchService } from '@affine/core/modules/workbench';
 import {
@@ -30,13 +33,10 @@ import type { MaterialItem } from '../../../components/learnify/sources/services
 import { MaterialsDocService } from '../../../components/learnify/sources/services/materials-doc';
 import * as styles from './index.css';
 
-export interface MaterialCreationDialogProps {
-  materialIds: string[];
-}
-
 type MaterialContent =
   | { type: 'text'; content: string }
-  | { type: 'image'; content: Blob; name: string; description?: string };
+  | { type: 'image'; content: Blob; name: string; description?: string }
+  | { type: 'pdf'; content: Blob; name: string; description?: string };
 
 type CreationOptionId = 'mindmap' | 'notes' | 'flashcards' | 'podcast';
 
@@ -117,7 +117,7 @@ const creationOptions: Array<{
 export const MaterialCreationDialog = ({
   materialIds,
   close,
-}: DialogComponentProps<MaterialCreationDialogProps>) => {
+}: DialogComponentProps<WORKSPACE_DIALOG_SCHEMA['material-creation']>) => {
   const t = useI18n();
   const materialsService = useService(MaterialsDocService);
   const workspaceService = useService(WorkspaceService);
@@ -186,9 +186,33 @@ export const MaterialCreationDialog = ({
               };
             }
 
-            // For PDFs and other attachments, return metadata
-            // TODO: Implement PDF text extraction
+            // For PDFs, pass as blob for AI processing
+            if (blob && material.category === 'pdf') {
+              console.log(
+                '[getMaterialContent] Processing PDF:',
+                material.name,
+                material.mimeType
+              );
+              return {
+                type: 'pdf' as const,
+                content: blob,
+                name: material.name,
+                description: material.description,
+              } as MaterialContent & {
+                type: 'pdf';
+                content: Blob;
+                name: string;
+                description?: string;
+              };
+            }
+
+            // For other attachments, return metadata
             if (blob) {
+              console.log(
+                '[getMaterialContent] Processing other attachment:',
+                material.name,
+                material.mimeType
+              );
               return {
                 type: 'text' as const,
                 content: `File: ${material.name}\nType: ${material.mimeType}\nSize: ${material.size} bytes\nDescription: ${material.description || 'No description'}`,
@@ -238,6 +262,17 @@ export const MaterialCreationDialog = ({
           const blob = new Blob([content.content], { type: 'image/png' });
           attachments.push(blob);
           promptParts.push(`   [Image ${attachments.length}]`);
+          if (content.description) {
+            promptParts.push(`   Description: ${content.description}`);
+          }
+        } else if (content.type === 'pdf' && content.content) {
+          console.log(
+            '[buildPromptFromMaterials] Adding PDF attachment:',
+            material.name
+          );
+          const blob = new Blob([content.content], { type: 'application/pdf' });
+          attachments.push(blob);
+          promptParts.push(`   [PDF Document ${attachments.length}]`);
           if (content.description) {
             promptParts.push(`   Description: ${content.description}`);
           }
@@ -558,6 +593,17 @@ Instead of creating notes, please create a mind map structure in JSON format wit
           const blob = new Blob([content.content], { type: 'image/png' });
           attachments.push(blob);
           promptParts.push(`   [Image ${attachments.length}]`);
+          if (content.description) {
+            promptParts.push(`   Description: ${content.description}`);
+          }
+        } else if (content.type === 'pdf' && content.content) {
+          console.log(
+            '[buildFlashcardsPrompt] Adding PDF attachment:',
+            material.name
+          );
+          const blob = new Blob([content.content], { type: 'application/pdf' });
+          attachments.push(blob);
+          promptParts.push(`   [PDF Document ${attachments.length}]`);
           if (content.description) {
             promptParts.push(`   Description: ${content.description}`);
           }
