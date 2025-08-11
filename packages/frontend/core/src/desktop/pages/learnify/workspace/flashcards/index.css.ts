@@ -2,6 +2,7 @@ import { cssVarV2 } from '@toeverything/theme/v2';
 import { style } from '@vanilla-extract/css';
 
 export const scrollArea = style({
+  paddingTop: '12px',
   width: '100%',
   flexGrow: 1,
   height: 0,
