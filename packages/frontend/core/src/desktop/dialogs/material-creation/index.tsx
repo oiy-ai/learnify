@@ -29,6 +29,8 @@ import { useCallback, useState } from 'react';
 import { StreamObjectSchema } from '../../../blocksuite/ai/components/ai-chat-messages';
 import { AIProvider } from '../../../blocksuite/ai/provider/ai-provider';
 import { mergeStreamContent } from '../../../blocksuite/ai/utils/stream-objects';
+import { AIGenerationOverlay } from '../../../components/learnify/ai-generation-overlay';
+import { useAIGeneration } from '../../../components/learnify/ai-generation-overlay/use-ai-generation';
 import type { MaterialItem } from '../../../components/learnify/sources/services/materials-doc';
 import { MaterialsDocService } from '../../../components/learnify/sources/services/materials-doc';
 import * as styles from './index.css';
@@ -39,48 +41,6 @@ type MaterialContent =
   | { type: 'pdf'; content: Blob; name: string; description?: string };
 
 type CreationOptionId = 'mindmap' | 'notes' | 'flashcards' | 'podcast';
-
-// type MindmapNode = {
-//   text: string;
-//   children: MindmapNode[];
-//   xywh?: string;
-// };
-
-// Parse markdown list to mindmap node structure
-// const parseMarkdownToMindmapNode = (markdown: string): MindmapNode | null => {
-//   const lines = markdown.split('\n');
-//   const root: MindmapNode = { text: 'Root', children: [] };
-//   const stack: { node: MindmapNode; level: number }[] = [{ node: root, level: -1 }];
-
-//   for (const line of lines) {
-//     const trimmed = line.trimEnd();
-//     if (!trimmed) continue;
-
-//     // Count leading spaces/dashes to determine level
-//     const match = trimmed.match(/^(\s*)[-*]\s+(.+)$/);
-//     if (!match) continue;
-
-//     const [, indent, text] = match;
-//     const level = indent.length / 2; // Assuming 2 spaces per level
-
-//     const newNode: MindmapNode = { text, children: [] };
-
-//     // Find parent at the appropriate level
-//     while (stack.length > 1 && stack[stack.length - 1].level >= level) {
-//       stack.pop();
-//     }
-
-//     // Add to parent's children
-//     const parent = stack[stack.length - 1];
-//     parent.node.children.push(newNode);
-
-//     // Add to stack for potential children
-//     stack.push({ node: newNode, level });
-//   }
-
-//   // Return the first child as root (skip our artificial root)
-//   return root.children.length > 0 ? root.children[0] : null;
-// };
 
 const creationOptions: Array<{
   id: CreationOptionId;
@@ -134,6 +94,29 @@ export const MaterialCreationDialog = ({
   const [selectedOptions, setSelectedOptions] = useState<Set<CreationOptionId>>(
     new Set()
   );
+
+  // AI Generation state management
+  const {
+    isGenerating,
+    progress,
+    error,
+    startGeneration,
+    updateProgress,
+    cancel,
+    retry,
+  } = useAIGeneration({
+    onSuccess: () => {
+      // Close dialog after successful generation
+      close();
+    },
+    onError: err => {
+      console.error('AI generation failed:', err);
+    },
+  });
+
+  const [currentGenerationFn, setCurrentGenerationFn] = useState<
+    (() => Promise<any>) | null
+  >(null);
 
   // Clean up temporary document
   const cleanupTempDoc = useCallback(
@@ -358,6 +341,9 @@ export const MaterialCreationDialog = ({
       let releaseTempDoc: (() => void) | null = null;
 
       try {
+        // Update progress to generating stage
+        updateProgress('generating', 30, '正在使用 AI 生成思维导图结构...');
+
         // Step 1: Generate mindmap structure using AI
         let aiMindmapStructure;
 
@@ -404,6 +390,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
           });
 
           // Process AI response to get mindmap JSON
+          updateProgress('processing', 60, '正在处理 AI 响应...');
           const mindmapStructure = await processAIMindmapResponse(aiResponse);
 
           if (mindmapStructure) {
@@ -431,6 +418,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         }
 
         // Step 2: Create edgeless document
+        updateProgress('finalizing', 80, '正在创建思维导图文档...');
         const mindmapDoc = docsService.createDoc({ primaryMode: 'edgeless' });
         const { doc: edgelessDoc, release: releaseEdgeless } = docsService.open(
           mindmapDoc.id
@@ -543,6 +531,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       workspaceService,
       workbenchService,
       docsService,
+      updateProgress,
     ]
   );
 
@@ -698,6 +687,9 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       let releaseTempDoc: (() => void) | null = null;
 
       try {
+        // Update progress
+        updateProgress('preparing', 20, '正在准备材料...');
+
         // Build prompt and get attachments
         const { prompt, attachments } =
           await buildPromptFromMaterials(materials);
@@ -715,6 +707,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         }
 
         // Call AI service
+        updateProgress('generating', 40, 'AI 正在生成笔记内容...');
         const aiResponse = await AIProvider.actions.chat({
           input: prompt,
           workspaceId: workspaceService.workspace.id,
@@ -724,10 +717,12 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         });
 
         // Process AI response
+        updateProgress('processing', 70, '正在处理生成的内容...');
         const generatedContent = await processAIResponse(aiResponse);
         const title = extractTitle(generatedContent);
 
         // Create document from markdown
+        updateProgress('finalizing', 85, '正在创建文档...');
         const docId = await MarkdownTransformer.importMarkdownToDoc({
           collection: workspaceService.workspace.docCollection,
           schema: getAFFiNEWorkspaceSchema(),
@@ -768,6 +763,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       workspaceService,
       workbenchService,
       docsService,
+      updateProgress,
     ]
   );
 
@@ -891,6 +887,9 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       let releaseTempDoc: (() => void) | null = null;
 
       try {
+        // Update progress
+        updateProgress('preparing', 20, '正在准备闪卡材料...');
+
         // Build prompt and get attachments
         const { prompt, attachments } = await buildFlashcardsPrompt(materials);
 
@@ -907,6 +906,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         }
 
         // Call AI service
+        updateProgress('generating', 40, 'AI 正在生成闪卡内容...');
         const aiResponse = await AIProvider.actions.chat({
           input: prompt,
           workspaceId: workspaceService.workspace.id,
@@ -916,9 +916,11 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         });
 
         // Process AI response
+        updateProgress('processing', 70, '正在处理生成的闪卡...');
         const generatedContent = await processAIResponse(aiResponse);
 
         // Parse the JSON response and create individual flashcard documents
+        updateProgress('finalizing', 85, '正在创建闪卡文档...');
         const docIds = await parseAndCreateFlashcards(
           generatedContent,
           materials
@@ -946,6 +948,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       workspaceService,
       workbenchService,
       docsService,
+      updateProgress,
     ]
   );
 
@@ -977,32 +980,37 @@ Instead of creating notes, please create a mind map structure in JSON format wit
 
     const creationHandlers: Record<CreationOptionId, () => Promise<any>> = {
       mindmap: async () => {
-        await createMindmap(materialIds, selectedMaterials);
+        return createMindmap(materialIds, selectedMaterials);
       },
       notes: async () => {
-        await createNotes(materialIds, selectedMaterials);
+        return createNotes(materialIds, selectedMaterials);
       },
       flashcards: async () => {
-        await createFlashcards(materialIds, selectedMaterials);
+        return createFlashcards(materialIds, selectedMaterials);
       },
       podcast: async () => {
         return createPodcast(materialIds, selectedMaterials);
       },
     };
 
-    // Process each selected option
-    for (const optionId of selectedOptions) {
-      try {
-        await creationHandlers[optionId]();
-      } catch (error) {
-        console.error(`Failed to create ${optionId}:`, error);
-        // Continue with other options even if one fails
+    // Process each selected option with AI generation overlay
+    const processOptions = async () => {
+      for (const optionId of selectedOptions) {
+        try {
+          await creationHandlers[optionId]();
+        } catch (error) {
+          console.error(`Failed to create ${optionId}:`, error);
+          throw error; // Propagate error to show in overlay
+        }
       }
-    }
+    };
 
-    close();
+    // Set the generation function for retry
+    setCurrentGenerationFn(() => processOptions);
+
+    // Start generation with overlay
+    await startGeneration(processOptions);
   }, [
-    close,
     materialIds,
     selectedMaterials,
     selectedOptions,
@@ -1010,51 +1018,71 @@ Instead of creating notes, please create a mind map structure in JSON format wit
     createNotes,
     createFlashcards,
     createPodcast,
+    startGeneration,
   ]);
 
   return (
-    <Modal
-      open
-      onOpenChange={() => close()}
-      width={520}
-      contentOptions={{
-        style: { padding: 0 },
-      }}
-    >
-      <div className={styles.modalHeader}>
-        <h2 className={styles.modalTitle}>Create Content from Materials</h2>
-        <p className={styles.modalDescription}>
-          Choose how you want to process the selected materials
-        </p>
-      </div>
+    <>
+      <Modal
+        open
+        onOpenChange={() => close()}
+        width={520}
+        contentOptions={{
+          style: { padding: 0 },
+        }}
+      >
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>Create Content from Materials</h2>
+          <p className={styles.modalDescription}>
+            Choose how you want to process the selected materials
+          </p>
+        </div>
 
-      <div className={styles.optionsGrid}>
-        {creationOptions.map(option => (
-          <div
-            key={option.id}
-            className={`${styles.optionCard} ${selectedOptions.has(option.id) ? styles.optionCardSelected : ''}`}
-            onClick={() => handleOptionToggle(option.id as CreationOptionId)}
+        <div className={styles.optionsGrid}>
+          {creationOptions.map(option => (
+            <div
+              key={option.id}
+              className={`${styles.optionCard} ${selectedOptions.has(option.id) ? styles.optionCardSelected : ''}`}
+              onClick={() => handleOptionToggle(option.id as CreationOptionId)}
+            >
+              <div className={styles.optionIcon}>{option.icon}</div>
+              <div className={styles.optionName}>{option.name}</div>
+              <div className={styles.optionDescription}>
+                {option.description}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.modalFooter}>
+          <Button variant="secondary" onClick={() => close()}>
+            {t.t('com.affine.confirmModal.button.cancel')}
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => void handleCreate()}
+            disabled={selectedOptions.size === 0}
           >
-            <div className={styles.optionIcon}>{option.icon}</div>
-            <div className={styles.optionName}>{option.name}</div>
-            <div className={styles.optionDescription}>{option.description}</div>
-          </div>
-        ))}
-      </div>
+            {t.t('com.learnify.material-creation.create-from-materials')}{' '}
+            {selectedOptions.size > 0 && `(${selectedOptions.size})`}
+          </Button>
+        </div>
+      </Modal>
 
-      <div className={styles.modalFooter}>
-        <Button variant="secondary" onClick={() => close()}>
-          {t.t('com.affine.confirmModal.button.cancel')}
-        </Button>
-        <Button
-          variant="primary"
-          onClick={() => void handleCreate()}
-          disabled={selectedOptions.size === 0}
-        >
-          {t.t('com.learnify.material-creation.create-from-materials')}{' '}
-          {selectedOptions.size > 0 && `(${selectedOptions.size})`}
-        </Button>
-      </div>
-    </Modal>
+      {/* AI Generation Overlay */}
+      <AIGenerationOverlay
+        open={isGenerating || !!error}
+        progress={progress}
+        error={error}
+        onCancel={cancel}
+        onRetry={() => {
+          if (currentGenerationFn) {
+            retry(currentGenerationFn).catch(err => {
+              console.error('Retry failed:', err);
+            });
+          }
+        }}
+      />
+    </>
   );
 };
