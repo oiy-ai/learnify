@@ -1,15 +1,15 @@
-import { IconButton, Menu, MenuItem } from '@affine/component';
+import { IconButton, MenuItem } from '@affine/component'; // Menu,
 import type { AttachmentBlockModel } from '@blocksuite/affine/model';
 import {
   //EditIcon,
   LocalDataIcon,
-  MoreHorizontalIcon,
+  // MoreHorizontalIcon,
   ZoomDownIcon,
   ZoomUpIcon,
 } from '@blocksuite/icons/rc';
 import clsx from 'clsx';
-import { useState } from 'react';
 
+// import { useState } from 'react';
 import { download } from './utils';
 import * as styles from './viewer.css';
 
@@ -56,7 +56,7 @@ export const Titlebar = ({
   size,
   zoom = 100,
 }: TitlebarProps) => {
-  const [openMenu, setOpenMenu] = useState(false);
+  // const [openMenu, setOpenMenu] = useState(false);
 
   return (
     <div className={styles.titlebar}>
@@ -72,6 +72,7 @@ export const Titlebar = ({
             download(model).catch(console.error);
           }}
         ></IconButton>
+        {/* Hidden
         <Menu
           items={<MenuItems model={model} />}
           rootOptions={{
@@ -86,6 +87,7 @@ export const Titlebar = ({
         >
           <IconButton icon={<MoreHorizontalIcon />}></IconButton>
         </Menu>
+        */}
       </div>
       <div
         className={clsx([
