@@ -216,7 +216,7 @@ export function Template(props: PropsWithChildren) {
           <Section>
             <Link href="https://affine.pro">
               <Img
-                src="https://cdn.affine.pro/mail/2023-8-9/affine-logo.png"
+                src="https://cdn.jsdelivr.net/gh/a1exsun/file@main/learnify/email-logo.png"
                 alt="AFFiNE logo"
                 height="32px"
               />
