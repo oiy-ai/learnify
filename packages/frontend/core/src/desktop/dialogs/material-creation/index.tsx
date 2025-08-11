@@ -936,7 +936,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
     // Check if this option is disabled
     const option = creationOptions.find(opt => opt.id === optionId);
     if (option?.disabled) {
-      toast('播客功能开发中，敬请期待！');
+      toast('The podcast feature is under development. Stay tuned!');
       return;
     }
 
