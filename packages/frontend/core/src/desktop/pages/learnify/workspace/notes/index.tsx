@@ -9,7 +9,6 @@ import { EmptyNoteDetail } from '@affine/core/components/learnify/empty/note-det
 import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
 import { PageNotFound } from '@affine/core/desktop/pages/404';
 import { CollectionListHeader } from '@affine/core/desktop/pages/workspace/collection/list-header';
-import { AllDocSidebarTabs } from '@affine/core/desktop/pages/workspace/layouts/all-doc-sidebar-tabs';
 import {
   type Collection,
   CollectionService,
@@ -175,7 +174,6 @@ export const Component = function CollectionPage() {
     <>
       <ViewIcon icon="collection" />
       <ViewTitle title={name ?? t['Untitled']()} />
-      <AllDocSidebarTabs />
       {inner}
     </>
   );
