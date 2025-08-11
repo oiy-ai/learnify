@@ -5,6 +5,7 @@ import {
 } from '@affine/core/components/explorer/context';
 import type { ExplorerDisplayPreference } from '@affine/core/components/explorer/types';
 import { EmptyPodcastDetail } from '@affine/core/components/learnify/empty/podcast-detail';
+import { DevelopmentBanner } from '@affine/core/components/learnify/podcasts/development-banner';
 import { SimplePodcastsList } from '@affine/core/components/learnify/podcasts/explorer/simple-podcasts-list';
 import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
 import {
@@ -79,6 +80,9 @@ export const CollectionDetail = ({
       </ViewHeader>
       <ViewBody>
         <FlexWrapper flexDirection="column" alignItems="stretch" width="55%">
+          <div className={styles.developmentBannerWrapper}>
+            <DevelopmentBanner />
+          </div>
           <div className={styles.scrollArea}>
             <SimplePodcastsList />
           </div>

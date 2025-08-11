@@ -2,9 +2,17 @@ import { cssVarV2 } from '@toeverything/theme/v2';
 import { style } from '@vanilla-extract/css';
 
 export const scrollArea = style({
+  padding: '0 8px',
   width: '100%',
   flexGrow: 1,
   height: 0,
+});
+
+export const developmentBannerWrapper = style({
+  padding: '0 8px',
+  marginTop: '16px',
+  marginBottom: '8px',
+  flexShrink: 0,
 });
 
 export const collectionHeader = style({
