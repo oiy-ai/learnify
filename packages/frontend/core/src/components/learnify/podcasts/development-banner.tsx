@@ -25,9 +25,8 @@ export const DevelopmentBanner = memo(function DevelopmentBanner() {
         <div className={styles.bannerText}>
           <div className={styles.bannerTitle}>Feature Under Development</div>
           <div className={styles.bannerDescription}>
-            The podcast feature is currently being developed. You can browse the
-            list and interact with the UI, but audio playback and advanced
-            features are coming soon!
+            The podcast feature is currently in development. All data is mock
+            data. You can follow the latest progress on GitHub.
           </div>
         </div>
         <a
