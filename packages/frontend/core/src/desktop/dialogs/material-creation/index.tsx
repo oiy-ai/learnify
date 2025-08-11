@@ -7,7 +7,6 @@ import type {
   WORKSPACE_DIALOG_SCHEMA,
 } from '@affine/core/modules/dialogs';
 import { DocsService } from '@affine/core/modules/doc';
-import { WorkbenchService } from '@affine/core/modules/workbench';
 import {
   getAFFiNEWorkspaceSchema,
   WorkspaceService,
@@ -85,7 +84,6 @@ export const MaterialCreationDialog = ({
   const workspaceService = useService(WorkspaceService);
   const docsService = useService(DocsService);
   const collectionService = useService(CollectionService);
-  const workbenchService = useService(WorkbenchService);
   const allMaterials = useLiveData(materialsService.materials$);
 
   // Filter materials based on provided IDs
@@ -108,8 +106,8 @@ export const MaterialCreationDialog = ({
     retry,
   } = useAIGeneration({
     onSuccess: () => {
-      // Close dialog after successful generation
-      close();
+      // Clear selection after successful generation
+      setSelectedOptions(new Set());
     },
     onError: err => {
       console.error('AI generation failed:', err);
@@ -484,11 +482,11 @@ Instead of creating notes, please create a mind map structure in JSON format wit
             );
           }
 
-          // Navigate to the new mindmap
-          workbenchService.workbench.openDoc(mindmapDoc.id);
-
           // Clean up
           releaseEdgeless();
+
+          // Show success toast
+          toast('思维导图创建成功！');
 
           return mindmapDoc.id;
         } else {
@@ -531,7 +529,6 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       cleanupTempDoc,
       collectionService,
       workspaceService,
-      workbenchService,
       docsService,
       updateProgress,
     ]
@@ -743,8 +740,8 @@ Instead of creating notes, please create a mind map structure in JSON format wit
             collectionService.addDocToCollection(notesCollection.id, docId);
           }
 
-          // Navigate to the new document
-          workbenchService.workbench.openDoc(docId);
+          // Show success toast
+          toast('笔记创建成功！');
         }
 
         return docId || null;
@@ -763,7 +760,6 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       cleanupTempDoc,
       collectionService,
       workspaceService,
-      workbenchService,
       docsService,
       updateProgress,
     ]
@@ -928,9 +924,9 @@ Instead of creating notes, please create a mind map structure in JSON format wit
           materials
         );
 
-        // Navigate to the first created document
+        // Show success toast
         if (docIds.length > 0) {
-          workbenchService.workbench.openDoc(docIds[0]);
+          toast(`成功创建 ${docIds.length} 张闪卡！`);
         }
 
         return docIds.length > 0 ? docIds : null;
@@ -948,7 +944,6 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       parseAndCreateFlashcards,
       cleanupTempDoc,
       workspaceService,
-      workbenchService,
       docsService,
       updateProgress,
     ]
