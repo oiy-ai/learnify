@@ -430,17 +430,19 @@ const FlashcardDocumentPreview = ({ docId }: { docId: string }) => {
           console.log('First block keys:', Object.keys(paragraphBlocks[0]));
         }
 
+        // Collect all text content and split by newlines
         paragraphBlocks.forEach((block: any, index: number) => {
-          // It seems getBlocksByFlavour returns models directly
-          let text = '';
-          if (block.text) {
-            text = block.text.toString() || '';
-          } else if (block.model?.text) {
-            text = block.model.text.toString() || '';
-          }
-
+          // getBlocksByFlavour returns blocks with model property
+          const text = block.model?.text?.toString() || '';
           console.log(`Block ${index} text:`, `"${text}"`);
-          paragraphs.push(text);
+
+          // Split multi-line content into separate paragraphs
+          if (text) {
+            const lines = text.split('\n');
+            lines.forEach(line => {
+              paragraphs.push(line);
+            });
+          }
         });
 
         console.log('All extracted paragraphs:', paragraphs);
@@ -607,13 +609,12 @@ const FlashcardDocumentPreview = ({ docId }: { docId: string }) => {
                       marginRight: '8px',
                       color: 'var(--affine-text-secondary)',
                       fontSize: '14px',
+                      flexShrink: 0,
                     }}
                   >
                     {option.key})
                   </span>
-                  <span style={{ flex: 1, fontSize: '14px' }}>
-                    {option.text}
-                  </span>
+                  <span className={styles.optionText}>{option.text}</span>
                   {showCorrect && (
                     <span style={{ marginLeft: '6px', fontSize: '14px' }}>
                       ✓
