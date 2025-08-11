@@ -8,7 +8,6 @@ import type { ExplorerDisplayPreference } from '@affine/core/components/explorer
 import { EmptyNoteDetail } from '@affine/core/components/learnify/empty/note-detail';
 import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
 import { PageNotFound } from '@affine/core/desktop/pages/404';
-import { CollectionListHeader } from '@affine/core/desktop/pages/workspace/collection/list-header';
 import {
   type Collection,
   CollectionService,
@@ -122,7 +121,6 @@ export const CollectionDetail = ({
       </ViewHeader>
       <ViewBody>
         <FlexWrapper flexDirection="column" alignItems="stretch" width="100%">
-          <CollectionListHeader collection={collection} />
           <div className={styles.scrollArea}>
             <DocsExplorer disableMultiDelete={!isAdmin && !isOwner} />
           </div>
