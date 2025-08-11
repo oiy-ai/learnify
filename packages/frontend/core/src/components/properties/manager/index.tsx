@@ -179,9 +179,15 @@ export const WorkspacePropertyManager = ({
 
   const properties = useLiveData(workspacePropertyService.sortedProperties$);
 
+  // 隐藏特定的属性：Journal、Edgeless Mode、Page width
+  const hiddenPropertyIds = new Set(['journal', 'edgelessTheme', 'pageWidth']);
+  const filteredProperties = properties.filter(
+    property => !hiddenPropertyIds.has(property.id)
+  );
+
   return (
     <div className={clsx(styles.container, className)} {...props}>
-      {properties.map(propertyInfo => (
+      {filteredProperties.map(propertyInfo => (
         <PropertyItem
           propertyInfo={propertyInfo}
           defaultOpenEditMenu={
