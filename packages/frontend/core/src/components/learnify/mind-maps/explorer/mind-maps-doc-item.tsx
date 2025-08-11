@@ -1,4 +1,4 @@
-import { Checkbox, Tooltip, Wrapper } from '@affine/component';
+import { Tooltip, Wrapper } from '@affine/component';
 import { DocsService } from '@affine/core/modules/doc';
 import { DocDisplayMetaService } from '@affine/core/modules/doc-display-meta';
 import { useI18n } from '@affine/i18n';
@@ -145,35 +145,7 @@ export const MindMapDocListItem = ({
 };
 
 // Helper components
-const Select = memo(function Select({
-  id,
-  ...props
-}: HTMLProps<HTMLDivElement>) {
-  const contextValue = useContext(DocExplorerContext);
-  const selectMode = useLiveData(contextValue.selectMode$);
-  const selectedDocIds = useLiveData(contextValue.selectedDocIds$);
-
-  const handleSelectChange = useCallback(() => {
-    id && contextValue.selectedDocIds$?.next([id]);
-  }, [id, contextValue]);
-
-  if (!id) {
-    return null;
-  }
-
-  return (
-    <div
-      data-select-mode={selectMode}
-      data-testid={`doc-list-item-select`}
-      {...props}
-    >
-      <Checkbox
-        checked={selectedDocIds.includes(id)}
-        onChange={handleSelectChange}
-      />
-    </div>
-  );
-});
+// removed custom Select; use quickActions.quickSelect like Notes list
 
 const DocIcon = memo(function DocIcon({
   id,
@@ -247,7 +219,15 @@ const ListViewDoc = ({ docId }: MindMapDocListItemProps) => {
 
   return (
     <li className={styles.listViewRoot}>
-      <Select id={docId} className={styles.listSelect} />
+      {quickActions
+        .filter(action => action.key === 'quickSelect')
+        .map(action => {
+          return (
+            <Tooltip key={action.key} content={t.t(action.name)}>
+              <action.Component doc={doc} />
+            </Tooltip>
+          );
+        })}
       <DocIcon id={docId} className={styles.listIcon} />
       <div className={styles.listBrief}>
         <DocTitle
@@ -264,13 +244,15 @@ const ListViewDoc = ({ docId }: MindMapDocListItemProps) => {
       </div>
       <div className={styles.listSpace} />
       <ListViewProperties docId={docId} />
-      {quickActions.map(action => {
-        return (
-          <Tooltip key={action.key} content={t.t(action.name)}>
-            <action.Component doc={doc} />
-          </Tooltip>
-        );
-      })}
+      {quickActions
+        .filter(action => action.key !== 'quickSelect')
+        .map(action => {
+          return (
+            <Tooltip key={action.key} content={t.t(action.name)}>
+              <action.Component doc={doc} />
+            </Tooltip>
+          );
+        })}
       <MoreMenuButton
         docId={docId}
         contentOptions={listMoreMenuContentOptions}
@@ -289,8 +271,6 @@ const cardMoreMenuContentOptions = {
 // 卡片视图组件
 const CardViewDoc = ({ docId }: MindMapDocListItemProps) => {
   const t = useI18n();
-  const contextValue = useContext(DocExplorerContext);
-  const selectMode = useLiveData(contextValue.selectMode$);
   const docsService = useService(DocsService);
   const doc = useLiveData(docsService.list.doc$(docId));
 
@@ -314,15 +294,11 @@ const CardViewDoc = ({ docId }: MindMapDocListItemProps) => {
             </Tooltip>
           );
         })}
-        {selectMode ? (
-          <Select id={docId} className={styles.cardViewCheckbox} />
-        ) : (
-          <MoreMenuButton
-            docId={docId}
-            contentOptions={cardMoreMenuContentOptions}
-            iconProps={{ size: '16' }}
-          />
-        )}
+        <MoreMenuButton
+          docId={docId}
+          contentOptions={cardMoreMenuContentOptions}
+          iconProps={{ size: '16' }}
+        />
       </header>
       <DocPreview
         id={docId}
