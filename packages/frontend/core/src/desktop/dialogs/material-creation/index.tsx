@@ -1,4 +1,4 @@
-import { Button, Modal } from '@affine/component';
+import { Button, Modal, toast } from '@affine/component';
 import { getStoreManager } from '@affine/core/blocksuite/manager/store';
 import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
 import { CollectionService } from '@affine/core/modules/collection';
@@ -47,6 +47,7 @@ const creationOptions: Array<{
   name: string;
   icon: React.ReactNode;
   description: string;
+  disabled?: boolean;
 }> = [
   {
     id: 'mindmap',
@@ -71,6 +72,7 @@ const creationOptions: Array<{
     name: '播客',
     icon: <PlayIcon />,
     description: 'Convert materials into audio content',
+    disabled: true,
   },
 ];
 
@@ -962,6 +964,13 @@ Instead of creating notes, please create a mind map structure in JSON format wit
   );
 
   const handleOptionToggle = useCallback((optionId: CreationOptionId) => {
+    // Check if this option is disabled
+    const option = creationOptions.find(opt => opt.id === optionId);
+    if (option?.disabled) {
+      toast('播客功能开发中，敬请期待！');
+      return;
+    }
+
     setSelectedOptions(prev => {
       const newSet = new Set(prev);
       if (newSet.has(optionId)) {
@@ -1042,13 +1051,15 @@ Instead of creating notes, please create a mind map structure in JSON format wit
           {creationOptions.map(option => (
             <div
               key={option.id}
-              className={`${styles.optionCard} ${selectedOptions.has(option.id) ? styles.optionCardSelected : ''}`}
+              className={`${styles.optionCard} ${
+                selectedOptions.has(option.id) ? styles.optionCardSelected : ''
+              } ${option.disabled ? styles.optionCardDisabled : ''}`}
               onClick={() => handleOptionToggle(option.id as CreationOptionId)}
             >
               <div className={styles.optionIcon}>{option.icon}</div>
               <div className={styles.optionName}>{option.name}</div>
               <div className={styles.optionDescription}>
-                {option.description}
+                {option.disabled ? '功能开发中' : option.description}
               </div>
             </div>
           ))}

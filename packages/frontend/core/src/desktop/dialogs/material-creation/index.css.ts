@@ -48,6 +48,16 @@ export const optionCardSelected = style({
   background: 'rgba(30, 150, 235, 0.1)', // Light blue background for selected state
 });
 
+export const optionCardDisabled = style({
+  opacity: 0.5,
+  cursor: 'not-allowed',
+
+  ':hover': {
+    borderColor: 'var(--affine-border-color)',
+    background: 'transparent',
+  },
+});
+
 export const optionIcon = style({
   display: 'flex',
   alignItems: 'center',
