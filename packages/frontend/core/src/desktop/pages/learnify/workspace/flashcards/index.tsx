@@ -46,6 +46,7 @@ export const CollectionDetail = ({
         'system:updatedBy',
         'system:tags',
       ],
+      quickSelect: true,
     })
   );
   const collectionRulesService = useService(CollectionRulesService);
@@ -190,6 +191,7 @@ const Placeholder = ({ collection }: { collection: Collection }) => {
         'system:updatedBy',
         'system:tags',
       ],
+      quickSelect: true,
     })
   );
 

@@ -34,7 +34,11 @@ export const CollectionDetail = ({
 }: {
   collection: Collection;
 }) => {
-  const [explorerContextValue] = useState(createDocExplorerContext);
+  const [explorerContextValue] = useState(() =>
+    createDocExplorerContext({
+      quickSelect: true,
+    })
+  );
   const collectionRulesService = useService(CollectionRulesService);
 
   const permissionService = useService(WorkspacePermissionService);
@@ -178,7 +182,11 @@ export const Component = function CollectionPage() {
 };
 
 const Placeholder = ({ collection }: { collection: Collection }) => {
-  const [explorerContextValue] = useState(createDocExplorerContext);
+  const [explorerContextValue] = useState(() =>
+    createDocExplorerContext({
+      quickSelect: true,
+    })
+  );
 
   const displayPreference = useLiveData(
     explorerContextValue.displayPreference$
