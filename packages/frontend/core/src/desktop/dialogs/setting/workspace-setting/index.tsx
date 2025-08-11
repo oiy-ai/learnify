@@ -8,7 +8,7 @@ import { useI18n } from '@affine/i18n';
 import {
   AiEmbeddingIcon,
   CollaborationIcon,
-  IntegrationsIcon,
+  // IntegrationsIcon,
   PaymentIcon,
   PropertyIcon,
   SaveIcon,
@@ -98,12 +98,12 @@ export const useWorkspaceSettingList = (): SettingSidebarItem[] => {
         icon: <CollaborationIcon />,
         testId: 'workspace-setting:members',
       },
-      {
-        key: 'workspace:integrations',
-        title: t['com.affine.integration.integrations'](),
-        icon: <IntegrationsIcon />,
-        testId: 'workspace-setting:integrations',
-      },
+      // {
+      //   key: 'workspace:integrations',
+      //   title: t['com.affine.integration.integrations'](),
+      //   icon: <IntegrationsIcon />,
+      //   testId: 'workspace-setting:integrations',
+      // },
       {
         key: 'workspace:storage',
         title: t['Storage'](),

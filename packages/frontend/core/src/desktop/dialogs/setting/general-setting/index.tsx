@@ -5,7 +5,7 @@ import { MeetingSettingsService } from '@affine/core/modules/media/services/meet
 import { useI18n } from '@affine/i18n';
 import {
   AppearanceIcon,
-  ExperimentIcon,
+  // ExperimentIcon,
   FolderIcon,
   // InformationIcon,
   KeyboardIcon,
@@ -134,20 +134,20 @@ export const useGeneralSettingList = (): GeneralSettingList => {
       });
     }
 
-    settings.push(
-      {
-        key: 'experimental-features',
-        title: t['com.affine.settings.workspace.experimental-features'](),
-        icon: <ExperimentIcon />,
-        testId: 'experimental-features-trigger',
-      }
-      // {
-      //   key: 'about',
-      //   title: t['com.affine.aboutAFFiNE.title'](),
-      //   icon: <InformationIcon />,
-      //   testId: 'about-panel-trigger',
-      // }
-    );
+    // settings.push(
+    //   {
+    //     key: 'experimental-features',
+    //     title: t['com.affine.settings.workspace.experimental-features'](),
+    //     icon: <ExperimentIcon />,
+    //     testId: 'experimental-features-trigger',
+    //   }
+    //   // {
+    //   //   key: 'about',
+    //   //   title: t['com.affine.aboutAFFiNE.title'](),
+    //   //   icon: <InformationIcon />,
+    //   //   testId: 'about-panel-trigger',
+    //   // }
+    // );
     return settings;
   }, [
     t,
@@ -160,7 +160,6 @@ export const useGeneralSettingList = (): GeneralSettingList => {
 
 interface GeneralSettingProps {
   activeTab: SettingTab;
-  // eslint-disable-next-line no-unused-vars
   onChangeSettingState: (settingState: SettingState) => void;
 }
 
