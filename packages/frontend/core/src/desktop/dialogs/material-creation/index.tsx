@@ -102,6 +102,7 @@ export const MaterialCreationDialog = ({
     error,
     startGeneration,
     updateProgress,
+    setProgress,
     cancel,
     retry,
   } = useAIGeneration({
@@ -331,12 +332,9 @@ export const MaterialCreationDialog = ({
     []
   );
 
-  // Function to create mindmap from materials
+  // Function to create mindmap from a single material
   const createMindmap = useCallback(
-    async (
-      _materialIds: string[],
-      materials: MaterialItem[]
-    ): Promise<string | null> => {
+    async (material: MaterialItem): Promise<string | null> => {
       let tempDoc: any = null;
       let releaseTempDoc: (() => void) | null = null;
 
@@ -348,9 +346,10 @@ export const MaterialCreationDialog = ({
         let aiMindmapStructure;
 
         try {
-          // Build prompt from materials
-          const { prompt, attachments } =
-            await buildPromptFromMaterials(materials);
+          // Build prompt from single material
+          const { prompt, attachments } = await buildPromptFromMaterials([
+            material,
+          ]);
 
           // Modify prompt for mindmap generation
           const mindmapPrompt = `${prompt}
@@ -406,14 +405,11 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         // Fallback to simple structure if AI fails
         if (!aiMindmapStructure) {
           aiMindmapStructure = {
-            text: '学习资料知识图谱',
-            children: materials.slice(0, 3).map(m => ({
-              text: m.name,
-              children: [
-                { text: `类型: ${m.category}`, children: [] },
-                { text: m.description || '暂无描述', children: [] },
-              ],
-            })),
+            text: material.name || '学习资料知识图谱',
+            children: [
+              { text: `类型: ${material.category}`, children: [] },
+              { text: material.description || '暂无描述', children: [] },
+            ],
           };
         }
 
@@ -458,12 +454,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
           }, 200);
 
           // Set document title
-          const title = `思维导图: ${materials
-            .slice(0, 2)
-            .map(m => m.name)
-            .join(', ')}${
-            materials.length > 2 ? ` 等${materials.length}个素材` : ''
-          }`;
+          const title = `思维导图: ${material.name}`;
 
           workspaceService.workspace.docCollection.meta.setDocMeta(
             mindmapDoc.id,
@@ -484,9 +475,6 @@ Instead of creating notes, please create a mind map structure in JSON format wit
 
           // Clean up
           releaseEdgeless();
-
-          // Show success toast
-          toast('思维导图创建成功！');
 
           return mindmapDoc.id;
         } else {
@@ -676,12 +664,9 @@ Instead of creating notes, please create a mind map structure in JSON format wit
     return 'Notes from Materials';
   }, []);
 
-  // Function to create notes from materials
+  // Function to create notes from a single material
   const createNotes = useCallback(
-    async (
-      _materialIds: string[],
-      materials: MaterialItem[]
-    ): Promise<string | null> => {
+    async (material: MaterialItem): Promise<string | null> => {
       let tempDoc: any = null;
       let releaseTempDoc: (() => void) | null = null;
 
@@ -690,8 +675,9 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         updateProgress('preparing', 20, '正在准备材料...');
 
         // Build prompt and get attachments
-        const { prompt, attachments } =
-          await buildPromptFromMaterials(materials);
+        const { prompt, attachments } = await buildPromptFromMaterials([
+          material,
+        ]);
 
         // Create temporary doc for AI session
         tempDoc = docsService.createDoc({ primaryMode: 'page' });
@@ -739,9 +725,6 @@ Instead of creating notes, please create a mind map structure in JSON format wit
           if (notesCollection) {
             collectionService.addDocToCollection(notesCollection.id, docId);
           }
-
-          // Show success toast
-          toast('笔记创建成功！');
         }
 
         return docId || null;
@@ -875,12 +858,9 @@ Instead of creating notes, please create a mind map structure in JSON format wit
     [collectionService, workspaceService]
   );
 
-  // Function to create flashcards from materials
+  // Function to create flashcards from a single material
   const createFlashcards = useCallback(
-    async (
-      _materialIds: string[],
-      materials: MaterialItem[]
-    ): Promise<string[] | null> => {
+    async (material: MaterialItem): Promise<string[] | null> => {
       let tempDoc: any = null;
       let releaseTempDoc: (() => void) | null = null;
 
@@ -889,7 +869,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         updateProgress('preparing', 20, '正在准备闪卡材料...');
 
         // Build prompt and get attachments
-        const { prompt, attachments } = await buildFlashcardsPrompt(materials);
+        const { prompt, attachments } = await buildFlashcardsPrompt([material]);
 
         // Create temporary doc for AI session
         tempDoc = docsService.createDoc({ primaryMode: 'page' });
@@ -919,15 +899,9 @@ Instead of creating notes, please create a mind map structure in JSON format wit
 
         // Parse the JSON response and create individual flashcard documents
         updateProgress('finalizing', 85, '正在创建闪卡文档...');
-        const docIds = await parseAndCreateFlashcards(
-          generatedContent,
-          materials
-        );
-
-        // Show success toast
-        if (docIds.length > 0) {
-          toast(`成功创建 ${docIds.length} 张闪卡！`);
-        }
+        const docIds = await parseAndCreateFlashcards(generatedContent, [
+          material,
+        ]);
 
         return docIds.length > 0 ? docIds : null;
       } catch (error) {
@@ -950,13 +924,13 @@ Instead of creating notes, please create a mind map structure in JSON format wit
   );
 
   // Function to create podcast from materials
-  const createPodcast = useCallback(
-    (_materialIds: string[], _materials: MaterialItem[]) => {
-      // TODO: Implement podcast creation logic
-      return Promise.resolve(null);
-    },
-    []
-  );
+  // const createPodcast = useCallback(
+  //   (_materialIds: string[], _materials: MaterialItem[]) => {
+  //     // TODO: Implement podcast creation logic
+  //     return Promise.resolve(null);
+  //   },
+  //   []
+  // );
 
   const handleOptionToggle = useCallback((optionId: CreationOptionId) => {
     // Check if this option is disabled
@@ -982,30 +956,89 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       return;
     }
 
-    const creationHandlers: Record<CreationOptionId, () => Promise<any>> = {
-      mindmap: async () => {
-        return createMindmap(materialIds, selectedMaterials);
-      },
-      notes: async () => {
-        return createNotes(materialIds, selectedMaterials);
-      },
-      flashcards: async () => {
-        return createFlashcards(materialIds, selectedMaterials);
-      },
-      podcast: async () => {
-        return createPodcast(materialIds, selectedMaterials);
-      },
-    };
+    // Calculate total items to process
+    const totalItems = selectedMaterials.length * selectedOptions.size;
 
-    // Process each selected option with AI generation overlay
+    // Set initial progress with total items
+    setProgress(prev => ({
+      ...prev,
+      totalItems,
+      currentItem: 0,
+      currentItemName: '',
+    }));
+
+    // Process all combinations of materials and options
     const processOptions = async () => {
-      for (const optionId of selectedOptions) {
-        try {
-          await creationHandlers[optionId]();
-        } catch (error) {
-          console.error(`Failed to create ${optionId}:`, error);
-          throw error; // Propagate error to show in overlay
+      let currentItemIndex = 0;
+      const results = {
+        mindmap: [] as string[],
+        notes: [] as string[],
+        flashcards: [] as string[][],
+      };
+
+      // Process each material
+      for (const material of selectedMaterials) {
+        // Process each selected option for this material
+        for (const optionId of selectedOptions) {
+          currentItemIndex++;
+
+          // Update progress with overall info
+          const optionName =
+            optionId === 'mindmap'
+              ? '思维导图'
+              : optionId === 'notes'
+                ? '笔记'
+                : optionId === 'flashcards'
+                  ? '闪卡'
+                  : '播客';
+
+          // Update the progress with total items info
+          setProgress(prev => ({
+            ...prev,
+            totalItems,
+            currentItem: currentItemIndex,
+            currentItemName: `${material.name} - ${optionName}`,
+          }));
+
+          try {
+            if (optionId === 'mindmap') {
+              const docId = await createMindmap(material);
+              if (docId) results.mindmap.push(docId);
+            } else if (optionId === 'notes') {
+              const docId = await createNotes(material);
+              if (docId) results.notes.push(docId);
+            } else if (optionId === 'flashcards') {
+              const docIds = await createFlashcards(material);
+              if (docIds) results.flashcards.push(docIds);
+            }
+          } catch (error) {
+            console.error(
+              `Failed to create ${optionId} for ${material.name}:`,
+              error
+            );
+            // Continue with other items even if one fails
+          }
         }
+      }
+
+      // Show summary toast
+      const summaryParts = [];
+      if (results.mindmap.length > 0) {
+        summaryParts.push(`${results.mindmap.length} 个思维导图`);
+      }
+      if (results.notes.length > 0) {
+        summaryParts.push(`${results.notes.length} 个笔记`);
+      }
+      if (results.flashcards.length > 0) {
+        const totalFlashcards = results.flashcards.reduce(
+          (sum, arr) => sum + arr.length,
+          0
+        );
+        summaryParts.push(`${totalFlashcards} 张闪卡`);
+      }
+
+      if (summaryParts.length > 0) {
+        toast(`成功创建: ${summaryParts.join(', ')}`);
       }
     };
 
@@ -1015,14 +1048,13 @@ Instead of creating notes, please create a mind map structure in JSON format wit
     // Start generation with overlay
     await startGeneration(processOptions);
   }, [
-    materialIds,
     selectedMaterials,
     selectedOptions,
     createMindmap,
     createNotes,
     createFlashcards,
-    createPodcast,
     startGeneration,
+    setProgress,
   ]);
 
   return (
