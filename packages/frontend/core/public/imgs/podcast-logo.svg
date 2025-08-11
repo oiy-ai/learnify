@@ -1,0 +1,111 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rainbow gradient definition -->
+  <defs>
+    <linearGradient id="rainbow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff0000;stop-opacity:1" />
+      <stop offset="16.66%" style="stop-color:#ff8800;stop-opacity:1" />
+      <stop offset="33.33%" style="stop-color:#ffdd00;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#00ff00;stop-opacity:1" />
+      <stop offset="66.66%" style="stop-color:#0099ff;stop-opacity:1" />
+      <stop offset="83.33%" style="stop-color:#6633ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff00ff;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Animated rainbow gradient -->
+    <linearGradient id="animatedRainbow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff0000">
+        <animate attributeName="stop-color" 
+          values="#ff0000;#ff8800;#ffdd00;#00ff00;#0099ff;#6633ff;#ff00ff;#ff0000" 
+          dur="6s" repeatCount="indefinite" />
+      </stop>
+      <stop offset="50%" style="stop-color:#00ff00">
+        <animate attributeName="stop-color" 
+          values="#00ff00;#0099ff;#6633ff;#ff00ff;#ff0000;#ff8800;#ffdd00;#00ff00" 
+          dur="6s" repeatCount="indefinite" />
+      </stop>
+      <stop offset="100%" style="stop-color:#ff00ff">
+        <animate attributeName="stop-color" 
+          values="#ff00ff;#ff0000;#ff8800;#ffdd00;#00ff00;#0099ff;#6633ff;#ff00ff" 
+          dur="6s" repeatCount="indefinite" />
+      </stop>
+    </linearGradient>
+    
+    <!-- Glow filter -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Flowing L shape with rounded corners -->
+  <path d="M 70 50 
+           Q 70 40, 80 40
+           Q 90 40, 90 50
+           L 90 120
+           Q 90 130, 100 130
+           L 130 130
+           Q 140 130, 140 120
+           Q 140 110, 130 110
+           L 110 110
+           Q 70 110, 70 70
+           Z" 
+        fill="url(#animatedRainbow)" 
+        filter="url(#glow)"
+        transform-origin="100 100">
+    <!-- Gentle wobble animation -->
+    <animateTransform
+      attributeName="transform"
+      type="rotate"
+      values="0 100 100;5 100 100;0 100 100;-5 100 100;0 100 100"
+      dur="4s"
+      repeatCount="indefinite" />
+  </path>
+  
+  <!-- Floating rainbow particles -->
+  <circle cx="60" cy="60" r="4" fill="url(#rainbow)" opacity="0.8">
+    <animate attributeName="cy" values="60;40;60" dur="3s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0.8;0.3;0.8" dur="3s" repeatCount="indefinite" />
+  </circle>
+  
+  <circle cx="140" cy="80" r="3" fill="url(#rainbow)" opacity="0.7">
+    <animate attributeName="cx" values="140;150;140" dur="2.5s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="2.5s" repeatCount="indefinite" />
+  </circle>
+  
+  <circle cx="100" cy="160" r="5" fill="url(#rainbow)" opacity="0.6">
+    <animate attributeName="cy" values="160;150;160" dur="3.5s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0.6;0.1;0.6" dur="3.5s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Sparkle effects -->
+  <g transform="translate(120, 60)">
+    <path d="M 0,-8 L 2,-2 L 8,0 L 2,2 L 0,8 L -2,2 L -8,0 L -2,-2 Z" 
+          fill="url(#rainbow)" opacity="0">
+      <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        from="0"
+        to="360"
+        dur="4s"
+        repeatCount="indefinite" />
+    </path>
+  </g>
+  
+  <g transform="translate(80, 140)">
+    <path d="M 0,-6 L 1.5,-1.5 L 6,0 L 1.5,1.5 L 0,6 L -1.5,1.5 L -6,0 L -1.5,-1.5 Z" 
+          fill="url(#rainbow)" opacity="0">
+      <animate attributeName="opacity" values="0;1;0" dur="2.5s" begin="1s" repeatCount="indefinite" />
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        from="0"
+        to="-360"
+        dur="3s"
+        repeatCount="indefinite" />
+    </path>
+  </g>
+</svg>
