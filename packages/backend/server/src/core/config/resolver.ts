@@ -74,13 +74,12 @@ export class ServerConfigResolver {
     return {
       name:
         this.config.server.name ??
-        (env.selfhosted
-          ? 'AFFiNE Selfhosted Cloud'
-          : env.namespaces.canary
-            ? 'AFFiNE Canary Cloud'
-            : env.namespaces.beta
-              ? 'AFFiNE Beta Cloud'
-              : 'AFFiNE Cloud'),
+        (env.selfhosted ? 'Selfhosted Cloud' : 'Learnify Cloud'),
+      // env.namespaces.canary ? 'AFFiNE Canary Cloud'
+      // : env.namespaces.beta
+      //   ? 'AFFiNE Beta Cloud'
+      //   : 'AFFiNE Cloud'
+
       version: env.version,
       baseUrl: this.url.requestBaseUrl,
       type: env.DEPLOYMENT_TYPE,
