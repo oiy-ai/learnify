@@ -10,10 +10,7 @@ export default function VerifyEmail(props: VerifyEmailProps) {
       <Title>Verify your email address</Title>
       <Content>
         <P>
-          You recently requested to verify the email address associated with
-          your AFFiNE account.
-          <br />
-          To complete this process, please click on the verification link below.
+          Your verification link for <Bold>Learnify</Bold> is below.
         </P>
         <P>
           This magic link will expire in <Bold>30 minutes</Bold>.

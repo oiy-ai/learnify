@@ -24,24 +24,22 @@ export const Footer = () => {
     >
       <Section align="center" width="auto" style={{ margin: '1px auto' }}>
         <Row>
-          {['Github', 'Twitter', 'Discord', 'Youtube', 'Reddit'].map(
-            platform => (
-              <td key={platform} style={{ padding: '0 10px' }}>
-                <Link href={`https://affine.pro/${platform.toLowerCase()}`}>
-                  <Img
-                    src={`https://cdn.affine.pro/mail/2023-8-9/${platform}.png`}
-                    alt={`affine ${platform.toLowerCase()} link`}
-                    height="16px"
-                  />
-                </Link>
-              </td>
-            )
-          )}
+          {['Github', 'Discord', 'Youtube'].map(platform => (
+            <td key={platform} style={{ padding: '0 10px' }}>
+              <Link href={`https://learnify.oiy.ai/${platform.toLowerCase()}`}>
+                <Img
+                  src={`https://cdn.affine.pro/mail/2023-8-9/${platform}.png`}
+                  alt={`affine ${platform.toLowerCase()} link`}
+                  height="16px"
+                />
+              </Link>
+            </td>
+          ))}
         </Row>
       </Section>
       <Section align="center" width="auto">
         <Row style={TextStyles}>
-          <td>One hyper-fused platform for wildly creative minds</td>
+          <td>Learnify - Learn everything faster and better</td>
         </Row>
       </Section>
       <Section align="center" width="auto">
@@ -55,7 +53,7 @@ export const Footer = () => {
               style={{ verticalAlign: 'middle', margin: '0 4px' }}
             />
           </td>
-          <td>2023-{new Date().getUTCFullYear()} ToEverything</td>
+          <td>2025-{new Date().getUTCFullYear()} OiyAI</td>
         </Row>
       </Section>
     </Container>
