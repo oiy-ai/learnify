@@ -5,11 +5,11 @@
   "main": "./dist/main.js",
   "author": "toeverything",
   "repository": {
-    "url": "https://github.com/toeverything/AFFiNE",
+    "url": "https://github.com/oiy-ai/learnify",
     "type": "git"
   },
   "description": "AFFiNE Desktop App",
-  "homepage": "https://github.com/toeverything/AFFiNE",
+  "homepage": "https://github.com/oiy-ai/learnify",
   "exports": {
     "./helper/exposed": "./src/helper/exposed.ts",
     "./main/exposed": "./src/main/exposed.ts",

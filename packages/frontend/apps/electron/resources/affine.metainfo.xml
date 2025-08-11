@@ -4,11 +4,11 @@
   <name>AFFiNE</name>
   <summary>Productivity and note-taking app</summary>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>MIT AND LicenseRef-proprietary=https://github.com/a1exsun/learnify/blob/canary/LICENSE</project_license>
+  <project_license>MIT AND LicenseRef-proprietary=https://github.com/oiy-ai/learnify/blob/canary/LICENSE</project_license>
   <url type="homepage">https://affine.pro</url>
-  <url type="bugtracker">https://github.com/a1exsun/learnify/issues</url>
+  <url type="bugtracker">https://github.com/oiy-ai/learnify/issues</url>
   <url type="help">https://docs.affine.pro/docs</url>
-  <url type="vcs-browser">https://github.com/toeverything/AFFiNE</url>
+  <url type="vcs-browser">https://github.com/oiy-ai/learnify</url>
   <url type="contribute">https://docs.affine.pro/docs/contributing</url>
   <developer id="pro.affine.app">
     <name>affine</name>
@@ -65,7 +65,7 @@
   </screenshots>
   <releases>
     <release version="0.22.4" date="2025-06-24">
-      <url>https://github.com/a1exsun/learnify/releases/tag/v0.21.3</url>
+      <url>https://github.com/oiy-ai/learnify/releases/tag/v0.21.3</url>
     </release>
   </releases>
 </component>

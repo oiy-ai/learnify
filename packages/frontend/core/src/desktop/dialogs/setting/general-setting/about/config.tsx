@@ -10,7 +10,7 @@ export const relatedLinks = [
   {
     icon: <GithubIcon />,
     title: 'GitHub',
-    link: 'https://github.com/toeverything/AFFiNE',
+    link: 'https://github.com/oiy-ai/learnify',
   },
   {
     icon: <TwitterIcon />,

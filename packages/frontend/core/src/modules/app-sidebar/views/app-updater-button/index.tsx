@@ -200,7 +200,7 @@ export function AppUpdaterButton({
         }
       } else {
         urlService.openPopupWindow(
-          `https://github.com/a1exsun/learnify/releases/tag/v${updateAvailable.version}`
+          `https://github.com/oiy-ai/learnify/releases/tag/v${updateAvailable.version}`
         );
       }
     } else if (changelogUnread) {

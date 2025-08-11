@@ -234,7 +234,7 @@ editor-host *::-webkit-scrollbar {
   padding-right: 0;
 }
 
-/* issue: https://github.com/a1exsun/learnify/issues/2004 */
+/* issue: https://github.com/oiy-ai/learnify/issues/2004 */
 .editor-wrapper.edgeless-mode {
   padding: 0;
 }
@@ -267,7 +267,7 @@ affine-block-hub {
     width: 100%;
   }
 
-  /* issue: https://github.com/a1exsun/learnify/issues/2004 */
+  /* issue: https://github.com/oiy-ai/learnify/issues/2004 */
   .editor-wrapper.edgeless-mode {
     padding: 0;
   }

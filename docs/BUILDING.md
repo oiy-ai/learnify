@@ -62,7 +62,7 @@ yarn install
 #### Linux & MacOS
 
 ```sh
-git clone https://github.com/toeverything/AFFiNE
+git clone https://github.com/oiy-ai/learnify
 ```
 
 #### Windows
@@ -77,14 +77,14 @@ Once Developer Mode is enabled, execute the following command with administrator
 # Enable symbolic links
 git config --global core.symlinks true
 # Clone the repository
-git clone https://github.com/toeverything/AFFiNE
+git clone https://github.com/oiy-ai/learnify
 ```
 
 ### Build Native Dependencies
 
 Run the following script. It will build the native module at [`/packages/frontend/native`](/packages/frontend/native) and build Node.js binding using [NAPI.rs](https://napi.rs/).
 This could take a while if you build it for the first time.
-Note: use `strip` from system instead of `binutils` if you are running MacOS. [see problem here](https://github.com/a1exsun/learnify/discussions/2840)
+Note: use `strip` from system instead of `binutils` if you are running MacOS. [see problem here](https://github.com/oiy-ai/learnify/discussions/2840)
 
 ```sh
 yarn affine @affine/native build

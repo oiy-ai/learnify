@@ -643,7 +643,7 @@ test.describe('markdown inline-text', () => {
     await undoByKeyboard(page);
     await assertRichTexts(page, ['']);
 
-    // https://github.com/a1exsun/learnify/issues/9410
+    // https://github.com/oiy-ai/learnify/issues/9410
     await waitNextFrame(page);
     await type(page, 'test**bold** ');
     await assertRichTextInlineDeltas(page, [

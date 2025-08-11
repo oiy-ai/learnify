@@ -23,7 +23,7 @@ export const embed: InitFn = (collection: Workspace, id: string) => {
     store.addBlock(
       'affine:embed-github',
       {
-        url: 'https://github.com/a1exsun/learnify/pull/5453',
+        url: 'https://github.com/oiy-ai/learnify/pull/5453',
       },
       noteId
     );

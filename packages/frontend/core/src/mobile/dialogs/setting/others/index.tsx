@@ -11,7 +11,7 @@ export const OthersGroup = () => {
     <SettingGroup title={t['com.affine.mobile.setting.others.title']()}>
       <RowLayout
         label={t['com.affine.mobile.setting.others.github']()}
-        href="https://github.com/toeverything/AFFiNE"
+        href="https://github.com/oiy-ai/learnify"
       />
 
       <RowLayout

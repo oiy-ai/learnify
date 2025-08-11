@@ -15,7 +15,7 @@
   "keywords": [],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/toeverything/AFFiNE.git"
+    "url": "git+https://github.com/oiy-ai/learnify.git"
   },
   "dependencies": {
     "@affine/debug": "workspace:*",

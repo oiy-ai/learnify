@@ -48,7 +48,7 @@ test('embed card should not overflow the edgeless note', async ({ page }) => {
   await pressEnter(page);
   await page
     .locator('.embed-card-modal-input')
-    .fill('https://github.com/a1exsun/learnify/pull/10442');
+    .fill('https://github.com/oiy-ai/learnify/pull/10442');
   await pressEnter(page);
 
   const embedCard = page.locator('affine-embed-github-block');

@@ -33,7 +33,7 @@ export function setupSpaceAIEntry(panel: AffineAIPanelWidget) {
   // Background: The keydown event triggered by a space may originate from:
   // 1. Normal space insertion
   // 2. Space triggered by input method confirming candidate words
-  // In scenarios like (2), some browsers (see [ISSUE](https://github.com/a1exsun/learnify/issues/11541))
+  // In scenarios like (2), some browsers (see [ISSUE](https://github.com/oiy-ai/learnify/issues/11541))
   // and input method callbacks produce events identical to scenario (1),
   // making it impossible to distinguish between the two.
   //

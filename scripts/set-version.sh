@@ -51,7 +51,7 @@ update_app_stream_version() {
   # version is at
   # <releases>
   #   <release version="0.21.0" date="yyyy-MM-dd">
-  #     <url>https://github.com/a1exsun/learnify/releases/tag/v0.21.0</url>
+  #     <url>https://github.com/oiy-ai/learnify/releases/tag/v0.21.0</url>
   #   </release>
   # </releases>
   # We need to update the version and the url
@@ -59,7 +59,7 @@ update_app_stream_version() {
 
   # Use sed to update the version, date, and URL in the releases section
   sed -i.bak -E "s|<release version=\"[^\"]*\" date=\"[^\"]*\">|<release version=\"$new_version\" date=\"$current_date\">|" "$file_path"
-  sed -i.bak -E "s|<url>https://github.com/a1exsun/learnify/releases/tag/v[^<]*</url>|<url>https://github.com/a1exsun/learnify/releases/tag/v$new_version</url>|" "$file_path"
+  sed -i.bak -E "s|<url>https://github.com/oiy-ai/learnify/releases/tag/v[^<]*</url>|<url>https://github.com/oiy-ai/learnify/releases/tag/v$new_version</url>|" "$file_path"
 
   if [ $? -ne 0 ]; then
     echo "Error: Failed to update the appVersion."

@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this bug report!
-        Check out this [link](https://github.com/a1exsun/learnify/blob/canary/docs/issue-triaging.md)
+        Check out this [link](https://github.com/oiy-ai/learnify/blob/canary/docs/issue-triaging.md)
         to learn how we manage issues and when your issue will be processed.
   - type: textarea
     id: what-happened
