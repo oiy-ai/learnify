@@ -1,36 +1,40 @@
-import { IconButton } from '@affine/component';
+import { IconButton, notify } from '@affine/component';
 import { useAsyncCallback } from '@affine/core/components/hooks/affine-async-hooks';
 import { useI18n } from '@affine/i18n';
 import { MicrophoneIcon, StopIcon } from '@blocksuite/icons/rc';
 import clsx from 'clsx';
 import type React from 'react';
-import { type MouseEvent, useCallback, useRef, useState } from 'react';
+import { type MouseEvent, useCallback, useState } from 'react';
 
 import * as styles from './index.css';
 
 interface RecordButtonProps {
   className?: string;
   style?: React.CSSProperties;
-  // eslint-disable-next-line no-unused-vars
   onRecordComplete?: (audioBlob: Blob) => Promise<void> | void;
 }
 
 const sideBottom = { side: 'bottom' as const };
 
-export function RecordButton({
-  className,
-  style,
-  onRecordComplete,
-}: RecordButtonProps) {
+export function RecordButton({ className, style }: RecordButtonProps) {
   const t = useI18n();
-  const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const [isRecording] = useState(false);
+  // Unused variables commented out for future implementation
+  // const [isRecording, setIsRecording] = useState(false);
+  // const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  // const audioChunksRef = useRef<Blob[]>([]);
 
   const handleRecord = useAsyncCallback(
-    // eslint-disable-next-line no-unused-vars
-    async (e?: MouseEvent) => {
-      if (isRecording) {
+    async (_e?: MouseEvent) => {
+      // Show "功能开发中" notification
+      notify({
+        title: '功能开发中',
+        message: '语音录制功能正在开发中，敬请期待',
+      });
+      return;
+
+      // Original recording logic (currently disabled)
+      /* if (isRecording) {
         // 停止录音
         if (mediaRecorderRef.current) {
           mediaRecorderRef.current.stop();
@@ -69,9 +73,9 @@ export function RecordButton({
         } catch {
           alert('无法访问麦克风，请检查权限设置');
         }
-      }
+      } */
     },
-    [isRecording, onRecordComplete]
+    [] // No dependencies needed for now since we're just showing a notification
   );
 
   const onClickRecord = useCallback(
