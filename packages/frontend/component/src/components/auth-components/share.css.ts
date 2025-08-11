@@ -15,6 +15,8 @@ globalStyle(`${authHeaderWrapper} .logo`, {
   fontSize: cssVar('fontH3'),
   fontWeight: 600,
   color: cssVar('black'),
+  width: '64px',
+  height: '64px',
   marginRight: '6px',
   verticalAlign: 'middle',
 });
