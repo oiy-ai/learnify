@@ -51,7 +51,8 @@ export const flashcardContainer = style({
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
-  padding: '24px',
+  padding: '12px',
+  paddingBottom: '36px',
   backgroundColor: 'var(--affine-background-primary-color)',
   borderRadius: '8px',
 });
@@ -62,7 +63,7 @@ export const flashcardContent = style({
   flex: 1,
   alignItems: 'center',
   justifyContent: 'center',
-  gap: '24px',
+  gap: '8px',
 });
 
 export const question = style({
@@ -72,6 +73,12 @@ export const question = style({
   textAlign: 'center',
   lineHeight: 1.4,
   maxWidth: '600px',
+  maxHeight: '56px',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
 });
 
 export const showAnswerButton = style({
@@ -106,7 +113,7 @@ export const answerSection = style({
 
 export const answerBox = style({
   width: '100%',
-  padding: '20px',
+  padding: '8px',
   backgroundColor: 'var(--affine-background-secondary-color)',
   borderRadius: '8px',
   border: '1px solid var(--affine-border-color)',
@@ -123,6 +130,12 @@ export const answerText = style({
   fontSize: '16px',
   color: 'var(--affine-text-primary-color)',
   lineHeight: 1.6,
+  maxHeight: '51px',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
 });
 
 export const hideAnswerButton = style({
@@ -163,6 +176,8 @@ export const quizOptionButton = style({
   fontSize: '14px',
   color: 'var(--affine-text-primary-color)',
   minHeight: '40px',
+  maxHeight: '60px',
+  overflow: 'hidden',
 
   ':hover': {
     backgroundColor: 'var(--affine-hover-background)',
@@ -190,6 +205,17 @@ export const quizOptionButton = style({
         borderColor: 'var(--affine-primary-color)',
       },
   },
+});
+
+export const optionText = style({
+  flex: 1,
+  fontSize: '14px',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  wordBreak: 'break-word',
 });
 
 export const quizResultMessage = style({
