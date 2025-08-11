@@ -143,7 +143,7 @@ export const subtitleList = style({
   overflowY: 'auto',
   display: 'flex',
   flexDirection: 'column',
-  gap: '8px',
+  gap: '0px', // padding is enough for gap
   paddingRight: '8px',
 });
 
@@ -177,8 +177,8 @@ export const subtitleTime = style({
 });
 
 export const subtitleText = style({
-  fontSize: 20,
-  lineHeight: 1.5,
+  fontSize: 16,
+  lineHeight: 1.3,
   flex: 1,
 });
 

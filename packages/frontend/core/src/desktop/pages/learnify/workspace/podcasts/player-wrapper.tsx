@@ -1,4 +1,4 @@
-import { Button, IconButton } from '@affine/component';
+import { Button, IconButton, toast } from '@affine/component';
 import { HeadphonePanelIcon, PlayIcon, StopIcon } from '@blocksuite/icons/rc';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -190,6 +190,7 @@ export const PlayerWrapper = ({ onLoad }: { onLoad: () => void }) => {
 
   const togglePlayPause = useCallback(() => {
     setIsPlaying(prev => !prev);
+    toast('Feature in development: Audio playback');
   }, []);
 
   const formatTime = (seconds: number) => {
@@ -257,8 +258,7 @@ export const PlayerWrapper = ({ onLoad }: { onLoad: () => void }) => {
         className={styles.connectButton}
         size="large"
         onClick={() => {
-          console.log('连线当前播客');
-          // TODO: Implement connect functionality
+          toast('Feature in development: Connect to podcast');
         }}
         prefix={<HeadphonePanelIcon />}
       >
