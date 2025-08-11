@@ -20,8 +20,8 @@ export const divider = style({
   margin: '4px 0px',
 });
 export const menuStyle = style({
-  width: '420px',
-  maxHeight: '562px',
+  width: '320px',
+  maxHeight: '422px',
   padding: '12px',
 });
 export const localMenuStyle = style({
