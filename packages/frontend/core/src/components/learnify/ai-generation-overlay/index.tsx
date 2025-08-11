@@ -9,6 +9,9 @@ export interface AIGenerationProgress {
   stage: 'preparing' | 'generating' | 'processing' | 'finalizing';
   percentage: number;
   message: string;
+  totalItems?: number;
+  currentItem?: number;
+  currentItemName?: string;
 }
 
 export interface AIGenerationOverlayProps {
@@ -114,6 +117,20 @@ export const AIGenerationOverlay = ({
             </h3>
             {progress.message && (
               <p className={styles.loadingMessage}>{progress.message}</p>
+            )}
+
+            {/* Show overall progress */}
+            {progress.totalItems && progress.totalItems > 1 && (
+              <div className={styles.overallProgress}>
+                <span className={styles.overallProgressText}>
+                  总进度: {progress.currentItem || 1} / {progress.totalItems}
+                </span>
+                {progress.currentItemName && (
+                  <span className={styles.currentItemName}>
+                    正在处理: {progress.currentItemName}
+                  </span>
+                )}
+              </div>
             )}
 
             {/* Progress bar */}

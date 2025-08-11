@@ -23,11 +23,12 @@ export const useAIGeneration = (options?: UseAIGenerationOptions) => {
       percentage: number,
       message?: string
     ) => {
-      setProgress({
+      setProgress(prev => ({
+        ...prev, // Keep totalItems, currentItem, currentItemName
         stage,
         percentage,
         message: message || '',
-      });
+      }));
     },
     []
   );
@@ -36,11 +37,12 @@ export const useAIGeneration = (options?: UseAIGenerationOptions) => {
     async (generateFn: () => Promise<any>) => {
       setIsGenerating(true);
       setError(null);
-      setProgress({
-        stage: 'preparing',
+      setProgress(prev => ({
+        ...prev, // Keep totalItems, currentItem, currentItemName
+        stage: 'preparing' as const,
         percentage: 0,
         message: '正在准备材料...',
-      });
+      }));
 
       try {
         // Simulate progress updates
@@ -133,6 +135,7 @@ export const useAIGeneration = (options?: UseAIGenerationOptions) => {
     error,
     startGeneration,
     updateProgress,
+    setProgress,
     cancel,
     retry,
   };

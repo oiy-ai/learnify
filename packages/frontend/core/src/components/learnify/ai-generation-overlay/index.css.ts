@@ -38,6 +38,27 @@ export const loadingMessage = style({
   maxWidth: '320px',
 });
 
+// Overall progress styles
+export const overallProgress = style({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '4px',
+  marginTop: '12px',
+  marginBottom: '8px',
+});
+
+export const overallProgressText = style({
+  fontSize: '14px',
+  fontWeight: 600,
+  color: cssVarV2.text.primary,
+});
+
+export const currentItemName = style({
+  fontSize: '12px',
+  color: cssVarV2.text.secondary,
+});
+
 // Progress bar styles
 export const progressContainer = style({
   display: 'flex',
