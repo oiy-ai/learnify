@@ -36,7 +36,6 @@ export interface LinkData {
 export class MaterialsDocService extends Service {
   materials$ = new LiveData<MaterialItem[]>([]);
 
-   
   constructor(private readonly docsService: DocsService) {
     super();
 
@@ -182,16 +181,29 @@ export class MaterialsDocService extends Service {
       throw new Error('Materials document not found');
     }
 
-    // Get the first note block to add attachment
+    // Get the first note block to add attachment; create one if missing
     const noteBlocks = doc.getBlocksByFlavour('affine:note');
-    const noteBlock =
+    let noteBlock =
       noteBlocks.find(block => {
         const model = block.model as any;
         return model.displayMode !== NoteDisplayMode.EdgelessOnly;
       }) || noteBlocks[0];
 
     if (!noteBlock) {
-      throw new Error('No note block found in materials document');
+      const pageBlocks = doc.getBlocksByFlavour('affine:page');
+      if (!pageBlocks.length) {
+        throw new Error('No note block found in materials document');
+      }
+      doc.addBlock(
+        'affine:note' as never,
+        { displayMode: NoteDisplayMode.DocOnly },
+        pageBlocks[0].id
+      );
+      const refreshedNotes = doc.getBlocksByFlavour('affine:note');
+      noteBlock = refreshedNotes[0];
+      if (!noteBlock) {
+        throw new Error('No note block found in materials document');
+      }
     }
 
     // Add attachment block
@@ -215,16 +227,29 @@ export class MaterialsDocService extends Service {
       throw new Error('Materials document not found');
     }
 
-    // Get the first note block to add YouTube embed
+    // Get the first note block to add YouTube embed; create one if missing
     const noteBlocks = doc.getBlocksByFlavour('affine:note');
-    const noteBlock =
+    let noteBlock =
       noteBlocks.find(block => {
         const model = block.model as any;
         return model.displayMode !== NoteDisplayMode.EdgelessOnly;
       }) || noteBlocks[0];
 
     if (!noteBlock) {
-      throw new Error('No note block found in materials document');
+      const pageBlocks = doc.getBlocksByFlavour('affine:page');
+      if (!pageBlocks.length) {
+        throw new Error('No note block found in materials document');
+      }
+      doc.addBlock(
+        'affine:note' as never,
+        { displayMode: NoteDisplayMode.DocOnly },
+        pageBlocks[0].id
+      );
+      const refreshedNotes = doc.getBlocksByFlavour('affine:note');
+      noteBlock = refreshedNotes[0];
+      if (!noteBlock) {
+        throw new Error('No note block found in materials document');
+      }
     }
 
     // Extract video ID from URL
@@ -258,16 +283,29 @@ export class MaterialsDocService extends Service {
       throw new Error('Materials document not found');
     }
 
-    // Get the first note block to add bookmark
+    // Get the first note block to add bookmark; create one if missing
     const noteBlocks = doc.getBlocksByFlavour('affine:note');
-    const noteBlock =
+    let noteBlock =
       noteBlocks.find(block => {
         const model = block.model as any;
         return model.displayMode !== NoteDisplayMode.EdgelessOnly;
       }) || noteBlocks[0];
 
     if (!noteBlock) {
-      throw new Error('No note block found in materials document');
+      const pageBlocks = doc.getBlocksByFlavour('affine:page');
+      if (!pageBlocks.length) {
+        throw new Error('No note block found in materials document');
+      }
+      doc.addBlock(
+        'affine:note' as never,
+        { displayMode: NoteDisplayMode.DocOnly },
+        pageBlocks[0].id
+      );
+      const refreshedNotes = doc.getBlocksByFlavour('affine:note');
+      noteBlock = refreshedNotes[0];
+      if (!noteBlock) {
+        throw new Error('No note block found in materials document');
+      }
     }
 
     // Validate URL
