@@ -1,6 +1,8 @@
+import { Tooltip } from '@affine/component';
 import { MenuItem, MenuLinkItem } from '@affine/core/modules/app-sidebar/views';
 import {
   HistoryIcon,
+  InformationIcon,
   MindmapIcon,
   TextIcon,
   ViewLayersIcon,
@@ -120,7 +122,12 @@ export const ProgressNavigator = () => {
         icon={isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className={styles.progressItem}>
+        <div
+          className={`${styles.progressItem} ${styles.progressItemWithIcon}`}
+        >
+          <Tooltip content="Learning progress statistics feature is currently under development">
+            <InformationIcon className={styles.informationIcon} />
+          </Tooltip>
           <Progress name="Overall Progress" percent={overallPercent} />
         </div>
       </MenuItem>

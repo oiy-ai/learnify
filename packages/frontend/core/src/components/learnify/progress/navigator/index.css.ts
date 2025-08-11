@@ -71,6 +71,7 @@ export const bar = style({
 });
 
 export const progressItem = style({
+  marginRight: '12px',
   display: 'flex',
   flexDirection: 'column',
   gap: 8,
@@ -81,4 +82,21 @@ export const progressItem = style({
 export const title = style({
   fontSize: 14,
   fontWeight: 500,
+});
+
+export const informationIcon = style({
+  position: 'absolute',
+  top: '50%',
+  right: '-14px',
+  transform: 'translateY(-50%)',
+  width: '24px',
+  height: '24px',
+  cursor: 'pointer',
+  color: cssVarV2('text/tertiary'),
+  opacity: 0.6,
+  zIndex: 1,
+});
+
+export const progressItemWithIcon = style({
+  position: 'relative',
 });
