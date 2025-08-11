@@ -38,6 +38,8 @@ export const sourceContent = style({
   alignItems: 'center',
   gap: 8,
   flex: 1,
+  // Allow this flex item to shrink so children can use text-overflow: ellipsis
+  minWidth: 0,
   cursor: 'pointer',
 });
 
