@@ -77,7 +77,7 @@ export const useWorkspaceSettingList = (): SettingSidebarItem[] => {
 
   const showBilling =
     !isSelfhosted && information?.isTeam && information?.isOwner;
-  const showLicense = information?.isOwner && isSelfhosted;
+  const showLicense = false; // Hide license panel
   const items = useMemo<SettingSidebarItem[]>(() => {
     return [
       {
