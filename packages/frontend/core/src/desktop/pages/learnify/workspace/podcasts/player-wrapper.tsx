@@ -1,4 +1,5 @@
 import { Button, IconButton, toast } from '@affine/component';
+import { useI18n } from '@affine/i18n';
 import { HeadphonePanelIcon, PlayIcon, StopIcon } from '@blocksuite/icons/rc';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -154,6 +155,7 @@ const mockPodcastData: PodcastData = {
 };
 
 export const PlayerWrapper = ({ onLoad }: { onLoad: () => void }) => {
+  const t = useI18n();
   const [podcast] = useState<PodcastData>(mockPodcastData);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -262,7 +264,8 @@ export const PlayerWrapper = ({ onLoad }: { onLoad: () => void }) => {
         }}
         prefix={<HeadphonePanelIcon />}
       >
-        连线当前播客
+        {t['com.learnify.podcasts.connect-current']?.() ||
+          'Connect to current podcast'}
       </Button>
 
       <div className={styles.subtitleContainer}>

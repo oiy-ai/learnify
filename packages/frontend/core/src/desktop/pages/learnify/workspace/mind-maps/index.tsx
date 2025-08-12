@@ -42,6 +42,7 @@ export const CollectionDetail = ({
 }: {
   collection: Collection;
 }) => {
+  const t = useI18n();
   const [explorerContextValue] = useState(() =>
     createDocExplorerContext({
       view: 'list',
@@ -56,14 +57,14 @@ export const CollectionDetail = ({
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
 
   const handleEditorLoad = useCallback(() => {
-    // 编辑器加载完成后的回调
+    // Callback after editor is loaded
   }, []);
 
-  // 监听选中的文档ID变化
+  // Listen to selected document ID changes
   const selectedDocIds = useLiveData(explorerContextValue.selectedDocIds$);
 
   useEffect(() => {
-    // 当有文档被选中时，设置第一个选中的文档为编辑器显示的文档
+    // When documents are selected, set the first selected document for editor display
     if (selectedDocIds.length > 0) {
       setSelectedDocId(selectedDocIds[0]);
     } else {
@@ -71,7 +72,7 @@ export const CollectionDetail = ({
     }
   }, [selectedDocIds]);
 
-  // 检查文档访问权限
+  // Check document access permissions
   const canAccess = useGuard('Doc_Read', selectedDocId ?? '');
 
   const permissionService = useService(WorkspacePermissionService);
@@ -176,11 +177,14 @@ export const CollectionDetail = ({
               pageId={selectedDocId}
               canAccess={canAccess}
               skeleton={
-                <div className={styles.editorPlaceholder}>加载中...</div>
+                <div className={styles.editorPlaceholder}>
+                  {t['com.learnify.loading']?.() || 'Loading...'}
+                </div>
               }
               notFound={
                 <div className={styles.editorPlaceholder}>
-                  文档未找到或无权限访问
+                  {t['com.learnify.document.not-found-or-no-permission']?.() ||
+                    'Document not found or no access permission'}
                 </div>
               }
             >
@@ -190,7 +194,8 @@ export const CollectionDetail = ({
             <div className={styles.editorPlaceholder}>
               <div className={styles.placeholderContent}>
                 <div className={styles.placeholderText}>
-                  请选择一个文档来查看
+                  {t['com.learnify.document.please-select']?.() ||
+                    'Please select a document to view'}
                 </div>
               </div>
             </div>
@@ -201,8 +206,9 @@ export const CollectionDetail = ({
   );
 };
 
-// Mind-maps 专用的编辑器包装器，强制使用 edgeless 模式
+// Mind-maps specific editor wrapper, force edgeless mode
 const MindMapEditorWrapper = ({ onLoad }: { onLoad: () => void }) => {
+  const t = useI18n();
   const editorService = useService(EditorService);
   const editor = editorService.editor;
   const workspace = useService(WorkspaceService).workspace;
@@ -210,7 +216,7 @@ const MindMapEditorWrapper = ({ onLoad }: { onLoad: () => void }) => {
   const currentDocId = editor.doc.id;
 
   useEffect(() => {
-    // 强制设置为 edgeless 模式
+    // Force set to edgeless mode
     const currentMode = editor.mode$.value;
     if (currentMode !== 'edgeless') {
       editor.setMode('edgeless');
@@ -219,13 +225,13 @@ const MindMapEditorWrapper = ({ onLoad }: { onLoad: () => void }) => {
 
   const handleEditorLoad = useCallback(
     (editorContainer: any) => {
-      // 绑定编辑器容器到 EditorService
+      // Bind editor container to EditorService
       const unbind = editor.bindEditorContainer(editorContainer);
 
-      // 调用原始的 onLoad 回调
+      // Call original onLoad callback
       onLoad();
 
-      // 返回清理函数
+      // Return cleanup function
       return () => {
         unbind();
       };
@@ -247,7 +253,7 @@ const MindMapEditorWrapper = ({ onLoad }: { onLoad: () => void }) => {
       </div>
       <div className={styles.editButton}>
         <Button size="default" prefix={<EditIcon />} onClick={handleEditClick}>
-          编辑
+          {t['com.learnify.edit']?.() || 'Edit'}
         </Button>
       </div>
     </div>

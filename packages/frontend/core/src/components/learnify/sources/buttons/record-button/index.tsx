@@ -28,8 +28,12 @@ export function RecordButton({ className, style }: RecordButtonProps) {
     async (_e?: MouseEvent) => {
       // Show "功能开发中" notification
       notify({
-        title: '功能开发中',
-        message: '语音录制功能正在开发中，敬请期待',
+        title:
+          t['com.learnify.record.feature-in-development']?.() ||
+          'Feature in development',
+        message:
+          t['com.learnify.record.feature-in-development.message']?.() ||
+          'Voice recording feature is under development, stay tuned',
       });
       return;
 
@@ -71,7 +75,7 @@ export function RecordButton({ className, style }: RecordButtonProps) {
           setIsRecording(true);
           // TODO: Add appropriate tracking for recording start
         } catch {
-          alert('无法访问麦克风，请检查权限设置');
+          alert(t['com.learnify.record.microphone-access-error']?.() || 'Unable to access microphone, please check permission settings');
         }
       } */
     },
@@ -89,8 +93,8 @@ export function RecordButton({ className, style }: RecordButtonProps) {
     <IconButton
       tooltip={
         isRecording
-          ? t['Stop Recording']?.() || '停止录音'
-          : t['Start Recording']?.() || '开始录音'
+          ? t['com.learnify.record.stop']?.() || 'Stop Recording'
+          : t['com.learnify.record.start']?.() || 'Start Recording'
       }
       tooltipOptions={sideBottom}
       data-testid="sidebar-record-button"

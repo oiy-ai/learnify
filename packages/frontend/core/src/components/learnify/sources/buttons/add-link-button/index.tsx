@@ -12,7 +12,7 @@ import * as styles from './index.css';
 interface AddLinkButtonProps {
   className?: string;
   style?: React.CSSProperties;
-  // eslint-disable-next-line no-unused-vars
+   
   onAddLink?: (url: string) => Promise<void> | void;
 }
 
@@ -150,7 +150,7 @@ export function AddLinkButton({
       }}
     >
       <IconButton
-        tooltip={t['Add Link']?.() || '添加链接'}
+        tooltip={t['com.learnify.sources.add-link']?.() || 'Add Link'}
         tooltipOptions={sideBottom}
         data-testid="sidebar-add-link-button"
         style={style}

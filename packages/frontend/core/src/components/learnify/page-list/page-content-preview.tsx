@@ -1,5 +1,6 @@
 import { DocsSearchService } from '@affine/core/modules/docs-search';
 import { WorkspaceService } from '@affine/core/modules/workspace';
+import { useI18n } from '@affine/i18n';
 import { LiveData, useLiveData, useService } from '@toeverything/infra';
 import {
   type ReactNode,
@@ -82,6 +83,7 @@ const QuizCardPreview = ({
 };
 
 const FlashcardPreview = ({ question, answer }: FlashcardPreviewProps) => {
+  const t = useI18n();
   const [showAnswer, setShowAnswer] = useState(false);
 
   const handleToggleAnswer = useCallback((e: React.MouseEvent) => {
@@ -99,7 +101,9 @@ const FlashcardPreview = ({ question, answer }: FlashcardPreviewProps) => {
           onClick={handleToggleAnswer}
           data-selected={showAnswer}
         >
-          {showAnswer ? `答案: ${answer}` : '查看答案'}
+          {showAnswer
+            ? `${t['com.learnify.flashcard.answer']?.() || 'Answer'}: ${answer}`
+            : t['com.learnify.flashcard.view-answer']?.() || 'View Answer'}
         </button>
       </div>
     </div>
@@ -150,14 +154,14 @@ export const PagePreview = (props: PagePreviewProps) => {
 };
 
 function postprocessFlashcardContent(content: ReactNode): ReactNode {
-  // 如果不是字符串，直接返回原内容
+  // If not string, return original content directly
   if (typeof content !== 'string') {
     return content;
   }
 
   let postprocessor: ReactNode = content;
 
-  // 辅助函数：限制文本长度到指定单词数
+  // Helper function: limit text length to specified word count
   const limitTextToWords = (text: string, maxWords: number): string => {
     const words = text.split(/\s+/);
     if (words.length <= maxWords) {
@@ -166,28 +170,28 @@ function postprocessFlashcardContent(content: ReactNode): ReactNode {
     return words.slice(0, maxWords).join(' ') + '...';
   };
 
-  // 处理简单的 flashcard 格式: [flashcard][Question]Q[Answer]A
+  // Process simple flashcard format: [flashcard][Question]Q[Answer]A
   if (content.startsWith('[flashcard]')) {
     const afterType = content.replace('[flashcard]', '').trim();
 
-    // 提取问题
+    // Extract question
     const questionMatch = afterType.match(/\[Question\](.*?)(?=\[Answer\])/s);
     const rawQuestion = questionMatch ? questionMatch[1].trim() : '';
 
-    // 提取答案
+    // Extract answer
     const answerMatch = afterType.match(/\[Answer\](.*?)$/s);
     const answer = answerMatch ? answerMatch[1].trim() : '';
 
-    // 限制问题长度到45个单词
+    // Limit question length to 45 words
     const question = limitTextToWords(rawQuestion, 45);
 
     if (question && answer) {
       postprocessor = <FlashcardPreview question={question} answer={answer} />;
     } else {
-      postprocessor = content; // 如果解析失败，回退到原始内容
+      postprocessor = content; // If parsing fails, fallback to original content
     }
   } else if (content.startsWith('[single-choice]')) {
-    // Format: [single-choice] [Question]Find the equation... [Options]a) 选项A b) Option B [Answer]d
+    // Format: [single-choice] [Question]Find the equation... [Options]a) Option A b) Option B [Answer]d
     const afterType = content.replace('[single-choice]', '').trim();
 
     // Extract question between [Question] and [Options]
@@ -202,7 +206,7 @@ function postprocessFlashcardContent(content: ReactNode): ReactNode {
     const answerMatch = afterType.match(/\[Answer\]\s*([a-d])/);
     const correctAnswer = answerMatch ? answerMatch[1] : undefined;
 
-    // 限制question长度到45个单词
+    // Limit question length to 45 words
     const question = limitTextToWords(rawQuestion, 45);
 
     // Extract individual options by finding all option patterns
