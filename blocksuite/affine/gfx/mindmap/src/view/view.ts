@@ -345,6 +345,17 @@ export class MindMapView extends GfxElementModelView<MindmapElementModel> {
     this._setLayoutMethod();
     this._initCollapseButtons();
     this._setVisibleOnSelection();
+
+    // Auto-trigger layout only in editable mode to fix overlapping AI-generated mindmaps
+    // Check if the store is not in readonly mode (i.e., in edit mode)
+    if (!this.surface.store.readonly) {
+      queueMicrotask(() => {
+        if (this.model && !this.model.isLocked()) {
+          this.model.buildTree();
+          this.model.requestLayout();
+        }
+      });
+    }
   }
 
   override onDestroyed() {
