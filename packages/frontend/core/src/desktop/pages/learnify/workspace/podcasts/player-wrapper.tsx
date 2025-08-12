@@ -29,7 +29,7 @@ const mockPodcastData: PodcastData = {
   author: 'Tech Talks Podcast',
   duration: 100, // 100 seconds to match subtitle length
   audioUrl: 'https://example.com/podcast.mp3',
-  coverUrl: '/imgs/logo.svg',
+  coverUrl: '/imgs/podcast-logo.svg',
   subtitles: [
     {
       id: '1',
