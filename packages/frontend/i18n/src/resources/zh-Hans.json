@@ -315,7 +315,7 @@
   "com.affine.auth.sign.add-selfhosted.connect-button": "连接",
   "com.affine.auth.sign.add-selfhosted.error": "无法连接至服务器。",
   "com.affine.auth.sign.add-selfhosted.description": "自托管实例不由 AFFiNE 托管或部署，您的数据将存储在这些实例上。<1>了解有关自托管的更多信息。</1>",
-  "com.affine.auth.sign.message": "点击上面的“谷歌登录以继续”，即表示您确认同意 AFFiNE 的<1>条件条款</1>和<3>隐私政策</3>。",
+  "com.affine.auth.sign.message": "Learnify 目前处于早期阶段，因此可能存在一些问题与缺陷。点击上方“使用 Google/邮箱继续”，即表示您确认同意 Learnify 的<1>服务条款</1>和<3>隐私政策</3>。",
   "com.affine.auth.sign.policy": "隐私政策",
   "com.affine.auth.sign.up": "注册",
   "com.affine.auth.sign.up.sent.email.subtitle": "创建您的账号",

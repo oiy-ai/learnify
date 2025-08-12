@@ -181,8 +181,9 @@ export const SignInStep = ({
             <div className={style.authMessage}>
               {/*prettier-ignore*/}
               <Trans i18nKey="com.affine.auth.sign.message">
+                Learnify is currently in its early stage. So there may be some bugs and issues.
                 By clicking &quot;Continue with Google/Email&quot; above, you acknowledge that
-                you agree to AFFiNE&apos;s <a href="https://affine.pro/terms" target="_blank" rel="noreferrer">Terms of Conditions</a> and <a href="https://affine.pro/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
+                you agree to Learnify&apos;s <a href="https://learnify.oiy.ai/terms" target="_blank" rel="noreferrer">Terms of Conditions</a> and <a href="https://learnify.oiy.ai/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
             </Trans>
             </div>
             <div className={style.skipDivider}>

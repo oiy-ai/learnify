@@ -315,7 +315,7 @@
   "com.affine.auth.sign.add-selfhosted.connect-button": "Connect",
   "com.affine.auth.sign.add-selfhosted.error": "Unable to connect to the server.",
   "com.affine.auth.sign.add-selfhosted.description": "The Self-Hosted instance is not hosted or deployed by Learnify. Your data will be stored on these instances.  <1>Learn more about Self-Host details.</1>",
-  "com.affine.auth.sign.message": "By clicking “Continue with Google/Email” above, you acknowledge that you agree to Learnify's <1>Terms of Conditions</1> and <3>Privacy Policy</3>.",
+  "com.affine.auth.sign.message": "Learnify is currently in its early stage. So there may be some bugs and issues. By clicking “Continue with Google/Email” above, you acknowledge that you agree to Learnify's <1>Terms of Conditions</1> and <3>Privacy Policy</3>.",
   "com.affine.auth.sign.policy": "Privacy policy",
   "com.affine.auth.sign.up": "Sign up",
   "com.affine.auth.sign.up.sent.email.subtitle": "Create your account",
