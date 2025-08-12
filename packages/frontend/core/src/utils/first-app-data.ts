@@ -12,7 +12,6 @@ import { LEARNIFY_COLLECTIONS } from '../constants/learnify-collections';
 import { LEARNIFY_DOCUMENTS } from '../constants/learnify-documents';
 import { CollectionService } from '../modules/collection';
 import { DocsService } from '../modules/doc';
-import { OrganizeService } from '../modules/organize';
 import {
   getAFFiNEWorkspaceSchema,
   type WorkspacesService,
@@ -41,31 +40,15 @@ export async function buildShowcaseWorkspace(
 
   const docsService = workspace.scope.get(DocsService);
 
-  // should jump to "Getting Started"
-  const defaultDoc = docsService.list.docs$.value.find(p =>
-    p.title$.value.startsWith('Getting Started')
+  // Find the new Learnify documents
+  const getStartedDoc = docsService.list.docs$.value.find(
+    p => p.title$.value === 'Get Started'
   );
-  const folderTutorialDoc = docsService.list.docs$.value.find(p =>
-    p.title$.value.startsWith('How to use folder and Tags')
+  const podcastSampleDoc = docsService.list.docs$.value.find(
+    p => p.title$.value === 'Podcast Sample'
   );
 
-  // create default organize
-  if (folderTutorialDoc) {
-    const organizeService = workspace.scope.get(OrganizeService);
-    const folderId = organizeService.folderTree.rootFolder.createFolder(
-      'First Folder',
-      organizeService.folderTree.rootFolder.indexAt('after')
-    );
-    const firstFolderNode =
-      organizeService.folderTree.folderNode$(folderId).value;
-    firstFolderNode?.createLink(
-      'doc',
-      folderTutorialDoc.id,
-      firstFolderNode.indexAt('after')
-    );
-  }
-
-  // create default collection for learnify mind maps
+  // create default collection for learnify
   const collectionService = workspace.scope.get(CollectionService);
   collectionService.createCollection({
     id: LEARNIFY_COLLECTIONS.MIND_MAPS,
@@ -77,13 +60,13 @@ export async function buildShowcaseWorkspace(
     id: LEARNIFY_COLLECTIONS.NOTES,
     name: 'Learnify Notes',
     rules: { filters: [] },
-    allowList: [],
+    allowList: getStartedDoc ? [getStartedDoc.id] : [],
   });
   collectionService.createCollection({
     id: LEARNIFY_COLLECTIONS.PODCASTS,
     name: 'Learnify Podcasts',
     rules: { filters: [] },
-    allowList: [],
+    allowList: podcastSampleDoc ? [podcastSampleDoc.id] : [],
   });
   collectionService.createCollection({
     id: LEARNIFY_COLLECTIONS.FLASHCARDS,
@@ -109,7 +92,7 @@ export async function buildShowcaseWorkspace(
 
   dispose();
 
-  return { meta, defaultDocId: defaultDoc?.id };
+  return { meta, defaultDocId: getStartedDoc?.id };
 }
 
 const logger = new DebugLogger('createFirstAppData');
