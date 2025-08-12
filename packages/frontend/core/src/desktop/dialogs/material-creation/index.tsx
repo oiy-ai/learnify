@@ -7,6 +7,7 @@ import type {
   WORKSPACE_DIALOG_SCHEMA,
 } from '@affine/core/modules/dialogs';
 import { DocsService } from '@affine/core/modules/doc';
+import { WorkbenchService } from '@affine/core/modules/workbench';
 import {
   getAFFiNEWorkspaceSchema,
   WorkspaceService,
@@ -82,6 +83,7 @@ export const MaterialCreationDialog = ({
   const t = useI18n();
   const materialsService = useService(MaterialsDocService);
   const workspaceService = useService(WorkspaceService);
+  const workbenchService = useService(WorkbenchService);
   const docsService = useService(DocsService);
   const collectionService = useService(CollectionService);
   const allMaterials = useLiveData(materialsService.materials$);
@@ -476,6 +478,14 @@ Instead of creating notes, please create a mind map structure in JSON format wit
           // Clean up
           releaseEdgeless();
 
+          // Open the mindmap in edit mode to trigger layout calculation
+          // This ensures the mindmap is properly laid out before the user sees it
+          setTimeout(() => {
+            workbenchService.workbench.openDoc(mindmapDoc.id, {
+              at: 'active',
+            });
+          }, 100);
+
           return mindmapDoc.id;
         } else {
           // Fallback: Add instruction note
@@ -516,6 +526,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       processAIMindmapResponse,
       cleanupTempDoc,
       collectionService,
+      workbenchService,
       workspaceService,
       docsService,
       updateProgress,
@@ -956,6 +967,10 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       return;
     }
 
+    // Capture the current active view and location before generation
+    const originalActiveView = workbenchService.workbench.activeView$.value;
+    const originalLocation = originalActiveView?.location$.value;
+
     // Calculate total items to process
     const totalItems = selectedMaterials.length * selectedOptions.size;
 
@@ -1040,6 +1055,14 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       if (summaryParts.length > 0) {
         toast(`成功创建: ${summaryParts.join(', ')}`);
       }
+
+      // Return to the original page after all generation is complete
+      // This ensures user returns to their original context (flashcards, notes, podcasts, etc.)
+      if (originalActiveView && originalLocation) {
+        setTimeout(() => {
+          originalActiveView.replace(originalLocation);
+        }, 500);
+      }
     };
 
     // Set the generation function for retry
@@ -1055,6 +1078,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
     createFlashcards,
     startGeneration,
     setProgress,
+    workbenchService,
   ]);
 
   return (
