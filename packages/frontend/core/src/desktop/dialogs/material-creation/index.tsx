@@ -284,7 +284,36 @@ export const MaterialCreationDialog = ({
   // Process AI response for mindmap
   const processAIMindmapResponse = useCallback(
     async (aiResponse: any): Promise<any> => {
+      // Helper function to count nodes in a tree
+      const countNodes = (node: any): number => {
+        if (!node) return 0;
+        let count = 1;
+        if (node.children && Array.isArray(node.children)) {
+          for (const child of node.children) {
+            count += countNodes(child);
+          }
+        }
+        return count;
+      };
+
+      // Helper function to get max depth of tree
+      const getMaxDepth = (node: any, currentDepth = 1): number => {
+        if (!node || !node.children || node.children.length === 0) {
+          return currentDepth;
+        }
+        let maxChildDepth = currentDepth;
+        for (const child of node.children) {
+          const childDepth = getMaxDepth(child, currentDepth + 1);
+          maxChildDepth = Math.max(maxChildDepth, childDepth);
+        }
+        return maxChildDepth;
+      };
       let content = '';
+
+      console.log('[Mindmap Response] Processing AI response...', {
+        responseType: typeof aiResponse,
+        hasAsyncIterator: aiResponse && Symbol.asyncIterator in aiResponse,
+      });
 
       // Handle streaming response - similar to processAIResponse for notes
       if (
@@ -294,8 +323,15 @@ export const MaterialCreationDialog = ({
       ) {
         const streamObjects = [];
         let fallbackContent = '';
+        let chunkCount = 0;
 
         for await (const chunk of aiResponse) {
+          chunkCount++;
+          console.log(`[Mindmap Response] Processing chunk ${chunkCount}:`, {
+            chunkLength: chunk.length,
+            chunkPreview: chunk.substring(0, 100),
+          });
+
           try {
             const parsed = StreamObjectSchema.parse(JSON.parse(chunk));
             streamObjects.push(parsed);
@@ -305,6 +341,12 @@ export const MaterialCreationDialog = ({
           }
         }
 
+        console.log('[Mindmap Response] Stream processing complete:', {
+          totalChunks: chunkCount,
+          streamObjectsCount: streamObjects.length,
+          fallbackContentLength: fallbackContent.length,
+        });
+
         content =
           streamObjects.length > 0
             ? mergeStreamContent(streamObjects)
@@ -313,22 +355,78 @@ export const MaterialCreationDialog = ({
         content = aiResponse;
       }
 
+      console.log('[Mindmap Response] Raw content received:', {
+        contentLength: content.length,
+        contentPreview: content.substring(0, 500),
+      });
+
       // Try to extract JSON from the response
       try {
-        // First, try to find a JSON object in the content
-        // Look for JSON that starts with { and ends with }
-        const jsonMatch = content.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/);
-        if (jsonMatch) {
-          const jsonStr = jsonMatch[0];
-          console.log('Found potential JSON:', jsonStr);
-          return JSON.parse(jsonStr);
+        // First, try to parse the entire content as JSON (most reliable)
+        let parsed;
+        try {
+          parsed = JSON.parse(content);
+          console.log(
+            '[Mindmap Response] Successfully parsed entire content as JSON'
+          );
+        } catch {
+          // If that fails, try to extract JSON from the content
+          console.log(
+            '[Mindmap Response] Direct parse failed, attempting to extract JSON...'
+          );
+
+          // Try to find the outermost JSON object by looking for balanced braces
+          // This regex looks for content starting with { and ending with the last }
+          const trimmedContent = content.trim();
+          const firstBrace = trimmedContent.indexOf('{');
+          const lastBrace = trimmedContent.lastIndexOf('}');
+
+          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            const jsonStr = trimmedContent.substring(firstBrace, lastBrace + 1);
+            console.log('[Mindmap Response] Extracted JSON substring:', {
+              length: jsonStr.length,
+              preview: jsonStr.substring(0, 200) + '...',
+            });
+            parsed = JSON.parse(jsonStr);
+          } else {
+            throw new Error('No valid JSON structure found in content');
+          }
         }
 
-        // If no JSON found, try parsing the entire content
-        return JSON.parse(content);
+        // Validate the parsed structure
+        const nodeCount = countNodes(parsed);
+        const maxDepth = getMaxDepth(parsed);
+
+        console.log('[Mindmap Response] Parsed mindmap structure:', {
+          nodeCount,
+          maxDepth,
+          meetsRequirements: nodeCount >= 30 && maxDepth >= 4,
+          rootText: parsed.text,
+          childrenCount: parsed.children?.length || 0,
+        });
+
+        if (nodeCount < 30 || maxDepth < 4) {
+          console.warn(
+            '[Mindmap Response] WARNING: AI response does not meet requirements!',
+            {
+              requiredNodes: 30,
+              actualNodes: nodeCount,
+              requiredDepth: 4,
+              actualDepth: maxDepth,
+            }
+          );
+        }
+
+        return parsed;
       } catch (error) {
-        console.error('Failed to parse mindmap JSON:', error);
-        console.log('Content that failed to parse:', content);
+        console.error(
+          '[Mindmap Response] Failed to parse mindmap JSON:',
+          error
+        );
+        console.log(
+          '[Mindmap Response] Content that failed to parse:',
+          content
+        );
       }
 
       return null;
@@ -361,27 +459,38 @@ export const MaterialCreationDialog = ({
         // Modify prompt for mindmap generation
         const mindmapPrompt = `${prompt}
 
-Create a mind map structure that organizes the key concepts and relationships from the materials.
+Create a comprehensive mind map structure.
 
-Requirements:
-- Generate between 15-80 nodes total for optimal visualization
-- Create a clear hierarchical structure with logical groupings
-- Keep node text concise and meaningful
+MANDATORY REQUIREMENTS:
+- Minimum 30 nodes (non-negotiable)
+- At least 4 hierarchy levels deep
+- Concise node text (3-6 words each)
 
-Return as JSON in this format:
+JSON format:
 {
   "text": "Central Topic",
   "children": [
     {
-      "text": "Branch 1",
+      "text": "Branch",
       "children": [
-        {"text": "Sub-branch", "children": []}
+        {"text": "Sub", "children": [
+          {"text": "Detail", "children": []}
+        ]}
       ]
     }
   ]
 }
 
-Return ONLY the JSON, no explanations or markdown.`;
+Output ONLY valid JSON.`;
+
+        // Log the prompt being sent
+        console.log('[Mindmap Generation] Sending prompt to AI:', {
+          promptLength: mindmapPrompt.length,
+          hasAttachments: attachments.length > 0,
+          attachmentCount: attachments.length,
+          materialName: material.name,
+        });
+        console.log('[Mindmap Generation] Full prompt:', mindmapPrompt);
 
         // Create temporary doc for AI session
         tempDoc = docsService.createDoc({ primaryMode: 'page' });
@@ -412,6 +521,13 @@ Return ONLY the JSON, no explanations or markdown.`;
 
         if (mindmapStructure) {
           aiMindmapStructure = mindmapStructure;
+          console.log(
+            '[Mindmap Generation] Successfully received mindmap structure'
+          );
+        } else {
+          console.error(
+            '[Mindmap Generation] Failed to get valid mindmap structure from AI'
+          );
         }
       } catch (aiError) {
         console.error('Failed to generate mindmap with AI:', aiError);
