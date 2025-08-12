@@ -20,7 +20,7 @@ import * as dialogStyles from './upload-dialog.css';
 interface UploadButtonProps {
   className?: string;
   style?: React.CSSProperties;
-  // eslint-disable-next-line no-unused-vars
+   
   onUpload?: (files: FileList) => Promise<void> | void;
 }
 
@@ -37,7 +37,7 @@ export function UploadButton({
   const materialsService = useService(MaterialsDocService);
 
   const handleUploadFiles = useCallback(
-    async (acceptType?: 'Images' | 'Any', fileType?: string) => {
+    async (acceptType?: 'Images' | 'PDF' | 'Any', fileType?: string) => {
       try {
         const files = await openFilesWith(acceptType, true);
         if (files && files.length > 0) {
@@ -115,7 +115,7 @@ export function UploadButton({
           <div
             className={dialogStyles.menuItem}
             onClick={() => {
-              handleUploadFiles('Any', 'PDF').catch(console.error);
+              handleUploadFiles('PDF', 'PDF').catch(console.error);
             }}
           >
             <ExportToPdfIcon className={dialogStyles.menuIcon} />

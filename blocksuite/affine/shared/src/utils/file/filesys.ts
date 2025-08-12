@@ -98,6 +98,12 @@ const FileTypes: NonNullable<OpenFilePickerOptions['types']> = [
       'text/xml': ['.mm', '.opml', '.xml'],
     },
   },
+  {
+    description: 'PDF',
+    accept: {
+      'application/pdf': ['.pdf'],
+    },
+  },
 ];
 
 /**
@@ -111,7 +117,8 @@ type AcceptTypes =
   | 'Markdown'
   | 'Html'
   | 'Zip'
-  | 'MindMap';
+  | 'MindMap'
+  | 'PDF';
 
 export async function openFilesWith(
   acceptType: AcceptTypes = 'Any',
