@@ -296,8 +296,8 @@ jobs:
           provenance: true
           file: .github/deployment/front/Dockerfile
           tags: |
-            ghcr.io/a1exsun/learnify-front:${{inputs.build-type}}-${{ inputs.git-short-hash }}
-            ${{ inputs.build-type == 'canary' && 'ghcr.io/a1exsun/learnify-front:latest' || '' }}
+            ghcr.io/oiy-ai/learnify-front:${{inputs.build-type}}-${{ inputs.git-short-hash }}
+            ${{ inputs.build-type == 'canary' && 'ghcr.io/oiy-ailearnify-front:latest' || '' }}
 
       - name: Build graphql Dockerfile
         uses: docker/build-push-action@v6
@@ -309,5 +309,5 @@ jobs:
           provenance: true
           file: .github/deployment/node/Dockerfile
           tags: |
-            ghcr.io/a1exsun/learnify:${{inputs.build-type}}-${{ inputs.git-short-hash }}
-            ${{ inputs.build-type == 'canary' && 'ghcr.io/a1exsun/learnify:latest' || '' }}
+            ghcr.io/oiy-ai/learnify:${{inputs.build-type}}-${{ inputs.git-short-hash }}
+            ${{ inputs.build-type == 'canary' && 'ghcr.io/oiy-ai/learnify:latest' || '' }}

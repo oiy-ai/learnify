@@ -62,6 +62,12 @@ jobs:
             # Set flavor variable
             FLAVOR="${{ inputs.flavor }}"
 
+            # Switch to root user
+            sudo su
+
+            # update docker image
+            docker pull ghcr.io/oiy-ai/learnify
+
             # Navigate to the deployment directory
             cd /opt/learnify/${FLAVOR}
 

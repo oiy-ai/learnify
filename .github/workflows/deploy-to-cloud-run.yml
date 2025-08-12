@@ -71,7 +71,7 @@ jobs:
       - name: Pull and retag image from GHCR to Artifact Registry
         run: |
           # 定义镜像路径 - Artifact Registry 总是在 australia-southeast2
-          GHCR_IMAGE="ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }}"
+          GHCR_IMAGE="ghcr.io/oiy-ai/learnify-graphql:${{ env.RELEASE_FLAVOR }}"
           AR_IMAGE="australia-southeast2-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.ARTIFACT_REGISTRY_REPO }}/learnify-graphql:${{ env.RELEASE_FLAVOR }}"
 
           echo "Pulling image from GHCR: $GHCR_IMAGE"
@@ -129,5 +129,5 @@ jobs:
 
       - name: Cleanup local images
         run: |
-          docker rmi ghcr.io/a1exsun/learnify-graphql:${{ env.RELEASE_FLAVOR }} || true
+          docker rmi ghcr.io/oiy-ai/learnify-graphql:${{ env.RELEASE_FLAVOR }} || true
           docker rmi ${{ env.AR_IMAGE }} || true
