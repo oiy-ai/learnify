@@ -361,20 +361,27 @@ export const MaterialCreationDialog = ({
         // Modify prompt for mindmap generation
         const mindmapPrompt = `${prompt}
 
-Instead of creating notes, please create a mind map structure in JSON format with the following requirements:
-1. Create a hierarchical knowledge structure based on the materials
-2. Include core concepts, knowledge categories, and learning objectives
-3. Each node should have clear hierarchical relationships
-4. Return ONLY the JSON object, no markdown, no code blocks, just pure JSON:
+Create a mind map structure that organizes the key concepts and relationships from the materials.
+
+Requirements:
+- Generate between 15-80 nodes total for optimal visualization
+- Create a clear hierarchical structure with logical groupings
+- Keep node text concise and meaningful
+
+Return as JSON in this format:
 {
-  "text": "Main Topic",
+  "text": "Central Topic",
   "children": [
     {
-      "text": "Subtopic",
-      "children": []
+      "text": "Branch 1",
+      "children": [
+        {"text": "Sub-branch", "children": []}
+      ]
     }
   ]
-}`;
+}
+
+Return ONLY the JSON, no explanations or markdown.`;
 
         // Create temporary doc for AI session
         tempDoc = docsService.createDoc({ primaryMode: 'page' });
