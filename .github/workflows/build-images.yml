@@ -297,7 +297,7 @@ jobs:
           file: .github/deployment/front/Dockerfile
           tags: |
             ghcr.io/oiy-ai/learnify-front:${{inputs.build-type}}-${{ inputs.git-short-hash }}
-            ${{ inputs.build-type == 'canary' && 'ghcr.io/oiy-ailearnify-front:latest' || '' }}
+            ${{ inputs.build-type == 'canary' && 'ghcr.io/oiy-ai/learnify-front:latest' || '' }}
 
       - name: Build graphql Dockerfile
         uses: docker/build-push-action@v6
