@@ -857,6 +857,7 @@
   "com.affine.payment.ai.subscribe.billed-annually": "Billed annually",
   "com.affine.payment.ai.usage-description-purchased": "You have purchased Learnify AI.",
   "com.affine.payment.ai.usage-title": "Learnify AI usage",
+  "com.affine.payment.feature-under-development": "Feature for paid users is under development",
   "com.affine.payment.ai.usage.change-button-label": "Change plan",
   "com.affine.payment.ai.usage.purchase-button-label": "Purchase",
   "com.affine.payment.ai.usage.used-caption": "Times used",

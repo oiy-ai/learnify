@@ -856,6 +856,7 @@
   "com.affine.payment.ai.subscribe.billed-annually": "按年计费",
   "com.affine.payment.ai.usage-description-purchased": "您已购买 AFFiNE AI。",
   "com.affine.payment.ai.usage-title": "AFFiNE AI 用量",
+  "com.affine.payment.feature-under-development": "付费用户功能开发中",
   "com.affine.payment.ai.usage.change-button-label": "更改计划",
   "com.affine.payment.ai.usage.purchase-button-label": "购买",
   "com.affine.payment.ai.usage.used-caption": "使用次数",
