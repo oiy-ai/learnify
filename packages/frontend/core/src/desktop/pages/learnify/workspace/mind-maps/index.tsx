@@ -49,7 +49,6 @@ export const CollectionDetail = ({
       displayProperties: ['system:updatedAt', 'system:updatedBy'],
       showDocIcon: true,
       showDocPreview: false,
-      quickSelect: true,
     })
   );
   const collectionRulesService = useService(CollectionRulesService);
@@ -314,7 +313,6 @@ const Placeholder = ({ collection }: { collection: Collection }) => {
       displayProperties: ['system:updatedAt', 'system:updatedBy'],
       showDocIcon: true,
       showDocPreview: false,
-      quickSelect: true,
     })
   );
 
