@@ -62,18 +62,25 @@ jobs:
             # Set flavor variable
             FLAVOR="${{ inputs.flavor }}"
 
-            # Switch to root user
-            sudo su
+            # Create directory if it doesn't exist
+            sudo mkdir -p /opt/learnify/${FLAVOR}
 
-            # update docker image
-            docker pull ghcr.io/oiy-ai/learnify
+            # Pull docker image with sudo
+            sudo docker pull ghcr.io/oiy-ai/learnify:latest
 
             # Navigate to the deployment directory
             cd /opt/learnify/${FLAVOR}
 
-            # Stop existing containers and start new ones
-            docker compose down
-            docker compose up -d
+            # Check if docker-compose.yml exists
+            if [ ! -f "docker-compose.yml" ]; then
+                echo "Error: docker-compose.yml not found in /opt/learnify/${FLAVOR}"
+                echo "Please ensure docker-compose.yml is deployed to the server first"
+                exit 1
+            fi
 
-            # Clean up old images
-            docker image prune -f
+            # Stop existing containers and start new ones with sudo
+            sudo docker compose down
+            sudo docker compose up -d
+
+            # Clean up old images with sudo
+            sudo docker image prune -f
