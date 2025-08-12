@@ -18,27 +18,6 @@ body:
     validations:
       required: true
   - type: dropdown
-    id: distribution
-    attributes:
-      label: Distribution version
-      description: What distribution of AFFiNE are you using?
-      options:
-        - macOS x64 (Intel)
-        - macOS ARM 64 (Apple Silicon)
-        - Windows x64
-        - Linux
-        - Web (https://app.affine.pro)
-        - Beta Web (https://insider.affine.pro)
-        - Canary Web (https://affine.fail)
-    validations:
-      required: true
-  - type: input
-    id: version
-    attributes:
-      label: App Version
-      description: What version of AFFiNE are you using?
-      placeholder: (You can find AFFiNE version in [About AFFiNE] setting panel)
-  - type: dropdown
     id: browsers
     attributes:
       label: What browsers are you seeing the problem on if you're using web version?
@@ -61,7 +40,7 @@ body:
     id: selfhost-version
     attributes:
       label: Self-hosting Version
-      description: What version of AFFiNE are you selfhosting?
+      description: What version of Learnify are you selfhosting?
   - type: textarea
     id: logs
     attributes:

@@ -2,7 +2,7 @@ name: Feature Request
 description: Suggest a feature or improvement
 title: '[Feature Request]: '
 labels: ['feat', 'story']
-assignees: ['hwangdev97']
+assignees: ['alexsun']
 body:
   - type: markdown
     attributes:
@@ -12,7 +12,7 @@ body:
     id: description
     attributes:
       label: Description
-      description: What would you like to see added to AFFiNE?
+      description: What would you like to see added to Learnify?
       placeholder: Please explain in details the feature and improvements you'd like to see.
     validations:
       required: true
@@ -30,8 +30,5 @@ body:
   - type: checkboxes
     attributes:
       label: Are you willing to submit a PR?
-      description: >
-        (Optional) We encourage you to submit a [Pull Request](https://github.com/toeverything/affine/pulls) (PR) to help improve AFFiNE for everyone, especially if you have a good understanding of how to implement a fix or feature.
-        See the AFFiNE [Contributing Guide](https://github.com/toeverything/affine/blob/canary/CONTRIBUTING.md) to get started.
       options:
         - label: Yes I'd like to help by submitting a PR!
