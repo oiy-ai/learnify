@@ -2,15 +2,21 @@
 
 
 
-# Welcome to Learnify! 🎓
-[![Image](https://github.com/user-attachments/assets/f31894ba-72ef-406f-9583-14dbf899e37e)](https://learnify.oiy.ai/)
+# Learnify
+[![Image](https://github.com/user-attachments/assets/b240fa63-dc21-4850-a207-494b4ea31552)](https://learnify.oiy.ai/)
 
 
+## Getting started & Join our community
+[![Discord](https://img.shields.io/badge/Discord-Join%20our%20community-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/VT9cZspW)
+
+## What is Learnify?
 Learnify is your AI-powered learning companion that helps you master new knowledge faster and more effectively. Transform any learning material into interactive study tools with the power of AI.
 
-
-
 🌐Website: https://learnify.oiy.ai/
+
+## Why learnify?
+Learning isn’t just about reading materials — it’s about understanding, remembering, and applying knowledge effectively.
+Learnify is built to accelerate your learning by combining AI, interactive tools, and progress tracking into one seamless platform.
 
 ## ✨ Key Features
 📕 Material Management
@@ -19,144 +25,47 @@ Learnify is your AI-powered learning companion that helps you master new knowled
 
 📘Supports various file types for flexible learning
 
+![Image](https://github.com/user-attachments/assets/4dfba16c-5148-4feb-b009-3cb40c58d717)
 ## 🤖 AI-Powered Learning
-· AI-Generated Notes from your materials
+- AI-Generated Notes from your materials
 
-· Mind Maps for visualizing key concepts
+- Mind Maps for visualizing key concepts
 
-· Flashcards for quick recall and spaced repetition
+- Flashcards for quick recall and spaced repetition
 
-· AI Chat for interactive Q&A, study assistance, and explanations
+- AI Chat for interactive Q&A, study assistance, and explanations
 
-· ChatGPT Study Mode with RAG (Retrieval-Augmented Generation) and embeddings for context-aware responses
+- AI Study Mode with RAG (Retrieval-Augmented Generation) and embeddings for context-aware responses
 
+![Image](https://github.com/user-attachments/assets/ffac75c5-d324-4681-a3bf-dc3c870229eb)
 
+## 🎙️ Podcast Mode (In Development)
+- Configure host personality, number of speakers, speaking speed, and duration
 
+- One-click join for real-time conversation
 
+- Interactive and dynamic learning discussions
 
+![Image](https://github.com/user-attachments/assets/fde810ac-9469-48d5-b878-fc82f8e91a05)
+## 📊 Learning Progress Tracking (In Development)
+- Mind Map mastery status tracking
 
+- Flashcard answer history, including a personal mistake collection
 
+- Performance insights to guide study planning
 
+![Image](https://github.com/user-attachments/assets/6c83f205-7be1-44ad-ad1c-5b4439b307bb)
+## 🌍 Multi-Language Support (In Development)
+- Auto-translate and auto-generate content based on workspace language
+e.g.,
 
+- English materials → Chinese notes & mind maps
+- Japanese materials → English notes & mind maps
 
 
+## Road map
 
 
 
 
 
-
-
-
-# run the frontend
-
-## 1. install yarn(if you haven't)
-
-```
-npm i -g yarn
-```
-
-> you can check your installation by `yarn -v`
-
-## 2. install dependencies
-
-```
-yarn
-```
-
-> notice if there is any error during installation.
-
-## 3. run the frontend service
-
-```
-yarn run dev
-```
-
-if everything works fine, it'll show like this:
-
-![](https://cdn.jsdelivr.net/gh/a1exsun/file@main//hexo/20250424201451791.png)
-
-choose `@affine/web`
-
-there'll be some basic information showed in terminal:
-
-![](https://cdn.jsdelivr.net/gh/a1exsun/file@main//hexo/20250424201606399.png)
-
-## 4. open localhost:8080 in browser
-
-it'll show some error like this:
-
-![](https://cdn.jsdelivr.net/gh/a1exsun/file@main//hexo/20250424202710918.png)
-
-It's ok. It'll be solved as we run the backend service correctly.
-
-# run the backend
-
-## 1. install PostgresSQL and Redis
-
-- go to this path: `/.docker/dev`
-- copy `.env.example` and rename it as `.env`
-- change database connection information in `.env`
-- copy `compose.yml.example` and rename it as `compose.yml`
-- run `docker compose -f ./.docker/dev/compose.yml up -d` to start those two containers
-  ![](https://cdn.jsdelivr.net/gh/a1exsun/file@main//hexo/20250424201924290.png)
-- after that, you can check your docker container by `docker ps`, you'll see two processes as follow:
-  ![](https://cdn.jsdelivr.net/gh/a1exsun/file@main//hexo/20250424204103397.png)
-
-## 2. check database connection
-
-You can use any tools to do the connection test, for this document, we'll use TablePlus:
-
-1. open TablePlus, create a connection:
-
-![](https://cdn.jsdelivr.net/gh/a1exsun/file@main//hexo/20250424204309572.png)
-
-2. input connection information as in the `.env` file
-
-![](https://cdn.jsdelivr.net/gh/a1exsun/file@main//hexo/20250424204759368.png)
-
-It'll turn green if the connection working fine.
-
-## 3. data initialization
-
-- go to this path: `/packages/backend/server`
-- copy `.env.example` and rename it as `.env`
-- As for now, only `DATABASE_URL` should be clarified
-- back to root path, run the command below to initialize the database:
-  ```sh
-  yarn affine server init
-  ```
-- after that, you'll see tables and functions in database:
-  ![](https://cdn.jsdelivr.net/gh/a1exsun/file@main//hexo/20250424205552195.png)
-
-## 4. run the backend service
-
-```
-yarn run dev
-```
-
-if everything works fine, it'll show like this:
-
-![](https://cdn.jsdelivr.net/gh/a1exsun/file@main//hexo/20250424201451791.png)
-
-choose `@affine/server`
-
-there'll be some server logs showed in terminal:
-
-![](https://cdn.jsdelivr.net/gh/a1exsun/file@main//hexo/20250424205750753.png)
-
-# More Tips
-
-## 1. affline CLI
-
-- see helper:
-
-  ```bash
-  yarn affine -h
-  ```
-
-- run service in dev mode:
-
-  ```bash
-  yarn affine web/mobile/admin dev
-  ```
