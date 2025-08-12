@@ -2,7 +2,7 @@ import {
   SubscriptionService,
   UserCopilotQuotaService,
 } from '@affine/core/modules/cloud';
-import { toast } from '@affine/core/utils';
+import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { useI18n } from '@affine/i18n';
 import { useLiveData, useService } from '@toeverything/infra';
 import { cssVar } from '@toeverything/theme';
@@ -34,9 +34,20 @@ export const AIUsage = () => {
   const loading = copilotActionLimit === null || copilotActionUsed === null;
   const loadError = useLiveData(copilotQuotaService.copilotQuota.error$);
 
-  const handleAIUsageClick = useCallback(() => {
-    toast(t['com.affine.payment.feature-under-development']());
-  }, [t]);
+  const workspaceDialogService = useService(WorkspaceDialogService);
+
+  const goToAIPlanPage = useCallback(() => {
+    workspaceDialogService.open('setting', {
+      activeTab: 'plans',
+      scrollAnchor: 'aiPricingPlan',
+    });
+  }, [workspaceDialogService]);
+
+  const goToAccountSetting = useCallback(() => {
+    workspaceDialogService.open('setting', {
+      activeTab: 'account',
+    });
+  }, [workspaceDialogService]);
 
   if (loading) {
     if (loadError) console.error(loadError);
@@ -47,7 +58,7 @@ export const AIUsage = () => {
   if (copilotActionLimit === 'unlimited') {
     return (
       <div
-        onClick={handleAIUsageClick}
+        onClick={goToAccountSetting}
         data-pro
         className={clsx(styles.usageBlock, styles.aiUsageBlock)}
       >
@@ -75,7 +86,7 @@ export const AIUsage = () => {
 
   return (
     <div
-      onClick={handleAIUsageClick}
+      onClick={goToAIPlanPage}
       className={clsx(styles.usageBlock, styles.aiUsageBlock)}
       style={assignInlineVars({
         [styles.progressColorVar]: color,

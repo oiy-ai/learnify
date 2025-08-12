@@ -24,7 +24,7 @@ import { BackupSettingPanel } from './backup';
 import { BillingSettings } from './billing';
 import { EditorSettings } from './editor';
 import { ExperimentalFeatures } from './experimental-features';
-import { PaymentIcon, UpgradeIcon } from './icons';
+import { PaymentIcon } from './icons';
 import { MeetingsSettings } from './meetings';
 import { NotificationSettings } from './notifications';
 import { AFFiNEPricingPlans } from './plans';
@@ -109,20 +109,13 @@ export const useGeneralSettingList = (): GeneralSettingList => {
     }
 
     if (hasPaymentFeature) {
+      // Only show billing section, plans is now integrated into billing
       settings.splice(4, 0, {
-        key: 'plans',
-        title: t['com.affine.payment.title'](),
-        icon: <UpgradeIcon />,
-        testId: 'plans-panel-trigger',
+        key: 'billing',
+        title: t['com.affine.payment.billing-setting.title'](),
+        icon: <PaymentIcon />,
+        testId: 'billing-panel-trigger',
       });
-      if (loggedIn) {
-        settings.splice(4, 0, {
-          key: 'billing',
-          title: t['com.affine.payment.billing-setting.title'](),
-          icon: <PaymentIcon />,
-          testId: 'billing-panel-trigger',
-        });
-      }
     }
 
     if (BUILD_CONFIG.isElectron) {
