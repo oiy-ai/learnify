@@ -214,8 +214,12 @@ export function Template(props: PropsWithChildren) {
           }}
         >
           <Section>
-            <Link href="https://affine.pro">
-              <Img src="/imgs/logo.svg" alt="Learnify logo" height="32px" />
+            <Link href="https://learnify.oiy.ai">
+              <Img
+                src="https://cdn.jsdelivr.net/gh/a1exsun/file@main/learnify/logo.svg"
+                alt="Learnify logo"
+                height="52px"
+              />
             </Link>
           </Section>
           {content}
