@@ -1,7 +1,7 @@
 name: learnify
 services:
   learnify:
-    image: ghcr.io/a1exsun/learnify
+    image: ghcr.io/oiy-ai/learnify
     container_name: learnify
     ports:
       - '${PORT:-80}:3010'

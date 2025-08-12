@@ -1,7 +1,7 @@
 name: learnify
 services:
   learnify_migration:
-    image: ghcr.io/a1exsun/learnify
+    image: ghcr.io/oiy-ai/learnify
     container_name: learnify_migration_job
     volumes:
       # custom configurations
