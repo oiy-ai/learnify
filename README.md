@@ -1,11 +1,52 @@
 > ⚠️This repository is still in development.⚠️
-> ⚠️This document is for developers, not for users.⚠️
 
-# Summary
 
-It's an AI agent that can help you to master new knowledge, better and faster.
 
-<img src="https://github.com/user-attachments/assets/cebf1852-f403-49f9-b985-eacb36e20916" alt="demo" width="100%" />
+# Welcome to Learnify! 🎓
+[![Image](https://github.com/user-attachments/assets/f31894ba-72ef-406f-9583-14dbf899e37e)](https://learnify.oiy.ai/)
+
+
+Learnify is your AI-powered learning companion that helps you master new knowledge faster and more effectively. Transform any learning material into interactive study tools with the power of AI.
+
+
+
+🌐Website: https://learnify.oiy.ai/
+
+## ✨ Key Features
+📕 Material Management
+
+📗Upload, Preview, Download study materials
+
+📘Supports various file types for flexible learning
+
+## 🤖 AI-Powered Learning
+· AI-Generated Notes from your materials
+
+· Mind Maps for visualizing key concepts
+
+· Flashcards for quick recall and spaced repetition
+
+· AI Chat for interactive Q&A, study assistance, and explanations
+
+· ChatGPT Study Mode with RAG (Retrieval-Augmented Generation) and embeddings for context-aware responses
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # run the frontend
 
