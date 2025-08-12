@@ -458,6 +458,16 @@ Instead of creating notes, please create a mind map structure in JSON format wit
           // Set document title
           const title = `思维导图: ${material.name}`;
 
+          // Set title in the page block (this persists in the document)
+          const pageBlock = blockSuiteDoc.root as any;
+          if (pageBlock && pageBlock.title) {
+            blockSuiteDoc.transact(() => {
+              pageBlock.title.clear();
+              pageBlock.title.insert(title, 0);
+            });
+          }
+
+          // Also set in meta for workspace display
           workspaceService.workspace.docCollection.meta.setDocMeta(
             mindmapDoc.id,
             { title }
@@ -728,6 +738,21 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         });
 
         if (docId) {
+          // Set title in the document itself
+          const { doc: notesDoc, release } = docsService.open(docId);
+          await notesDoc.waitForSyncReady();
+          const blockSuiteDoc = notesDoc.blockSuiteDoc;
+          const pageBlock = blockSuiteDoc.root as any;
+          if (pageBlock && pageBlock.title) {
+            blockSuiteDoc.transact(() => {
+              // Title is already set by MarkdownTransformer, but ensure it's correct
+              if (pageBlock.title.length === 0) {
+                pageBlock.title.insert(title, 0);
+              }
+            });
+          }
+          release();
+
           // Add to NOTES collection
           const notesCollection = collectionService.collection$(
             LEARNIFY_COLLECTIONS.NOTES
@@ -1056,6 +1081,9 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         toast(`成功创建: ${summaryParts.join(', ')}`);
       }
 
+      // Close the dialog after successful completion
+      close();
+
       // Return to the original page after all generation is complete
       // This ensures user returns to their original context (flashcards, notes, podcasts, etc.)
       if (originalActiveView && originalLocation) {
@@ -1079,6 +1107,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
     startGeneration,
     setProgress,
     workbenchService,
+    close,
   ]);
 
   return (
