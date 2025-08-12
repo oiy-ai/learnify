@@ -341,8 +341,8 @@ export const MaterialCreationDialog = ({
       let releaseTempDoc: (() => void) | null = null;
 
       try {
-        // Update progress to generating stage
-        updateProgress('generating', 30, '正在使用 AI 生成思维导图结构...');
+        // Update progress to preprocessing stage
+        updateProgress('preprocessing', 30, '正在使用 AI 分析材料...');
 
         // Step 1: Generate mindmap structure using AI
         let aiMindmapStructure;
@@ -391,7 +391,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
           });
 
           // Process AI response to get mindmap JSON
-          updateProgress('processing', 60, '正在处理 AI 响应...');
+          updateProgress('generating', 60, '正在生成思维导图...');
           const mindmapStructure = await processAIMindmapResponse(aiResponse);
 
           if (mindmapStructure) {
@@ -706,7 +706,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         }
 
         // Call AI service
-        updateProgress('generating', 40, 'AI 正在生成笔记内容...');
+        updateProgress('preprocessing', 40, 'AI 正在分析材料...');
         const aiResponse = await AIProvider.actions.chat({
           input: prompt,
           workspaceId: workspaceService.workspace.id,
@@ -716,7 +716,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         });
 
         // Process AI response
-        updateProgress('processing', 70, '正在处理生成的内容...');
+        updateProgress('generating', 70, '正在生成笔记内容...');
         const generatedContent = await processAIResponse(aiResponse);
         const title = extractTitle(generatedContent);
 
@@ -913,7 +913,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         }
 
         // Call AI service
-        updateProgress('generating', 40, 'AI 正在生成闪卡内容...');
+        updateProgress('preprocessing', 40, 'AI 正在分析材料...');
         const aiResponse = await AIProvider.actions.chat({
           input: prompt,
           workspaceId: workspaceService.workspace.id,
@@ -923,7 +923,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         });
 
         // Process AI response
-        updateProgress('processing', 70, '正在处理生成的闪卡...');
+        updateProgress('generating', 70, '正在生成闪卡内容...');
         const generatedContent = await processAIResponse(aiResponse);
 
         // Parse the JSON response and create individual flashcard documents

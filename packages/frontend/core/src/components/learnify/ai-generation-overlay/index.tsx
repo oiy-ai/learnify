@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import * as styles from './index.css';
 
 export interface AIGenerationProgress {
-  stage: 'preparing' | 'generating' | 'processing' | 'finalizing';
+  stage: 'preparing' | 'preprocessing' | 'generating' | 'finalizing';
   percentage: number;
   message: string;
   totalItems?: number;
@@ -24,8 +24,8 @@ export interface AIGenerationOverlayProps {
 
 const stageMessages = {
   preparing: '准备材料中...',
-  generating: 'AI 正在生成内容...',
-  processing: '处理生成的内容...',
+  preprocessing: 'AI 正在分析材料...',
+  generating: '正在生成内容...',
   finalizing: '完成最后步骤...',
 };
 
@@ -174,7 +174,7 @@ export const AIGenerationOverlay = ({
               </div>
               <div
                 className={`${styles.stageIndicator} ${
-                  progress.stage === 'processing' ? styles.active : ''
+                  progress.stage === 'generating' ? styles.active : ''
                 } ${progress.stage === 'finalizing' ? styles.completed : ''}`}
               >
                 处理

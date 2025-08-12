@@ -54,14 +54,14 @@ export const useAIGeneration = (options?: UseAIGenerationOptions) => {
               case 'preparing':
                 newPercentage = Math.min(prev.percentage + 5, 20);
                 break;
-              case 'generating':
-                newPercentage = Math.min(prev.percentage + 2, 70);
+              case 'preprocessing':
+                newPercentage = Math.min(prev.percentage + 2, 45);
                 break;
-              case 'processing':
+              case 'generating':
                 newPercentage = Math.min(prev.percentage + 3, 90);
                 break;
               case 'finalizing':
-                newPercentage = Math.min(prev.percentage + 5, 95);
+                newPercentage = Math.min(prev.percentage + 8, 99);
                 break;
             }
             return { ...prev, percentage: newPercentage };
@@ -70,18 +70,18 @@ export const useAIGeneration = (options?: UseAIGenerationOptions) => {
 
         // Stage 1: Preparing
         await new Promise(resolve => setTimeout(resolve, 500));
-        updateProgress('generating', 25, 'AI 正在分析材料并生成内容...');
+        updateProgress('preprocessing', 25, 'AI 正在分析材料...');
 
-        // Stage 2: Generating (actual AI call)
+        // Stage 2: Preprocessing (actual AI call)
         const result = await generateFn();
 
-        // Stage 3: Processing
-        updateProgress('processing', 75, '正在处理生成的内容...');
+        // Stage 3: Generating
+        updateProgress('generating', 75, '正在生成内容...');
         await new Promise(resolve => setTimeout(resolve, 500));
 
         // Stage 4: Finalizing
         updateProgress('finalizing', 90, '即将完成...');
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 800));
 
         // Complete
         clearInterval(progressInterval);
