@@ -44,9 +44,11 @@ export const useAIGeneration = (options?: UseAIGenerationOptions) => {
         message: '',
       }));
 
+      let progressInterval: NodeJS.Timeout | undefined;
+
       try {
         // Simulate progress updates
-        const progressInterval = setInterval(() => {
+        progressInterval = setInterval(() => {
           setProgress(prev => {
             // Auto-increment progress based on stage
             let newPercentage = prev.percentage;
@@ -99,14 +101,19 @@ export const useAIGeneration = (options?: UseAIGenerationOptions) => {
 
         return result;
       } catch (err) {
+        // Clear progress interval on error
+        if (progressInterval) {
+          clearInterval(progressInterval);
+        }
+
+        // Set error state but keep the overlay open
         setError(err instanceof Error ? err : new Error('Generation failed'));
+        setIsGenerating(false); // Stop generating but error will keep overlay open
+
         options?.onError?.(
           err instanceof Error ? err : new Error('Generation failed')
         );
         return null;
-      } finally {
-        // Ensure interval is cleared
-        setIsGenerating(false);
       }
     },
     [updateProgress, options]

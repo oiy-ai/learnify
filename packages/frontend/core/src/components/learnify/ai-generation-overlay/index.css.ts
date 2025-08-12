@@ -168,8 +168,12 @@ export const errorMessage = style({
   fontSize: '14px',
   color: cssVarV2.text.secondary,
   margin: 0,
-  textAlign: 'center',
-  maxWidth: '320px',
+  textAlign: 'left',
+  maxWidth: '360px',
+  whiteSpace: 'pre-wrap',
+  lineHeight: '1.5',
+  maxHeight: '200px',
+  overflowY: 'auto',
 });
 
 export const errorActions = style({
@@ -193,7 +197,7 @@ export const cancelButton = style({
   },
 });
 
-export const retryButton = style({
+export const confirmButton = style({
   padding: '8px 20px',
   fontSize: '14px',
   border: 'none',

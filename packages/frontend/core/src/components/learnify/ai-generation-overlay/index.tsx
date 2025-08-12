@@ -19,7 +19,7 @@ export interface AIGenerationOverlayProps {
   progress?: AIGenerationProgress;
   error?: Error | null;
   onCancel?: () => void;
-  onRetry?: () => void;
+  onConfirm?: () => void;
 }
 
 export const AIGenerationOverlay = ({
@@ -27,7 +27,7 @@ export const AIGenerationOverlay = ({
   progress = { stage: 'preparing', percentage: 0, message: '' },
   error,
   onCancel,
-  onRetry,
+  onConfirm,
 }: AIGenerationOverlayProps) => {
   const t = useI18n();
 
@@ -59,11 +59,11 @@ export const AIGenerationOverlay = ({
     }
   }, [onCancel]);
 
-  const handleRetry = useCallback(() => {
-    if (onRetry) {
-      onRetry();
+  const handleConfirm = useCallback(() => {
+    if (onConfirm) {
+      onConfirm();
     }
-  }, [onRetry]);
+  }, [onConfirm]);
 
   if (!open) {
     return null;
@@ -101,10 +101,10 @@ export const AIGenerationOverlay = ({
             </p>
             <div className={styles.errorActions}>
               <button className={styles.cancelButton} onClick={handleCancel}>
-                {t.t('com.affine.confirmModal.button.cancel')}
+                {t['com.affine.confirmModal.button.cancel']()}
               </button>
-              <button className={styles.retryButton} onClick={handleRetry}>
-                {t['com.learnify.ai-generation.error.retry']()}
+              <button className={styles.confirmButton} onClick={handleConfirm}>
+                {t['com.affine.confirmModal.button.ok']()}
               </button>
             </div>
           </div>

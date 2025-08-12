@@ -72,7 +72,6 @@ export const MaterialCreationDialog = ({
     updateProgress,
     setProgress,
     cancel,
-    retry,
   } = useAIGeneration({
     onSuccess: () => {
       // Clear selection after successful generation
@@ -82,10 +81,6 @@ export const MaterialCreationDialog = ({
       console.error('AI generation failed:', err);
     },
   });
-
-  const [currentGenerationFn, setCurrentGenerationFn] = useState<
-    (() => Promise<any>) | null
-  >(null);
 
   // Define creation options with i18n
   const creationOptions = useMemo<
@@ -1082,6 +1077,8 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         notes: [] as string[],
         flashcards: [] as string[][],
       };
+      const errors: Array<{ material: string; option: string; error: Error }> =
+        [];
 
       // Process each material
       for (const material of selectedMaterials) {
@@ -1123,12 +1120,84 @@ Instead of creating notes, please create a mind map structure in JSON format wit
               `Failed to create ${optionId} for ${material.name}:`,
               error
             );
-            // Continue with other items even if one fails
+            // Track the error but continue with other items
+            errors.push({
+              material: material.name,
+              option: optionName,
+              error: error instanceof Error ? error : new Error(String(error)),
+            });
           }
         }
       }
 
-      // Show summary toast
+      // If there were errors, throw an aggregated error
+      if (errors.length > 0) {
+        // Check if any error is a Payment Required error
+        const hasPaymentError = errors.some(
+          e =>
+            e.error.message.toLowerCase().includes('payment required') ||
+            e.error.name === 'PaymentRequiredError'
+        );
+
+        // If it's a payment error, show special message
+        if (hasPaymentError) {
+          throw new Error(
+            "You've reached the current usage cap for Learnify AI. Stay tuned for the future updates about the paid plan!"
+          );
+        }
+
+        // Otherwise, show detailed error summary
+        // Create a summary of what succeeded
+        const successSummary = [];
+        if (results.mindmap.length > 0) {
+          successSummary.push(
+            t.t('com.learnify.material-creation.success-mindmaps', {
+              count: results.mindmap.length,
+            })
+          );
+        }
+        if (results.notes.length > 0) {
+          successSummary.push(
+            t.t('com.learnify.material-creation.success-notes', {
+              count: results.notes.length,
+            })
+          );
+        }
+        if (results.flashcards.length > 0) {
+          const totalFlashcards = results.flashcards.reduce(
+            (sum, arr) => sum + arr.length,
+            0
+          );
+          successSummary.push(
+            t.t('com.learnify.material-creation.success-flashcards', {
+              count: totalFlashcards,
+            })
+          );
+        }
+
+        // Create error message
+        const errorMessages = errors.map(
+          e => `${e.material} (${e.option}): ${e.error.message}`
+        );
+
+        let message =
+          t['com.learnify.material-creation.partial-failure']?.() ||
+          'Some items failed to generate:\n';
+        message += errorMessages.join('\n');
+
+        if (successSummary.length > 0) {
+          message +=
+            '\n\n' +
+            (t['com.learnify.material-creation.partial-success']?.() ||
+              'Successfully created: ') +
+            successSummary.join(', ');
+        }
+
+        // Throw error to trigger error state in overlay
+        throw new Error(message);
+      }
+
+      // All successful - show summary toast
       const summaryParts = [];
       if (results.mindmap.length > 0) {
         summaryParts.push(
@@ -1165,6 +1234,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       }
 
       // Close the dialog after successful completion
+      // Note: Dialog won't close if there's an error (handled by error state)
       close();
 
       // Return to the original page after all generation is complete
@@ -1175,9 +1245,6 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         }, 500);
       }
     };
-
-    // Set the generation function for retry
-    setCurrentGenerationFn(() => processOptions);
 
     // Start generation with overlay
     await startGeneration(processOptions);
@@ -1198,7 +1265,12 @@ Instead of creating notes, please create a mind map structure in JSON format wit
     <>
       <Modal
         open
-        onOpenChange={() => close()}
+        onOpenChange={() => {
+          // Don't allow closing during generation or when there's an error
+          if (!isGenerating && !error) {
+            close();
+          }
+        }}
         width={520}
         contentOptions={{
           style: { padding: 0 },
@@ -1254,13 +1326,14 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         open={isGenerating || !!error}
         progress={progress}
         error={error}
-        onCancel={cancel}
-        onRetry={() => {
-          if (currentGenerationFn) {
-            retry(currentGenerationFn).catch(err => {
-              console.error('Retry failed:', err);
-            });
-          }
+        onCancel={() => {
+          // Cancel button: only close the overlay, keep dialog open
+          cancel();
+        }}
+        onConfirm={() => {
+          // Confirm button: close both overlay and dialog
+          cancel();
+          close();
         }}
       />
     </>
