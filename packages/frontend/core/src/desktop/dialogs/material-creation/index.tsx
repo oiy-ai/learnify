@@ -342,25 +342,24 @@ export const MaterialCreationDialog = ({
       let tempDoc: any = null;
       let releaseTempDoc: (() => void) | null = null;
 
+      // Update progress to preprocessing stage
+      updateProgress(
+        'preprocessing',
+        30,
+        t['com.learnify.ai-generation.progress.preprocessing']()
+      );
+
+      // Step 1: Generate mindmap structure using AI
+      let aiMindmapStructure;
+
       try {
-        // Update progress to preprocessing stage
-        updateProgress(
-          'preprocessing',
-          30,
-          t['com.learnify.ai-generation.progress.preprocessing']()
-        );
+        // Build prompt from single material
+        const { prompt, attachments } = await buildPromptFromMaterials([
+          material,
+        ]);
 
-        // Step 1: Generate mindmap structure using AI
-        let aiMindmapStructure;
-
-        try {
-          // Build prompt from single material
-          const { prompt, attachments } = await buildPromptFromMaterials([
-            material,
-          ]);
-
-          // Modify prompt for mindmap generation
-          const mindmapPrompt = `${prompt}
+        // Modify prompt for mindmap generation
+        const mindmapPrompt = `${prompt}
 
 Instead of creating notes, please create a mind map structure in JSON format with the following requirements:
 1. Create a hierarchical knowledge structure based on the materials
@@ -377,182 +376,139 @@ Instead of creating notes, please create a mind map structure in JSON format wit
   ]
 }`;
 
-          // Create temporary doc for AI session
-          tempDoc = docsService.createDoc({ primaryMode: 'page' });
-          const { release } = docsService.open(tempDoc.id);
-          releaseTempDoc = release;
+        // Create temporary doc for AI session
+        tempDoc = docsService.createDoc({ primaryMode: 'page' });
+        const { release } = docsService.open(tempDoc.id);
+        releaseTempDoc = release;
 
-          // Check AI availability
-          if (!AIProvider.actions.chat) {
-            throw new Error('AI service is not available.');
-          }
-
-          // Call AI service with streaming
-          const aiResponse = await AIProvider.actions.chat({
-            input: mindmapPrompt,
-            workspaceId: workspaceService.workspace.id,
-            docId: tempDoc.id,
-            attachments: attachments.length > 0 ? attachments : undefined,
-            stream: true,
-          });
-
-          // Process AI response to get mindmap JSON
-          updateProgress(
-            'generating',
-            60,
-            t['com.learnify.ai-generation.progress.generating-mindmap']()
-          );
-          const mindmapStructure = await processAIMindmapResponse(aiResponse);
-
-          if (mindmapStructure) {
-            aiMindmapStructure = mindmapStructure;
-          }
-        } catch (aiError) {
-          console.error('Failed to generate mindmap with AI:', aiError);
-        } finally {
-          // Clean up temp doc
-          cleanupTempDoc(tempDoc, releaseTempDoc);
+        // Check AI availability
+        if (!AIProvider.actions.chat) {
+          throw new Error('AI service is not available.');
         }
 
-        // Fallback to simple structure if AI fails
-        if (!aiMindmapStructure) {
-          aiMindmapStructure = {
-            text:
-              material.name ||
-              t['com.learnify.material-creation.mindmap.default-title'](),
-            children: [
-              {
-                text: t.t(
-                  'com.learnify.material-creation.mindmap.type-prefix',
-                  { type: material.category }
-                ),
-                children: [],
-              },
-              {
-                text:
-                  material.description ||
-                  t['com.learnify.material-creation.mindmap.no-description'](),
-                children: [],
-              },
-            ],
-          };
-        }
+        // Call AI service with streaming
+        const aiResponse = await AIProvider.actions.chat({
+          input: mindmapPrompt,
+          workspaceId: workspaceService.workspace.id,
+          docId: tempDoc.id,
+          attachments: attachments.length > 0 ? attachments : undefined,
+          stream: true,
+        });
 
-        // Step 2: Create edgeless document
+        // Process AI response to get mindmap JSON
         updateProgress(
-          'finalizing',
-          80,
-          t['com.learnify.ai-generation.progress.creating-mindmap']()
+          'generating',
+          60,
+          t['com.learnify.ai-generation.progress.generating-mindmap']()
         );
-        const title = t.t('com.learnify.material-creation.title.mindmap', {
-          name: material.name,
-        });
-        const mindmapDoc = docsService.createDoc({
-          primaryMode: 'edgeless',
-          title: title, // Set title during creation
-        });
-        const { doc: edgelessDoc, release: releaseEdgeless } = docsService.open(
-          mindmapDoc.id
-        );
+        const mindmapStructure = await processAIMindmapResponse(aiResponse);
 
-        // Step 3: Wait for doc to be ready
-        await edgelessDoc.waitForSyncReady();
-        const blockSuiteDoc = edgelessDoc.blockSuiteDoc;
-
-        // Step 4: Create mindmap using the utility
-        const mindmapId = await createMindmapElement(blockSuiteDoc, {
-          tree: aiMindmapStructure,
-          style: 1,
-          layoutType: 0,
-          xywh: '[0, 0, 1200, 900]',
-        });
-
-        if (mindmapId) {
-          // Trigger layout after a delay to ensure proper rendering
-          setTimeout(() => {
-            try {
-              const surface = getSurfaceBlock(blockSuiteDoc);
-              if (surface) {
-                const surfaceModel = surface as any;
-                const mindmapElement = surfaceModel.getElementById?.(mindmapId);
-
-                if (mindmapElement) {
-                  // Ensure tree is built
-                  mindmapElement.buildTree?.();
-                  // Request layout with default options
-                  mindmapElement.requestLayout?.() || mindmapElement.layout?.();
-                }
-              }
-            } catch {
-              // Silently handle layout errors
-            }
-          }, 200);
-
-          // Title is already set during doc creation
-          // Just ensure it's also in meta for workspace display
-          workspaceService.workspace.docCollection.meta.setDocMeta(
-            mindmapDoc.id,
-            { title }
-          );
-
-          // Add to MIND_MAPS collection
-          const mindmapsCollection = collectionService.collection$(
-            LEARNIFY_COLLECTIONS.MIND_MAPS
-          ).value;
-
-          if (mindmapsCollection) {
-            collectionService.addDocToCollection(
-              mindmapsCollection.id,
-              mindmapDoc.id
-            );
-          }
-
-          // Clean up
-          releaseEdgeless();
-
-          // Open the mindmap in edit mode to trigger layout calculation
-          // This ensures the mindmap is properly laid out before the user sees it
-          setTimeout(() => {
-            workbenchService.workbench.openDoc(mindmapDoc.id, {
-              at: 'active',
-            });
-          }, 100);
-
-          return mindmapDoc.id;
-        } else {
-          // Fallback: Add instruction note
-          const surface = getSurfaceBlock(blockSuiteDoc);
-          if (surface) {
-            const noteId = blockSuiteDoc.addBlock(
-              'affine:note',
-              { xywh: '[100, 100, 400, 200]' },
-              blockSuiteDoc.root?.id
-            );
-
-            if (noteId) {
-              const noteBlock = blockSuiteDoc.getBlock(noteId);
-              if (noteBlock?.model) {
-                blockSuiteDoc.addBlock(
-                  'affine:paragraph',
-                  {
-                    text: {
-                      insert:
-                        t[
-                          'com.learnify.material-creation.mindmap.error-message'
-                        ](),
-                    },
-                  },
-                  noteBlock.model.id
-                );
-              }
-            }
-          }
-
-          releaseEdgeless();
-          return null;
+        if (mindmapStructure) {
+          aiMindmapStructure = mindmapStructure;
         }
-      } catch {
-        return null;
+      } catch (aiError) {
+        console.error('Failed to generate mindmap with AI:', aiError);
+        // Re-throw to let the parent handle the error
+        throw aiError;
+      } finally {
+        // Clean up temp doc
+        cleanupTempDoc(tempDoc, releaseTempDoc);
+      }
+
+      // If AI failed, we should have thrown above
+      if (!aiMindmapStructure) {
+        throw new Error('Failed to generate mindmap structure');
+      }
+
+      // Step 2: Create edgeless document
+      updateProgress(
+        'finalizing',
+        80,
+        t['com.learnify.ai-generation.progress.creating-mindmap']()
+      );
+      const title = t.t('com.learnify.material-creation.title.mindmap', {
+        name: material.name,
+      });
+      const mindmapDoc = docsService.createDoc({
+        primaryMode: 'edgeless',
+        title: title, // Set title during creation
+      });
+      const { doc: edgelessDoc, release: releaseEdgeless } = docsService.open(
+        mindmapDoc.id
+      );
+
+      // Step 3: Wait for doc to be ready
+      await edgelessDoc.waitForSyncReady();
+      const blockSuiteDoc = edgelessDoc.blockSuiteDoc;
+
+      // Step 4: Create mindmap using the utility
+      const mindmapId = await createMindmapElement(blockSuiteDoc, {
+        tree: aiMindmapStructure,
+        style: 1,
+        layoutType: 0,
+        xywh: '[0, 0, 1200, 900]',
+      });
+
+      if (mindmapId) {
+        // Trigger layout after a delay to ensure proper rendering
+        setTimeout(() => {
+          try {
+            const surface = getSurfaceBlock(blockSuiteDoc);
+            if (surface) {
+              const surfaceModel = surface as any;
+              const mindmapElement = surfaceModel.getElementById?.(mindmapId);
+
+              if (mindmapElement) {
+                // Ensure tree is built
+                mindmapElement.buildTree?.();
+                // Request layout with default options
+                mindmapElement.requestLayout?.() || mindmapElement.layout?.();
+              }
+            }
+          } catch {
+            // Silently handle layout errors
+          }
+        }, 200);
+
+        // Title is already set during doc creation
+        // Just ensure it's also in meta for workspace display
+        workspaceService.workspace.docCollection.meta.setDocMeta(
+          mindmapDoc.id,
+          { title }
+        );
+
+        // Add to MIND_MAPS collection
+        const mindmapsCollection = collectionService.collection$(
+          LEARNIFY_COLLECTIONS.MIND_MAPS
+        ).value;
+
+        if (mindmapsCollection) {
+          collectionService.addDocToCollection(
+            mindmapsCollection.id,
+            mindmapDoc.id
+          );
+        }
+
+        // Clean up
+        releaseEdgeless();
+
+        // Open the mindmap in edit mode to trigger layout calculation
+        // This ensures the mindmap is properly laid out before the user sees it
+        setTimeout(() => {
+          workbenchService.workbench.openDoc(mindmapDoc.id, {
+            at: 'active',
+          });
+        }, 100);
+
+        return mindmapDoc.id;
+      } else {
+        // Clean up and throw error if mindmap creation failed
+        releaseEdgeless();
+
+        // Remove the empty doc since we couldn't create the mindmap
+        workspaceService.workspace.docCollection.removeDoc(mindmapDoc.id);
+
+        throw new Error('Failed to create mindmap element');
       }
     },
     [
