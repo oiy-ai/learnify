@@ -188,7 +188,7 @@ export class AIErrorWrapper extends SignalWatcher(WithDisposable(LitElement)) {
 
 const PaymentRequiredErrorRenderer = (host?: EditorHost | null) => html`
   <ai-error-wrapper
-    .text=${"You've reached the current usage cap for AFFiNE AI. You can subscribe to AFFiNE AI(with free 7-day-trial) to continue the AI experience!"}
+    .text=${"You've reached the current usage cap for Learnify AI. Stay tuned for the future updates about the paid plan!"}
     .actionText=${'Upgrade'}
     .onClick=${() => AIProvider.slots.requestUpgradePlan.next({ host })}
   ></ai-error-wrapper>

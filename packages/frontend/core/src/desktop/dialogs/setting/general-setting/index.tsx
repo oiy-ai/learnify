@@ -165,7 +165,7 @@ interface GeneralSettingProps {
 
 export const GeneralSetting = ({
   activeTab,
-  onChangeSettingState,
+  onChangeSettingState: _onChangeSettingState,
 }: GeneralSettingProps) => {
   switch (activeTab) {
     case 'shortcuts':
@@ -183,7 +183,7 @@ export const GeneralSetting = ({
     case 'plans':
       return <AFFiNEPricingPlans />;
     case 'billing':
-      return <BillingSettings onChangeSettingState={onChangeSettingState} />;
+      return <BillingSettings />;
     case 'experimental-features':
       return <ExperimentalFeatures />;
     case 'backup':
