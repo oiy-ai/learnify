@@ -417,7 +417,11 @@ Instead of creating notes, please create a mind map structure in JSON format wit
 
         // Step 2: Create edgeless document
         updateProgress('finalizing', 80, '正在创建思维导图文档...');
-        const mindmapDoc = docsService.createDoc({ primaryMode: 'edgeless' });
+        const title = `思维导图: ${material.name}`;
+        const mindmapDoc = docsService.createDoc({
+          primaryMode: 'edgeless',
+          title: title, // Set title during creation
+        });
         const { doc: edgelessDoc, release: releaseEdgeless } = docsService.open(
           mindmapDoc.id
         );
@@ -455,19 +459,8 @@ Instead of creating notes, please create a mind map structure in JSON format wit
             }
           }, 200);
 
-          // Set document title
-          const title = `思维导图: ${material.name}`;
-
-          // Set title in the page block (this persists in the document)
-          const pageBlock = blockSuiteDoc.root as any;
-          if (pageBlock && pageBlock.title) {
-            blockSuiteDoc.transact(() => {
-              pageBlock.title.clear();
-              pageBlock.title.insert(title, 0);
-            });
-          }
-
-          // Also set in meta for workspace display
+          // Title is already set during doc creation
+          // Just ensure it's also in meta for workspace display
           workspaceService.workspace.docCollection.meta.setDocMeta(
             mindmapDoc.id,
             { title }
