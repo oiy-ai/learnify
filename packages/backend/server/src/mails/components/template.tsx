@@ -216,7 +216,7 @@ export function Template(props: PropsWithChildren) {
           <Section>
             <Link href="https://learnify.oiy.ai">
               <Img
-                src="https://cdn.jsdelivr.net/gh/a1exsun/file@main/learnify/logo.svg"
+                src="https://cdn.jsdelivr.net/gh/a1exsun/file@main/learnify/logo-banner.svg"
                 alt="Learnify logo"
                 height="52px"
               />
