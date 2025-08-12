@@ -241,7 +241,24 @@ export class CopilotController implements BeforeApplicationShutdown {
         );
 
       info.model = model;
-      info.finalMessage = finalMessage.filter(m => m.role !== 'system');
+      // Filter out base64 attachments to reduce log size
+      info.finalMessage = finalMessage
+        .filter(m => m.role !== 'system')
+        .map(msg => {
+          if (msg.attachments && msg.attachments.length > 0) {
+            return {
+              ...msg,
+              attachments: msg.attachments.map(att => ({
+                ...att,
+                attachment:
+                  att.attachment && att.attachment.length > 100
+                    ? '[BASE64_REMOVED]'
+                    : att.attachment,
+              })),
+            };
+          }
+          return msg;
+        });
       metrics.ai.counter('chat_calls').add(1, { model });
 
       const { reasoning, webSearch } = ChatQuerySchema.parse(query);
@@ -294,7 +311,24 @@ export class CopilotController implements BeforeApplicationShutdown {
         );
 
       info.model = model;
-      info.finalMessage = finalMessage.filter(m => m.role !== 'system');
+      // Filter out base64 attachments to reduce log size
+      info.finalMessage = finalMessage
+        .filter(m => m.role !== 'system')
+        .map(msg => {
+          if (msg.attachments && msg.attachments.length > 0) {
+            return {
+              ...msg,
+              attachments: msg.attachments.map(att => ({
+                ...att,
+                attachment:
+                  att.attachment && att.attachment.length > 100
+                    ? '[BASE64_REMOVED]'
+                    : att.attachment,
+              })),
+            };
+          }
+          return msg;
+        });
       metrics.ai.counter('chat_stream_calls').add(1, { model });
       this.ongoingStreamCount$.next(this.ongoingStreamCount$.value + 1);
 
@@ -386,7 +420,24 @@ export class CopilotController implements BeforeApplicationShutdown {
         );
 
       info.model = model;
-      info.finalMessage = finalMessage.filter(m => m.role !== 'system');
+      // Filter out base64 attachments to reduce log size
+      info.finalMessage = finalMessage
+        .filter(m => m.role !== 'system')
+        .map(msg => {
+          if (msg.attachments && msg.attachments.length > 0) {
+            return {
+              ...msg,
+              attachments: msg.attachments.map(att => ({
+                ...att,
+                attachment:
+                  att.attachment && att.attachment.length > 100
+                    ? '[BASE64_REMOVED]'
+                    : att.attachment,
+              })),
+            };
+          }
+          return msg;
+        });
       metrics.ai.counter('chat_object_stream_calls').add(1, { model });
       this.ongoingStreamCount$.next(this.ongoingStreamCount$.value + 1);
 
