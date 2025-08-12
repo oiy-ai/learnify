@@ -63,17 +63,17 @@ jobs:
             FLAVOR="${{ inputs.flavor }}"
 
             # Create directory if it doesn't exist
-            sudo mkdir -p /opt/learnify/${FLAVOR}
+            sudo mkdir -p ~/learnify/${FLAVOR}
 
             # Pull docker image with sudo
             sudo docker pull ghcr.io/oiy-ai/learnify:latest
 
             # Navigate to the deployment directory
-            cd /opt/learnify/${FLAVOR}
+            cd ~/learnify/${FLAVOR}
 
             # Check if docker-compose.yml exists
             if [ ! -f "docker-compose.yml" ]; then
-                echo "Error: docker-compose.yml not found in /opt/learnify/${FLAVOR}"
+                echo "Error: docker-compose.yml not found in ~/learnify/${FLAVOR}"
                 echo "Please ensure docker-compose.yml is deployed to the server first"
                 exit 1
             fi
