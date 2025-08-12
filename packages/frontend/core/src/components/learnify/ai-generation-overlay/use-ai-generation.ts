@@ -41,7 +41,7 @@ export const useAIGeneration = (options?: UseAIGenerationOptions) => {
         ...prev, // Keep totalItems, currentItem, currentItemName
         stage: 'preparing' as const,
         percentage: 0,
-        message: '正在准备材料...',
+        message: '',
       }));
 
       try {
@@ -70,17 +70,17 @@ export const useAIGeneration = (options?: UseAIGenerationOptions) => {
 
         // Stage 1: Preparing
         await new Promise(resolve => setTimeout(resolve, 500));
-        updateProgress('preprocessing', 25, 'AI 正在分析材料...');
+        updateProgress('preprocessing', 25);
 
         // Stage 2: Preprocessing (actual AI call)
         const result = await generateFn();
 
         // Stage 3: Generating
-        updateProgress('generating', 75, '正在生成内容...');
+        updateProgress('generating', 75);
         await new Promise(resolve => setTimeout(resolve, 500));
 
         // Stage 4: Finalizing
-        updateProgress('finalizing', 90, '即将完成...');
+        updateProgress('finalizing', 90);
         await new Promise(resolve => setTimeout(resolve, 800));
 
         // Complete
@@ -88,7 +88,7 @@ export const useAIGeneration = (options?: UseAIGenerationOptions) => {
         setProgress({
           stage: 'finalizing',
           percentage: 100,
-          message: '完成！',
+          message: '',
         });
 
         // Wait a bit before closing
@@ -99,8 +99,10 @@ export const useAIGeneration = (options?: UseAIGenerationOptions) => {
 
         return result;
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('生成失败'));
-        options?.onError?.(err instanceof Error ? err : new Error('生成失败'));
+        setError(err instanceof Error ? err : new Error('Generation failed'));
+        options?.onError?.(
+          err instanceof Error ? err : new Error('Generation failed')
+        );
         return null;
       } finally {
         // Ensure interval is cleared

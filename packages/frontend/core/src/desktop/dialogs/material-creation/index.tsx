@@ -24,7 +24,7 @@ import {
   PlayIcon,
 } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { StreamObjectSchema } from '../../../blocksuite/ai/components/ai-chat-messages';
 import { AIProvider } from '../../../blocksuite/ai/provider/ai-provider';
@@ -41,40 +41,6 @@ type MaterialContent =
   | { type: 'pdf'; content: Blob; name: string; description?: string };
 
 type CreationOptionId = 'mindmap' | 'notes' | 'flashcards' | 'podcast';
-
-const creationOptions: Array<{
-  id: CreationOptionId;
-  name: string;
-  icon: React.ReactNode;
-  description: string;
-  disabled?: boolean;
-}> = [
-  {
-    id: 'mindmap',
-    name: '思维导图',
-    icon: <MindmapIcon />,
-    description: 'Organize knowledge in visual mind maps',
-  },
-  {
-    id: 'notes',
-    name: '笔记',
-    icon: <EdgelessIcon />,
-    description: 'Create structured notes from materials',
-  },
-  {
-    id: 'flashcards',
-    name: '闪回卡',
-    icon: <FlashPanelIcon />,
-    description: 'Generate flashcards for memorization',
-  },
-  {
-    id: 'podcast',
-    name: '播客',
-    icon: <PlayIcon />,
-    description: 'Convert materials into audio content',
-    disabled: true,
-  },
-];
 
 export const MaterialCreationDialog = ({
   materialIds,
@@ -120,6 +86,47 @@ export const MaterialCreationDialog = ({
   const [currentGenerationFn, setCurrentGenerationFn] = useState<
     (() => Promise<any>) | null
   >(null);
+
+  // Define creation options with i18n
+  const creationOptions = useMemo<
+    Array<{
+      id: CreationOptionId;
+      name: string;
+      icon: React.ReactNode;
+      description: string;
+      disabled?: boolean;
+    }>
+  >(
+    () => [
+      {
+        id: 'mindmap',
+        name: t['com.learnify.material-creation.mindmap'](),
+        icon: <MindmapIcon />,
+        description: t['com.learnify.material-creation.mindmap.description'](),
+      },
+      {
+        id: 'notes',
+        name: t['com.learnify.material-creation.notes'](),
+        icon: <EdgelessIcon />,
+        description: t['com.learnify.material-creation.notes.description'](),
+      },
+      {
+        id: 'flashcards',
+        name: t['com.learnify.material-creation.flashcards'](),
+        icon: <FlashPanelIcon />,
+        description:
+          t['com.learnify.material-creation.flashcards.description'](),
+      },
+      {
+        id: 'podcast',
+        name: t['com.learnify.material-creation.podcast'](),
+        icon: <PlayIcon />,
+        description: t['com.learnify.material-creation.podcast.description'](),
+        disabled: true,
+      },
+    ],
+    [t]
+  );
 
   // Clean up temporary document
   const cleanupTempDoc = useCallback(
@@ -342,7 +349,11 @@ export const MaterialCreationDialog = ({
 
       try {
         // Update progress to preprocessing stage
-        updateProgress('preprocessing', 30, '正在使用 AI 分析材料...');
+        updateProgress(
+          'preprocessing',
+          30,
+          t['com.learnify.ai-generation.progress.preprocessing']()
+        );
 
         // Step 1: Generate mindmap structure using AI
         let aiMindmapStructure;
@@ -391,7 +402,11 @@ Instead of creating notes, please create a mind map structure in JSON format wit
           });
 
           // Process AI response to get mindmap JSON
-          updateProgress('generating', 60, '正在生成思维导图...');
+          updateProgress(
+            'generating',
+            60,
+            t['com.learnify.ai-generation.progress.generating-mindmap']()
+          );
           const mindmapStructure = await processAIMindmapResponse(aiResponse);
 
           if (mindmapStructure) {
@@ -407,17 +422,36 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         // Fallback to simple structure if AI fails
         if (!aiMindmapStructure) {
           aiMindmapStructure = {
-            text: material.name || '学习资料知识图谱',
+            text:
+              material.name ||
+              t['com.learnify.material-creation.mindmap.default-title'](),
             children: [
-              { text: `类型: ${material.category}`, children: [] },
-              { text: material.description || '暂无描述', children: [] },
+              {
+                text: t.t(
+                  'com.learnify.material-creation.mindmap.type-prefix',
+                  { type: material.category }
+                ),
+                children: [],
+              },
+              {
+                text:
+                  material.description ||
+                  t['com.learnify.material-creation.mindmap.no-description'](),
+                children: [],
+              },
             ],
           };
         }
 
         // Step 2: Create edgeless document
-        updateProgress('finalizing', 80, '正在创建思维导图文档...');
-        const title = `思维导图: ${material.name}`;
+        updateProgress(
+          'finalizing',
+          80,
+          t['com.learnify.ai-generation.progress.creating-mindmap']()
+        );
+        const title = t.t('com.learnify.material-creation.title.mindmap', {
+          name: material.name,
+        });
         const mindmapDoc = docsService.createDoc({
           primaryMode: 'edgeless',
           title: title, // Set title during creation
@@ -508,7 +542,9 @@ Instead of creating notes, please create a mind map structure in JSON format wit
                   {
                     text: {
                       insert:
-                        '📝 思维导图创建失败\n\n请手动使用左侧工具栏的思维导图工具创建',
+                        t[
+                          'com.learnify.material-creation.mindmap.error-message'
+                        ](),
                     },
                   },
                   noteBlock.model.id
@@ -533,6 +569,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       workspaceService,
       docsService,
       updateProgress,
+      t,
     ]
   );
 
@@ -686,7 +723,11 @@ Instead of creating notes, please create a mind map structure in JSON format wit
 
       try {
         // Update progress
-        updateProgress('preparing', 20, '正在准备材料...');
+        updateProgress(
+          'preparing',
+          20,
+          t['com.learnify.ai-generation.progress.preparing']()
+        );
 
         // Build prompt and get attachments
         const { prompt, attachments } = await buildPromptFromMaterials([
@@ -706,7 +747,11 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         }
 
         // Call AI service
-        updateProgress('preprocessing', 40, 'AI 正在分析材料...');
+        updateProgress(
+          'preprocessing',
+          40,
+          t['com.learnify.ai-generation.progress.preprocessing']()
+        );
         const aiResponse = await AIProvider.actions.chat({
           input: prompt,
           workspaceId: workspaceService.workspace.id,
@@ -716,12 +761,20 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         });
 
         // Process AI response
-        updateProgress('generating', 70, '正在生成笔记内容...');
+        updateProgress(
+          'generating',
+          70,
+          t['com.learnify.ai-generation.progress.generating-notes']()
+        );
         const generatedContent = await processAIResponse(aiResponse);
         const title = extractTitle(generatedContent);
 
         // Create document from markdown
-        updateProgress('finalizing', 85, '正在创建文档...');
+        updateProgress(
+          'finalizing',
+          85,
+          t['com.learnify.ai-generation.progress.creating-notes']()
+        );
         const docId = await MarkdownTransformer.importMarkdownToDoc({
           collection: workspaceService.workspace.docCollection,
           schema: getAFFiNEWorkspaceSchema(),
@@ -774,6 +827,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       workspaceService,
       docsService,
       updateProgress,
+      t,
     ]
   );
 
@@ -895,7 +949,11 @@ Instead of creating notes, please create a mind map structure in JSON format wit
 
       try {
         // Update progress
-        updateProgress('preparing', 20, '正在准备闪卡材料...');
+        updateProgress(
+          'preparing',
+          20,
+          t['com.learnify.ai-generation.progress.preparing']()
+        );
 
         // Build prompt and get attachments
         const { prompt, attachments } = await buildFlashcardsPrompt([material]);
@@ -913,7 +971,11 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         }
 
         // Call AI service
-        updateProgress('preprocessing', 40, 'AI 正在分析材料...');
+        updateProgress(
+          'preprocessing',
+          40,
+          t['com.learnify.ai-generation.progress.preprocessing']()
+        );
         const aiResponse = await AIProvider.actions.chat({
           input: prompt,
           workspaceId: workspaceService.workspace.id,
@@ -923,11 +985,19 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         });
 
         // Process AI response
-        updateProgress('generating', 70, '正在生成闪卡内容...');
+        updateProgress(
+          'generating',
+          70,
+          t['com.learnify.ai-generation.progress.generating-flashcards']()
+        );
         const generatedContent = await processAIResponse(aiResponse);
 
         // Parse the JSON response and create individual flashcard documents
-        updateProgress('finalizing', 85, '正在创建闪卡文档...');
+        updateProgress(
+          'finalizing',
+          85,
+          t['com.learnify.ai-generation.progress.creating-flashcards']()
+        );
         const docIds = await parseAndCreateFlashcards(generatedContent, [
           material,
         ]);
@@ -949,6 +1019,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       workspaceService,
       docsService,
       updateProgress,
+      t,
     ]
   );
 
@@ -961,24 +1032,27 @@ Instead of creating notes, please create a mind map structure in JSON format wit
   //   []
   // );
 
-  const handleOptionToggle = useCallback((optionId: CreationOptionId) => {
-    // Check if this option is disabled
-    const option = creationOptions.find(opt => opt.id === optionId);
-    if (option?.disabled) {
-      toast('The podcast feature is under development. Stay tuned!');
-      return;
-    }
-
-    setSelectedOptions(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(optionId)) {
-        newSet.delete(optionId);
-      } else {
-        newSet.add(optionId);
+  const handleOptionToggle = useCallback(
+    (optionId: CreationOptionId) => {
+      // Check if this option is disabled
+      const option = creationOptions.find(opt => opt.id === optionId);
+      if (option?.disabled) {
+        toast('The podcast feature is under development. Stay tuned!');
+        return;
       }
-      return newSet;
-    });
-  }, []);
+
+      setSelectedOptions(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(optionId)) {
+          newSet.delete(optionId);
+        } else {
+          newSet.add(optionId);
+        }
+        return newSet;
+      });
+    },
+    [creationOptions]
+  );
 
   const handleCreate = useCallback(async () => {
     if (selectedOptions.size === 0) {
@@ -1018,12 +1092,12 @@ Instead of creating notes, please create a mind map structure in JSON format wit
           // Update progress with overall info
           const optionName =
             optionId === 'mindmap'
-              ? '思维导图'
+              ? t['com.learnify.material-creation.type.mindmap']()
               : optionId === 'notes'
-                ? '笔记'
+                ? t['com.learnify.material-creation.type.note']()
                 : optionId === 'flashcards'
-                  ? '闪卡'
-                  : '播客';
+                  ? t['com.learnify.material-creation.type.flashcard']()
+                  : t['com.learnify.material-creation.type.podcast']();
 
           // Update the progress with total items info
           setProgress(prev => ({
@@ -1057,21 +1131,37 @@ Instead of creating notes, please create a mind map structure in JSON format wit
       // Show summary toast
       const summaryParts = [];
       if (results.mindmap.length > 0) {
-        summaryParts.push(`${results.mindmap.length} 个思维导图`);
+        summaryParts.push(
+          t.t('com.learnify.material-creation.success-mindmaps', {
+            count: results.mindmap.length,
+          })
+        );
       }
       if (results.notes.length > 0) {
-        summaryParts.push(`${results.notes.length} 个笔记`);
+        summaryParts.push(
+          t.t('com.learnify.material-creation.success-notes', {
+            count: results.notes.length,
+          })
+        );
       }
       if (results.flashcards.length > 0) {
         const totalFlashcards = results.flashcards.reduce(
           (sum, arr) => sum + arr.length,
           0
         );
-        summaryParts.push(`${totalFlashcards} 张闪卡`);
+        summaryParts.push(
+          t.t('com.learnify.material-creation.success-flashcards', {
+            count: totalFlashcards,
+          })
+        );
       }
 
       if (summaryParts.length > 0) {
-        toast(`成功创建: ${summaryParts.join(', ')}`);
+        toast(
+          t.t('com.learnify.material-creation.success-message', {
+            items: summaryParts.join(', '),
+          })
+        );
       }
 
       // Close the dialog after successful completion
@@ -1101,6 +1191,7 @@ Instead of creating notes, please create a mind map structure in JSON format wit
     setProgress,
     workbenchService,
     close,
+    t,
   ]);
 
   return (
@@ -1114,9 +1205,12 @@ Instead of creating notes, please create a mind map structure in JSON format wit
         }}
       >
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Create Content from Materials</h2>
+          <h2 className={styles.modalTitle}>
+            {t['com.learnify.material-creation.create-from-materials']()}
+          </h2>
           <p className={styles.modalDescription}>
-            Choose how you want to process the selected materials
+            {t['com.learnify.material-creation.dialog.description']?.() ||
+              'Choose how you want to process the selected materials'}
           </p>
         </div>
 
@@ -1132,7 +1226,9 @@ Instead of creating notes, please create a mind map structure in JSON format wit
               <div className={styles.optionIcon}>{option.icon}</div>
               <div className={styles.optionName}>{option.name}</div>
               <div className={styles.optionDescription}>
-                {option.disabled ? '功能开发中' : option.description}
+                {option.disabled
+                  ? t['com.learnify.material-creation.podcast.disabled']()
+                  : option.description}
               </div>
             </div>
           ))}

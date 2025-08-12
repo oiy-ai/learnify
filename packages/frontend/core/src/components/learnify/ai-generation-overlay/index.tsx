@@ -22,13 +22,6 @@ export interface AIGenerationOverlayProps {
   onRetry?: () => void;
 }
 
-const stageMessages = {
-  preparing: '准备材料中...',
-  preprocessing: 'AI 正在分析材料...',
-  generating: '正在生成内容...',
-  finalizing: '完成最后步骤...',
-};
-
 export const AIGenerationOverlay = ({
   open,
   progress = { stage: 'preparing', percentage: 0, message: '' },
@@ -37,6 +30,13 @@ export const AIGenerationOverlay = ({
   onRetry,
 }: AIGenerationOverlayProps) => {
   const t = useI18n();
+
+  const stageMessages = {
+    preparing: t['com.learnify.ai-generation.progress.preparing'](),
+    preprocessing: t['com.learnify.ai-generation.progress.preprocessing'](),
+    generating: t['com.learnify.ai-generation.progress.generating'](),
+    finalizing: t['com.learnify.ai-generation.progress.finalizing'](),
+  };
   const [displayPercentage, setDisplayPercentage] = useState(0);
 
   // Smooth percentage animation
@@ -93,16 +93,18 @@ export const AIGenerationOverlay = ({
             <div className={styles.errorIcon}>
               <WarningIcon />
             </div>
-            <h3 className={styles.errorTitle}>生成失败</h3>
+            <h3 className={styles.errorTitle}>
+              {t['com.learnify.ai-generation.error.title']()}
+            </h3>
             <p className={styles.errorMessage}>
-              {error.message || '生成内容时出现错误，请重试'}
+              {error.message || t['com.learnify.ai-generation.error.message']()}
             </p>
             <div className={styles.errorActions}>
               <button className={styles.cancelButton} onClick={handleCancel}>
                 {t.t('com.affine.confirmModal.button.cancel')}
               </button>
               <button className={styles.retryButton} onClick={handleRetry}>
-                重试
+                {t['com.learnify.ai-generation.error.retry']()}
               </button>
             </div>
           </div>
@@ -113,7 +115,7 @@ export const AIGenerationOverlay = ({
               <Loading size={48} />
             </div>
             <h3 className={styles.loadingTitle}>
-              {stageMessages[progress.stage] || '处理中...'}
+              {stageMessages[progress.stage] || stageMessages.preparing}
             </h3>
             {progress.message && (
               <p className={styles.loadingMessage}>{progress.message}</p>
@@ -123,11 +125,14 @@ export const AIGenerationOverlay = ({
             {progress.totalItems && progress.totalItems > 1 && (
               <div className={styles.overallProgress}>
                 <span className={styles.overallProgressText}>
-                  总进度: {progress.currentItem || 1} / {progress.totalItems}
+                  {t.t('com.learnify.ai-generation.progress.total', {
+                    current: progress.currentItem || 1,
+                    total: progress.totalItems,
+                  })}
                 </span>
                 {progress.currentItemName && (
                   <span className={styles.currentItemName}>
-                    正在处理: {progress.currentItemName}
+                    {progress.currentItemName}
                   </span>
                 )}
               </div>
@@ -152,39 +157,43 @@ export const AIGenerationOverlay = ({
                 className={`${styles.stageIndicator} ${
                   progress.stage === 'preparing' ? styles.active : ''
                 } ${
-                  ['generating', 'processing', 'finalizing'].includes(
+                  ['preprocessing', 'generating', 'finalizing'].includes(
                     progress.stage
                   )
                     ? styles.completed
                     : ''
                 }`}
               >
-                准备
+                {t['com.learnify.ai-generation.stage.preparing']?.() ||
+                  'Preparing'}
               </div>
               <div
                 className={`${styles.stageIndicator} ${
-                  progress.stage === 'generating' ? styles.active : ''
+                  progress.stage === 'preprocessing' ? styles.active : ''
                 } ${
-                  ['processing', 'finalizing'].includes(progress.stage)
+                  ['generating', 'finalizing'].includes(progress.stage)
                     ? styles.completed
                     : ''
                 }`}
               >
-                生成
+                {t['com.learnify.ai-generation.stage.preprocessing']?.() ||
+                  'Preprocessing'}
               </div>
               <div
                 className={`${styles.stageIndicator} ${
                   progress.stage === 'generating' ? styles.active : ''
                 } ${progress.stage === 'finalizing' ? styles.completed : ''}`}
               >
-                处理
+                {t['com.learnify.ai-generation.stage.generating']?.() ||
+                  'Generating'}
               </div>
               <div
                 className={`${styles.stageIndicator} ${
                   progress.stage === 'finalizing' ? styles.active : ''
                 }`}
               >
-                完成
+                {t['com.learnify.ai-generation.stage.finalizing']?.() ||
+                  'Finalizing'}
               </div>
             </div>
 
@@ -193,7 +202,7 @@ export const AIGenerationOverlay = ({
                 className={styles.cancelButtonSmall}
                 onClick={handleCancel}
               >
-                取消
+                {t['com.affine.confirmModal.button.cancel']()}
               </button>
             )}
           </div>
