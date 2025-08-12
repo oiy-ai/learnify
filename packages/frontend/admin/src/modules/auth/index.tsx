@@ -7,9 +7,9 @@ import { useCallback, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import logo from '../../../../core/public/imgs/logo.svg';
 import { affineFetch } from '../../fetch-utils';
 import { isAdmin, useCurrentUser, useRevalidateCurrentUser } from '../common';
-import logo from './logo.svg';
 
 export function Auth() {
   const currentUser = useCurrentUser();
