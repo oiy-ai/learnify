@@ -500,51 +500,13 @@ const FlashcardDocumentPreview = ({ docId }: { docId: string }) => {
 
   if (cardData.type === 'unknown' || !cardData.data) {
     return (
-      <div className={styles.errorContainer}>
-        <div className={styles.errorText}>Unable to load card</div>
-        <div
-          style={{
-            fontSize: '12px',
-            color: 'var(--affine-text-secondary)',
-            marginTop: '8px',
-            padding: '8px',
-            backgroundColor: 'var(--affine-background-secondary)',
-            borderRadius: '4px',
-            fontFamily: 'monospace',
-          }}
-        >
-          Expected formats:
-          <br />
-          <br />
-          Flashcard:
-          <br />
-          [flashcard]
-          <br />
-          [Question]
-          <br />
-          Your question here
-          <br />
-          [Answer]
-          <br />
-          Your answer here
-          <br />
-          <br />
-          Single-choice:
-          <br />
-          [single-choice]
-          <br />
-          [Question]
-          <br />
-          Your question here
-          <br />
-          [Options]
-          <br />
-          a) Option 1<br />
-          b) Option 2<br />
-          c) Option 3<br />
-          d) Option 4<br />
-          [Answer]
-          <br />a
+      <div className={styles.flashcardContainer}>
+        <div className={styles.flashcardContent}>
+          <div className={styles.loadingCardContent}>
+            <div className={styles.loadingIcon}>⏳</div>
+            <div className={styles.loadingTitle}>卡片加载中</div>
+            <div className={styles.loadingSubtext}>请稍候...</div>
+          </div>
         </div>
       </div>
     );

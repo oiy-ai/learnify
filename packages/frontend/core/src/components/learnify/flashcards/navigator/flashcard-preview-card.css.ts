@@ -47,6 +47,31 @@ export const errorText = style({
   color: 'var(--affine-error-color)',
 });
 
+export const loadingCardContent = style({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '16px',
+  padding: '32px',
+});
+
+export const loadingIcon = style({
+  fontSize: '36px',
+  lineHeight: 1,
+});
+
+export const loadingTitle = style({
+  fontSize: '18px',
+  fontWeight: 600,
+  color: 'var(--affine-text-primary-color)',
+});
+
+export const loadingSubtext = style({
+  fontSize: '14px',
+  color: 'var(--affine-text-secondary-color)',
+});
+
 export const flashcardContainer = style({
   display: 'flex',
   flexDirection: 'column',
