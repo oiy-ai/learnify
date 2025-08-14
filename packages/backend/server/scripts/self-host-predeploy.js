@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
 
-const SELF_HOST_CONFIG_DIR = `${homedir()}/.affine/config`;
+const SELF_HOST_CONFIG_DIR = `${homedir()}/.learnify/config`;
 
 function generatePrivateKey() {
   const key = generateKeyPairSync('ec', {

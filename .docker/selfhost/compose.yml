@@ -1,10 +1,10 @@
 name: learnify
 services:
   learnify:
-    image: ghcr.io/oiy-ai/learnify:${AFFINE_REVISION:-stable}-f5f79711100e792baa426892d3127bded9bdea7c
+    image: ghcr.io/oiy-ai/learnify
     container_name: learnify
     ports:
-      - '${PORT:-3010}:3010'
+      - '${PORT:-80}:80'
     depends_on:
       redis:
         condition: service_healthy
@@ -14,30 +14,28 @@ services:
         condition: service_completed_successfully
     volumes:
       # custom configurations
-      - ${UPLOAD_LOCATION}:/root/.affine/storage
-      - ${CONFIG_LOCATION}:/root/.affine/config
+      - ${UPLOAD_LOCATION}:/root/.learnify/storage
+      - ${CONFIG_LOCATION}:/root/.learnify/config
     env_file:
       - .env
     environment:
       - REDIS_SERVER_HOST=redis
-      - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE:-affine}
-      - AFFINE_INDEXER_ENABLED=false
+      - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE:-learnify}
     restart: unless-stopped
 
   learnify_migration:
-    image: ghcr.io/oiy-ai/learnify:${AFFINE_REVISION:-stable}-f5f79711100e792baa426892d3127bded9bdea7c
+    image: ghcr.io/oiy-ai/learnify
     container_name: learnify_migration_job
     volumes:
       # custom configurations
-      - ${UPLOAD_LOCATION}:/root/.affine/storage
-      - ${CONFIG_LOCATION}:/root/.affine/config
+      - ${UPLOAD_LOCATION}:/root/.learnify/storage
+      - ${CONFIG_LOCATION}:/root/.learnify/config
     command: ['sh', '-c', 'node ./scripts/self-host-predeploy.js']
     env_file:
       - .env
     environment:
       - REDIS_SERVER_HOST=redis
-      - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE:-affine}
-      - AFFINE_INDEXER_ENABLED=false
+      - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE:-learnify}
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,14 +60,14 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_DATABASE:-affine}
+      POSTGRES_DB: ${DB_DATABASE:-learnify}
       POSTGRES_INITDB_ARGS: '--data-checksums'
       # you better set a password for you database
       # or you may add 'POSTGRES_HOST_AUTH_METHOD=trust' to ignore postgres security policy
       POSTGRES_HOST_AUTH_METHOD: trust
     healthcheck:
       test:
-        ['CMD', 'pg_isready', '-U', "${DB_USERNAME}", '-d', "${DB_DATABASE:-affine}"]
+        ['CMD', 'pg_isready', '-U', "${DB_USERNAME}", '-d', "${DB_DATABASE:-learnify}"]
       interval: 10s
       timeout: 5s
       retries: 5
