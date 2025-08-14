@@ -9,7 +9,7 @@ import { openFilesWith } from '@blocksuite/affine/shared/utils';
 import { ShadowlessElement } from '@blocksuite/affine/std';
 import type { DocMeta } from '@blocksuite/affine/store';
 import {
-  CollectionsIcon,
+  // CollectionsIcon,
   ImageIcon,
   MoreHorizontalIcon,
   SearchIcon,
@@ -155,15 +155,15 @@ export class ChatPanelAddPopover extends SignalWatcher(
           this._toggleMode(AddPopoverMode.Tags);
         },
       },
-      {
-        key: 'collections',
-        name: 'Collections',
-        testId: 'ai-chat-with-collections',
-        icon: CollectionsIcon(),
-        action: () => {
-          this._toggleMode(AddPopoverMode.Collections);
-        },
-      },
+      // {
+      //   key: 'collections',
+      //   name: 'Collections',
+      //   testId: 'ai-chat-with-collections',
+      //   icon: CollectionsIcon(),
+      //   action: () => {
+      //     this._toggleMode(AddPopoverMode.Collections);
+      //   },
+      // },
     ],
   };
 
@@ -233,7 +233,10 @@ export class ChatPanelAddPopover extends SignalWatcher(
         if (this._query) {
           groups = [...this._searchGroups, this.uploadGroup];
         } else {
-          groups = [...this._searchGroups, this.tcGroup, this.uploadGroup];
+          // Only include tcGroup if it has items
+          const nonEmptyGroups =
+            this.tcGroup.items.length > 0 ? [this.tcGroup] : [];
+          groups = [...this._searchGroups, ...nonEmptyGroups, this.uploadGroup];
         }
     }
 
