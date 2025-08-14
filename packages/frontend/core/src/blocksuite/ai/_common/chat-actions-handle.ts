@@ -489,6 +489,17 @@ export const SAVE_AS_DOC = {
     const noteId = newDoc.addBlock('affine:note', {}, rootId);
     console.log('[SAVE_AS_DOC] Doc structure created, noteId:', noteId);
 
+    // Store the doc ID to add to NOTES collection after navigation
+    // We'll use sessionStorage to pass this information
+    sessionStorage.setItem(
+      'ai-chat-new-doc',
+      JSON.stringify({
+        docId: newDoc.id,
+        shouldAddToNotes: true,
+        timestamp: Date.now(),
+      })
+    );
+
     host.std.getOptional(RefNodeSlotsProvider)?.docLinkClicked.next({
       pageId: newDoc.id,
       host,
@@ -585,13 +596,12 @@ const CREATE_AS_LINKED_DOC = {
   },
 };
 
-export const PageEditorActions = [PAGE_INSERT, SAVE_AS_DOC, SAVE_AS_BLOCK];
+export const PageEditorActions = [PAGE_INSERT, SAVE_AS_DOC];
 
 export const EdgelessEditorActions = [
   EDGELESS_INSERT,
   ADD_TO_EDGELESS_AS_NOTE,
   SAVE_AS_DOC,
-  SAVE_AS_BLOCK,
 ];
 
 export const ChatBlockPeekViewActions = [

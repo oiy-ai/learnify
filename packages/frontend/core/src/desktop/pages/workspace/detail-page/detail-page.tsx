@@ -16,7 +16,9 @@ import { useActiveBlocksuiteEditor } from '@affine/core/components/hooks/use-blo
 import { PageDetailEditor } from '@affine/core/components/page-detail-editor';
 import { TrashPageFooter } from '@affine/core/components/pure/trash-page-footer';
 import { TopTip } from '@affine/core/components/top-tip';
+import { LEARNIFY_COLLECTIONS } from '@affine/core/constants/learnify-collections';
 import { ServerService } from '@affine/core/modules/cloud';
+import { CollectionService } from '@affine/core/modules/collection';
 import { DocService } from '@affine/core/modules/doc';
 import { EditorService } from '@affine/core/modules/editor';
 import { FeatureFlagService } from '@affine/core/modules/feature-flag';
@@ -73,6 +75,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
     docService,
     workspaceService,
     globalContextService,
+    collectionService,
   } = useServices({
     WorkbenchService,
     ViewService,
@@ -80,6 +83,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
     DocService,
     WorkspaceService,
     GlobalContextService,
+    CollectionService,
   });
   const workbench = workbenchService.workbench;
   const editor = editorService.editor;
@@ -243,6 +247,50 @@ const DetailPageImpl = memo(function DetailPageImpl() {
                       show: true,
                     }
                   );
+
+                  // Check if this doc was created from AI Chat and add to NOTES collection
+                  setTimeout(() => {
+                    const aiChatDocData =
+                      sessionStorage.getItem('ai-chat-new-doc');
+
+                    if (aiChatDocData) {
+                      try {
+                        const data = JSON.parse(aiChatDocData);
+
+                        // Check if this is the doc we just created and it's recent (within 5 seconds)
+                        if (
+                          data.docId === pageId &&
+                          data.shouldAddToNotes &&
+                          Date.now() - data.timestamp < 5000
+                        ) {
+                          // Add to NOTES collection
+                          const notesCollection = collectionService.collection$(
+                            LEARNIFY_COLLECTIONS.NOTES
+                          ).value;
+
+                          if (notesCollection) {
+                            collectionService.addDocToCollection(
+                              LEARNIFY_COLLECTIONS.NOTES,
+                              pageId
+                            );
+                            console.log(
+                              '[AI Chat] Added doc to NOTES collection:',
+                              pageId
+                            );
+                          }
+
+                          // Clear the sessionStorage item after processing
+                          sessionStorage.removeItem('ai-chat-new-doc');
+                        }
+                      } catch (error) {
+                        console.error(
+                          'Failed to process AI chat doc data:',
+                          error
+                        );
+                        sessionStorage.removeItem('ai-chat-new-doc');
+                      }
+                    }
+                  }, 500); // Small delay to ensure doc is loaded
                 } else {
                   peekView
                     .open({
@@ -270,7 +318,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
         disposable.dispose();
       };
     },
-    [editor, workbench, peekView]
+    [editor, workbench, peekView, collectionService]
   );
 
   const [hasScrollTop, setHasScrollTop] = useState(false);
