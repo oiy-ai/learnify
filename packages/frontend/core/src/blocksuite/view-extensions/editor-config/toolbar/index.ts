@@ -28,7 +28,7 @@ import { notifyLinkedDocClearedAliases } from '@blocksuite/affine/components/not
 import { isPeekable, peek } from '@blocksuite/affine/components/peek';
 import { toast } from '@blocksuite/affine/components/toast';
 import {
-  EditorChevronDown,
+  // EditorChevronDown,
   type MenuContext,
   type MenuItemGroup,
 } from '@blocksuite/affine/components/toolbar';
@@ -77,14 +77,14 @@ import {
   CopyIcon,
   EditIcon,
   LinkIcon,
-  OpenInNewIcon,
+  // OpenInNewIcon,
 } from '@blocksuite/icons/lit';
 import { computed } from '@preact/signals-core';
 import type { FrameworkProvider } from '@toeverything/infra';
 import { html } from 'lit';
-import { ifDefined } from 'lit/directives/if-defined.js';
+// import { ifDefined } from 'lit/directives/if-defined.js';
 import { keyed } from 'lit/directives/keyed.js';
-import { repeat } from 'lit/directives/repeat.js';
+// import { repeat } from 'lit/directives/repeat.js';
 import { styleMap } from 'lit/directives/style-map.js';
 
 import { openDocActions } from '../../editor-view/open-doc';
@@ -583,67 +583,6 @@ function createEdgelessOpenDocActionGroup(
 function createSurfaceRefToolbarConfig(baseUrl?: string): ToolbarModuleConfig {
   return {
     actions: [
-      {
-        id: 'b.open-surface-ref',
-        when: ctx =>
-          !!ctx.getCurrentBlockByType(SurfaceRefBlockComponent)?.referenceModel,
-        content: ctx => {
-          const surfaceRefBlock = ctx.getCurrentBlockByType(
-            SurfaceRefBlockComponent
-          );
-          if (!surfaceRefBlock) return null;
-
-          const actions = createOpenDocActions(ctx, surfaceRefBlock, false)
-            .map(action => ({
-              ...action,
-              ...action.generate(ctx),
-            }))
-            .map(action => {
-              if (action.id.endsWith('open-in-active-view')) {
-                action.label =
-                  I18n['com.affine.peek-view-controls.open-doc-in-edgeless']();
-              }
-              return action;
-            });
-          if (!actions.length) return null;
-
-          const styles = styleMap({
-            gap: 4,
-          });
-
-          return html`${keyed(
-            surfaceRefBlock,
-            html`<editor-menu-button
-              aria-label="Open"
-              .contentPadding=${'8px'}
-              .button=${html`<editor-icon-button
-                .iconSize=${'16px'}
-                .iconContainerPadding=${4}
-              >
-                ${OpenInNewIcon()} ${EditorChevronDown}
-              </editor-icon-button>`}
-            >
-              <div data-orientation="vertical" style=${styles}>
-                ${repeat(
-                  actions,
-                  action => action.id,
-                  ({ label, icon, run, disabled }) => html`
-                    <editor-menu-action
-                      aria-label=${ifDefined(label)}
-                      ?disabled=${disabled}
-                      @click=${() => {
-                        run?.(ctx);
-                      }}
-                    >
-                      ${icon}<span class="label">${label}</span>
-                    </editor-menu-action>
-                  `
-                )}
-              </div>
-            </editor-menu-button>`
-          )}`;
-        },
-      },
       {
         id: 'a.clipboard',
         placement: ActionPlacement.More,
