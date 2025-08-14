@@ -4,7 +4,7 @@ import {
   startScopedViewTransition,
   useThemeColorV2,
 } from '@affine/component';
-import { CollectionService } from '@affine/core/modules/collection';
+// import { CollectionService } from '@affine/core/modules/collection';
 import {
   type QuickSearchItem,
   QuickSearchTagIcon,
@@ -13,7 +13,7 @@ import { TagService } from '@affine/core/modules/tag';
 import { UserFriendlyError } from '@affine/error';
 import { useI18n } from '@affine/i18n';
 import { sleep } from '@blocksuite/affine/global/utils';
-import { ViewLayersIcon } from '@blocksuite/icons/rc';
+// import { ViewLayersIcon } from '@blocksuite/icons/rc';
 import {
   LiveData,
   useLiveData,
@@ -36,13 +36,13 @@ import * as styles from '../../views/search/style.css';
 const searchInput$ = new LiveData('');
 
 const RecentList = () => {
-  const { mobileSearchService, collectionService, tagService } = useServices({
+  const { mobileSearchService, tagService } = useServices({
     MobileSearchService,
-    CollectionService,
+    // CollectionService,
     TagService,
   });
   const recentDocsList = useLiveData(mobileSearchService.recentDocs.items$);
-  const collectionMetas = useLiveData(collectionService.collectionMetas$);
+  // const collectionMetas = useLiveData(collectionService.collectionMetas$);
   const tags = useLiveData(
     LiveData.computed(get =>
       get(tagService.tagList.tags$).map(tag => ({
@@ -63,17 +63,21 @@ const RecentList = () => {
     [recentDocsList]
   );
 
-  const collectionList = useMemo(() => {
-    return collectionMetas.slice(0, 3).map(item => {
-      return {
-        id: 'collection:' + item.id,
-        source: 'collection',
-        label: { title: item.name },
-        icon: <ViewLayersIcon />,
-        payload: { collectionId: item.id },
-      } satisfies QuickSearchItem<'collection', { collectionId: string }>;
-    });
-  }, [collectionMetas]);
+  // const collectionList = useMemo(() => {
+  //   return collectionMetas.slice(0, 3).map(item => {
+  //     return {
+  //       id: 'collection:' + item.id,
+  //       source: 'collection',
+  //       label: { title: item.name },
+  //       icon: <ViewLayersIcon />,
+  //       payload: { collectionId: item.id },
+  //     } satisfies QuickSearchItem<'collection', { collectionId: string }>;
+  //   });
+  // }, [collectionMetas]);
+  const collectionList: QuickSearchItem<
+    'collection',
+    { collectionId: string }
+  >[] = [];
 
   const tagList = useMemo(() => {
     return tags
@@ -102,7 +106,11 @@ const RecentList = () => {
 
 const WithQueryList = () => {
   const searchService = useService(MobileSearchService);
-  const collectionList = useLiveData(searchService.collections.items$);
+  // const collectionList = useLiveData(searchService.collections.items$);
+  const collectionList: QuickSearchItem<
+    'collection',
+    { collectionId: string }
+  >[] = [];
   const docList = useLiveData(searchService.docs.items$);
   const tagList = useLiveData(searchService.tags.items$);
 
@@ -141,12 +149,12 @@ export const Component = () => {
     (v: string) => {
       searchInput$.next(v);
       searchService.recentDocs.query(v);
-      searchService.collections.query(v);
+      // searchService.collections.query(v);
       searchService.docs.query(v);
       searchService.tags.query(v);
     },
     [
-      searchService.collections,
+      // searchService.collections,
       searchService.docs,
       searchService.recentDocs,
       searchService.tags,

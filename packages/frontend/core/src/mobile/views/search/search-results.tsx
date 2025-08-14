@@ -10,6 +10,7 @@ import * as styles from './style.css';
 export interface SearchResultsProps {
   title: string;
   docs?: DocCardProps['meta'][];
+  // collections?: UniversalSearchResultItemProps['item'][];
   collections?: UniversalSearchResultItemProps['item'][];
   tags?: UniversalSearchResultItemProps['item'][];
   error?: any;
@@ -25,7 +26,7 @@ const Empty = () => {
 export const SearchResults = ({
   title,
   docs,
-  collections,
+  collections: _collections,
   tags,
   error,
 }: SearchResultsProps) => {
@@ -35,9 +36,7 @@ export const SearchResults = ({
 
       {error && <p className={styles.errorMessage}>{error}</p>}
 
-      {!docs?.length && !collections?.length && !tags?.length ? (
-        <Empty />
-      ) : null}
+      {!docs?.length && !tags?.length ? <Empty /> : null}
 
       {/* Doc Res */}
       {docs?.length ? (
@@ -53,8 +52,8 @@ export const SearchResults = ({
         </div>
       ) : null}
 
-      {/* Collection Res */}
-      {collections?.length ? (
+      {/* Collection Res - Commented out */}
+      {/* {collections?.length ? (
         <div className={styles.resBlock}>
           <div className={styles.resBlockTitle}>Collections</div>
           <div className={styles.resBlockListContent}>
@@ -68,7 +67,7 @@ export const SearchResults = ({
             ))}
           </div>
         </div>
-      ) : null}
+      ) : null} */}
 
       {/* Tag Res */}
       {tags?.length ? (
