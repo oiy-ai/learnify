@@ -18,8 +18,8 @@ import {
   MakeItRealIcon,
   MindmapIcon,
   PenIcon,
-  PresentationIcon,
-  SearchIcon,
+  // PresentationIcon,
+  // SearchIcon,
   SelectionIcon,
   ShorterIcon,
   ToneIcon,
@@ -41,7 +41,7 @@ import { getAIPanelWidget } from '../utils/ai-widgets';
 import {
   AIImageIconWithAnimation,
   AIPenIconWithAnimation,
-  AIPresentationIconWithAnimation,
+  // AIPresentationIconWithAnimation,
   AIStarIconWithAnimation,
   MakeItRealIconWithAnimation,
 } from './icons';
@@ -296,7 +296,6 @@ const GenerateWithAIGroup: AIItemGroupConfig = {
       name: 'Generate headings',
       testId: 'action-generate-headings',
       icon: PenIcon(),
-      beta: true,
       handler: actionToHandler('createHeadings', AIPenIconWithAnimation),
       showWhen: chain => {
         const [_, ctx] = chain
@@ -335,30 +334,29 @@ const GenerateWithAIGroup: AIItemGroupConfig = {
       showWhen: textBlockShowWhen,
       handler: actionToHandler('brainstormMindmap', AIPenIconWithAnimation),
     },
-    {
-      name: 'Generate presentation',
-      testId: 'action-generate-presentation',
-      icon: PresentationIcon(),
-      showWhen: textBlockShowWhen,
-      handler: actionToHandler('createSlides', AIPresentationIconWithAnimation),
-      beta: true,
-    },
+    // Hidden: Generate presentation
+    // {
+    //   name: 'Generate presentation',
+    //   testId: 'action-generate-presentation',
+    //   icon: PresentationIcon(),
+    //   showWhen: textBlockShowWhen,
+    //   handler: actionToHandler('createSlides', AIPresentationIconWithAnimation),
+    // },
     {
       name: 'Make it real',
       testId: 'action-make-it-real',
       icon: MakeItRealIcon(),
-      beta: true,
       showWhen: textBlockShowWhen,
       handler: actionToHandler('makeItReal', MakeItRealIconWithAnimation),
     },
-    {
-      name: 'Find actions',
-      testId: 'action-find-actions',
-      icon: SearchIcon(),
-      showWhen: textBlockShowWhen,
-      handler: actionToHandler('findActions', AIStarIconWithAnimation),
-      beta: true,
-    },
+    // Hidden: Find actions
+    // {
+    //   name: 'Find actions',
+    //   testId: 'action-find-actions',
+    //   icon: SearchIcon(),
+    //   showWhen: textBlockShowWhen,
+    //   handler: actionToHandler('findActions', AIStarIconWithAnimation),
+    // },
   ],
 };
 
@@ -430,7 +428,6 @@ export function buildAIImageItemGroups(): AIItemGroupConfig[] {
           showWhen: () => true,
           subItem: createImageProcessingSubItem(blockActionTrackerOptions),
           subItemOffset: [12, -6],
-          beta: true,
         },
         {
           name: 'AI image filter',
@@ -439,14 +436,12 @@ export function buildAIImageItemGroups(): AIItemGroupConfig[] {
           showWhen: () => true,
           subItem: createImageFilterSubItem(blockActionTrackerOptions),
           subItemOffset: [12, -4],
-          beta: true,
         },
         {
           name: 'Generate a caption',
           testId: 'action-generate-caption',
           icon: PenIcon(),
           showWhen: () => true,
-          beta: true,
           handler: actionToHandler(
             'generateCaption',
             AIStarIconWithAnimation,

@@ -119,7 +119,7 @@ export function AiSlashMenuConfigExtension() {
             'Make it longer',
             'Make it shorter',
             'Generate outline',
-            'Find actions',
+            // 'Find actions', // Hidden
           ].includes(name)
         ).map(actionItemWrapper),
       ],
