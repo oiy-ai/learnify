@@ -4,11 +4,11 @@ services:
     image: ghcr.io/oiy-ai/learnify
     container_name: learnify
     ports:
-      - '${PORT:-80}:3010'
+      - '${PORT:-80}:80'
     volumes:
       # custom configurations
-      - ${UPLOAD_LOCATION}:/root/.affine/storage
-      - ${CONFIG_LOCATION}:/root/.affine/config
+      - ${UPLOAD_LOCATION}:/root/.learnify/storage
+      - ${CONFIG_LOCATION}:/root/.learnify/config
     env_file:
       - .env
     environment:
@@ -19,5 +19,4 @@ services:
       - REDIS_SERVER_DATABASE=${REDIS_DATABASE}
       - REDIS_SERVER_TLS=${REDIS_TLS}
       - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_URL}:${DB_PORT}/${DB_DATABASE}
-      - AFFINE_INDEXER_ENABLED=false
     restart: unless-stopped

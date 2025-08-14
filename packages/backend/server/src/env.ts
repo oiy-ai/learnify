@@ -56,7 +56,7 @@ export type AppEnv = {
 };
 
 globalThis.CLS_REQUEST_HOST = 'CLS_REQUEST_HOST';
-globalThis.CUSTOM_CONFIG_PATH = join(homedir(), '.affine/config');
+globalThis.CUSTOM_CONFIG_PATH = join(homedir(), '.learnify/config');
 globalThis.readEnv = function readEnv<T>(
   env: string,
   defaultValue: T,

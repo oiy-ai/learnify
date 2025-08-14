@@ -215,7 +215,7 @@ export function defineModuleConfig<T extends keyof AppConfigSchema>(
 
 const CONFIG_JSON_PATHS = [
   join(env.projectRoot, 'config.json'),
-  `${homedir()}/.affine/config/config.json`,
+  `${homedir()}/.learnify/config/config.json`,
 ];
 function readConfigJSONOverrides(path: string) {
   const overrides: DeepPartial<AppConfig> = {};

@@ -61,7 +61,7 @@ Default to be \`[server.protocol]://[server.host][:server.port]\` if not specifi
   },
   port: {
     desc: 'Which port the server will listen on.',
-    default: 3010,
+    default: 80,
     env: ['AFFINE_SERVER_PORT', 'integer'],
   },
   path: {

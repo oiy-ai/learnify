@@ -51,7 +51,7 @@ graphql:
 sync:
   service:
     type: ClusterIP
-    port: 3010
+    port: 80
     annotations:
       cloud.google.com/backend-config: '{"default": "learnify-api-backendconfig"}'
 
