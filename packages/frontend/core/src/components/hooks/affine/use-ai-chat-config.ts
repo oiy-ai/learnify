@@ -2,7 +2,7 @@
 import { AINetworkSearchService } from '@affine/core/modules/ai-button/services/network-search';
 import { AIPlaygroundService } from '@affine/core/modules/ai-button/services/playground';
 import { AIReasoningService } from '@affine/core/modules/ai-button/services/reasoning';
-import { CollectionService } from '@affine/core/modules/collection';
+// import { CollectionService } from '@affine/core/modules/collection';
 import { DocsService } from '@affine/core/modules/doc';
 import { DocDisplayMetaService } from '@affine/core/modules/doc-display-meta';
 import { DocsSearchService } from '@affine/core/modules/docs-search';
@@ -15,6 +15,7 @@ import {
 import { TagService } from '@affine/core/modules/tag';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { createSignalFromObservable } from '@blocksuite/affine/shared/utils';
+import { Signal } from '@preact/signals-core';
 import { useFramework } from '@toeverything/infra';
 
 export function useAIChatConfig() {
@@ -28,7 +29,7 @@ export function useAIChatConfig() {
   const searchMenuService = framework.get(SearchMenuService);
   const docsSearchService = framework.get(DocsSearchService);
   const tagService = framework.get(TagService);
-  const collectionService = framework.get(CollectionService);
+  // const collectionService = framework.get(CollectionService);
   const docsService = framework.get(DocsService);
 
   const networkSearchConfig = {
@@ -87,13 +88,18 @@ export function useAIChatConfig() {
       return tag$.value?.pageIds$.value ?? [];
     },
     getCollections: () => {
-      const collectionMetas$ = collectionService.collectionMetas$;
-      return createSignalFromObservable(collectionMetas$, []);
+      // Return empty collections to hide them from AI Chat
+      const emptySignal = new Signal<{ id: string; name: string }[]>([]);
+      return {
+        signal: emptySignal,
+        cleanup: () => {
+          // No cleanup needed for static empty signal
+        },
+      };
     },
-    getCollectionPageIds: (collectionId: string) => {
-      const collection$ = collectionService.collection$(collectionId);
-      // TODO: lack of documents that meet the collection rules
-      return collection$?.value?.info$.value.allowList ?? [];
+    getCollectionPageIds: (_collectionId: string) => {
+      // Return empty array for collection page IDs
+      return [];
     },
   };
 
@@ -113,15 +119,15 @@ export function useAIChatConfig() {
       return searchMenuService.getTagMenuGroup(query, action, abortSignal);
     },
     getCollectionMenuGroup: (
-      query: string,
-      action: SearchCollectionMenuAction,
-      abortSignal: AbortSignal
+      _query: string,
+      _action: SearchCollectionMenuAction,
+      _abortSignal: AbortSignal
     ) => {
-      return searchMenuService.getCollectionMenuGroup(
-        query,
-        action,
-        abortSignal
-      );
+      // Return empty collection menu group to hide collections from AI Chat
+      return {
+        name: 'collections',
+        items: new Signal([]),
+      };
     },
   };
 
