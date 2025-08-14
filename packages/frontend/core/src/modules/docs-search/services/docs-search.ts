@@ -44,7 +44,9 @@ export class DocsSearchService extends Service {
       )
       .pipe(
         map(({ nodes }) => {
-          return nodes.map(node => node.id);
+          return nodes
+            .map(node => node.id)
+            .filter(id => id !== 'learnify-list-of-materials');
         })
       );
   }
@@ -120,6 +122,11 @@ export class DocsSearchService extends Service {
           const result = [];
 
           for (const bucket of buckets) {
+            // Filter out Learnify Materials document
+            if (bucket.key === 'learnify-list-of-materials') {
+              continue;
+            }
+
             const firstMatchFlavour = bucket.hits.nodes[0]?.fields.flavour;
             if (firstMatchFlavour === 'affine:page') {
               // is title match

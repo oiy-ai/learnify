@@ -71,7 +71,9 @@ export class DocsStore extends Store {
       switchMap(yjsObserve),
       map(meta => {
         if (meta instanceof YArray) {
-          return meta.map(v => v.get('id') as string);
+          return meta
+            .map(v => v.get('id') as string)
+            .filter(id => id !== 'learnify-list-of-materials');
         } else {
           return [];
         }
@@ -171,7 +173,8 @@ export class DocsStore extends Store {
         if (meta instanceof YArray) {
           return meta
             .map(v => (v.get('trash') ? null : v.get('id')))
-            .filter(Boolean) as string[];
+            .filter(Boolean)
+            .filter(id => id !== 'learnify-list-of-materials') as string[];
         } else {
           return [];
         }

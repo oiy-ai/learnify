@@ -70,6 +70,7 @@ export class SearchMenuService extends Service {
     return {
       name: I18n.t('com.affine.editor.at-menu.recent-docs'),
       items: recentDocs
+        .filter(doc => doc.id !== 'learnify-list-of-materials')
         .map(doc => {
           const meta = rawMetas.find(meta => meta.id === doc.id);
           if (!meta) {
@@ -180,21 +181,23 @@ export class SearchMenuService extends Service {
       )
       .pipe(
         map(({ nodes }) =>
-          nodes.map(node => {
-            const id =
-              typeof node.fields.docId === 'string'
-                ? node.fields.docId
-                : node.fields.docId[0];
-            const title =
-              typeof node.fields.title === 'string'
-                ? node.fields.title
-                : node.fields.title[0];
-            return {
-              id,
-              title,
-              highlights: node.highlights?.title?.[0],
-            };
-          })
+          nodes
+            .map(node => {
+              const id =
+                typeof node.fields.docId === 'string'
+                  ? node.fields.docId
+                  : node.fields.docId[0];
+              const title =
+                typeof node.fields.title === 'string'
+                  ? node.fields.title
+                  : node.fields.title[0];
+              return {
+                id,
+                title,
+                highlights: node.highlights?.title?.[0],
+              };
+            })
+            .filter(doc => doc.id !== 'learnify-list-of-materials')
         )
       );
   }

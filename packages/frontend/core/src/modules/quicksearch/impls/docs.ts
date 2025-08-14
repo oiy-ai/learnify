@@ -110,7 +110,8 @@ export class DocsQuickSearchSession
                 return [doc, docRecord] as const;
               })
               .filter(
-                (props): props is [(typeof props)[0], DocRecord] => !!props[1]
+                (props): props is [(typeof props)[0], DocRecord] =>
+                  !!props[1] && props[0].docId !== 'learnify-list-of-materials'
               )
               .map(([doc, docRecord]) => {
                 const { title, icon, updatedDate } =
