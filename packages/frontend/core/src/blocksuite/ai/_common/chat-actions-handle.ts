@@ -20,7 +20,7 @@ import {
   DocModeProvider,
   EditPropsStore,
   NotificationProvider,
-  TelemetryProvider,
+  // TelemetryProvider,
 } from '@blocksuite/affine/shared/services';
 import {
   type BlockComponent,
@@ -32,7 +32,7 @@ import {
 import { GfxControllerIdentifier } from '@blocksuite/affine/std/gfx';
 import type { Store } from '@blocksuite/affine/store';
 import {
-  BlockIcon,
+  // BlockIcon,
   EdgelessIcon,
   InsertBleowIcon as InsertBelowIcon,
   LinkedPageIcon,
@@ -145,48 +145,6 @@ function getViewportCenter(mode: DocMode, std: BlockStdScope) {
   }
 
   return center;
-}
-
-// Add AI chat block and focus on it
-function addAIChatBlock(
-  host: EditorHost,
-  messages: ChatMessage[],
-  sessionId: string,
-  viewportCenter: { x: number; y: number },
-  index: string
-) {
-  if (!messages.length || !sessionId) {
-    return;
-  }
-
-  const { store } = host;
-  const surfaceBlock = store
-    .getAllModels()
-    .find(block => block.flavour === 'affine:surface');
-  if (!surfaceBlock) {
-    return;
-  }
-
-  // Add AI chat block to the center of the viewport
-  const width = 300; // AI_CHAT_BLOCK_WIDTH = 300
-  const height = 320; // AI_CHAT_BLOCK_HEIGHT = 320
-  const x = viewportCenter.x - width / 2;
-  const y = viewportCenter.y - height / 2;
-  const bound = new Bound(x, y, width, height);
-  const aiChatBlockId = store.addBlock(
-    'affine:embed-ai-chat',
-    {
-      xywh: bound.serialize(),
-      messages: JSON.stringify(messages),
-      index,
-      sessionId,
-      rootWorkspaceId: store.workspace.id,
-      rootDocId: store.id,
-    },
-    surfaceBlock.id
-  );
-
-  return aiChatBlockId;
 }
 
 export function promptDocTitle(host: EditorHost, autofill?: string) {
@@ -330,101 +288,6 @@ export const EDGELESS_INSERT = {
     }
 
     return insertBelowBlock(host, content, block);
-  },
-};
-
-const SAVE_AS_BLOCK: ChatAction = {
-  icon: BlockIcon({ width: '20px', height: '20px' }),
-  title: 'Save as block',
-  toast: 'Successfully saved chat to a block',
-  showWhen: (host: EditorHost) => {
-    if (host.std.store.readonly$.value) {
-      return false;
-    }
-    return true;
-  },
-  handler: async (
-    host: EditorHost,
-    _,
-    __,
-    chatSessionId?: string,
-    messageId?: string
-  ) => {
-    // The chat session id and the latest message id are required to fork the chat session
-    const parentSessionId = chatSessionId;
-    if (!messageId || !parentSessionId) {
-      return false;
-    }
-
-    const notificationService = host.std.getOptional(NotificationProvider);
-    const docModeService = host.std.get(DocModeProvider);
-    const layer = host.std.get(GfxControllerIdentifier).layer;
-    const curMode = docModeService.getEditorMode() || 'page';
-    const viewportCenter = getViewportCenter(curMode, host.std);
-    const newBlockIndex = layer.generateIndex();
-    // If current mode is not edgeless, switch to edgeless mode first
-    if (curMode !== 'edgeless') {
-      // Set mode to edgeless
-      docModeService.setEditorMode('edgeless' as DocMode);
-      // Notify user to switch to edgeless mode
-      notificationService?.notify({
-        title: 'Save chat to a block',
-        accent: 'info',
-        message:
-          'This feature is not available in the page editor. Switch to edgeless mode.',
-        onClose: function (): void {},
-      });
-    }
-
-    try {
-      const newSessionId = await AIProvider.forkChat?.({
-        workspaceId: host.store.workspace.id,
-        docId: host.store.id,
-        sessionId: parentSessionId,
-        latestMessageId: messageId,
-      });
-
-      if (!newSessionId) {
-        return false;
-      }
-
-      // Get messages before the latest message
-      const messages = await constructRootChatBlockMessages(
-        host.store,
-        newSessionId
-      );
-
-      // After switching to edgeless mode, the user can save the chat to a block
-      const blockId = addAIChatBlock(
-        host,
-        messages,
-        newSessionId,
-        viewportCenter,
-        newBlockIndex
-      );
-      if (!blockId) {
-        return false;
-      }
-
-      const telemetryService = host.std.getOptional(TelemetryProvider);
-      telemetryService?.track('CanvasElementAdded', {
-        control: 'manually save',
-        page: 'whiteboard editor',
-        module: 'ai chat panel',
-        segment: 'right sidebar',
-        type: 'chat block',
-        category: 'root',
-      });
-      return true;
-    } catch (err) {
-      console.error(err);
-      notificationService?.notify({
-        title: 'Failed to save chat to a block',
-        accent: 'error',
-        onClose: function (): void {},
-      });
-      return false;
-    }
   },
 };
 
