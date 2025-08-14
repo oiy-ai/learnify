@@ -28,8 +28,8 @@ export const Footer = () => {
             <td key={platform} style={{ padding: '0 10px' }}>
               <Link href={`https://learnify.oiy.ai/${platform.toLowerCase()}`}>
                 <Img
-                  src={`https://cdn.affine.pro/mail/2023-8-9/${platform}.png`}
-                  alt={`affine ${platform.toLowerCase()} link`}
+                  src={`https://cdn.jsdelivr.net/gh/a1exsun/file@main/learnify/mail/${platform.toLowerCase()}.png`}
+                  alt={`learnify ${platform.toLowerCase()} link`}
                   height="16px"
                 />
               </Link>
