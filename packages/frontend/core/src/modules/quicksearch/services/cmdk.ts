@@ -3,7 +3,7 @@ import { Service } from '@toeverything/infra';
 
 import type { DocsService } from '../../doc';
 import type { WorkbenchService } from '../../workbench';
-import { CollectionsQuickSearchSession } from '../impls/collections';
+// import { CollectionsQuickSearchSession } from '../impls/collections';
 import { CommandsQuickSearchSession } from '../impls/commands';
 import { CreationQuickSearchSession } from '../impls/creation';
 import { DocsQuickSearchSession } from '../impls/docs';
@@ -28,7 +28,7 @@ export class CMDKQuickSearchService extends Service {
       this.quickSearchService.quickSearch.show(
         [
           this.framework.createEntity(RecentDocsQuickSearchSession),
-          this.framework.createEntity(CollectionsQuickSearchSession),
+          // this.framework.createEntity(CollectionsQuickSearchSession),
           this.framework.createEntity(CommandsQuickSearchSession),
           this.framework.createEntity(CreationQuickSearchSession),
           this.framework.createEntity(DocsQuickSearchSession),
