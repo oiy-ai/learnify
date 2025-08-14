@@ -151,7 +151,7 @@ export class ChatInputPreference extends SignalWatcher(
       data-testid="chat-input-preference-trigger"
       class="chat-input-preference-trigger"
     >
-      <span class="chat-input-preference-trigger-label"> Claude </span>
+      <span class="chat-input-preference-trigger-label"> Tools </span>
       <span class="chat-input-preference-trigger-icon">
         ${ArrowDownSmallIcon()}
       </span>
