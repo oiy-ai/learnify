@@ -17,7 +17,7 @@ import { repeat } from 'lit/directives/repeat.js';
 import { debounce } from 'lodash-es';
 
 import { AffineIcon } from '../../_common/icons';
-import { AIPreloadConfig } from '../../chat-panel/preload-config';
+// import { AIPreloadConfig } from '../../chat-panel/preload-config';
 import { type AIError, AIProvider, UnauthorizedError } from '../../provider';
 import { mergeStreamObjects } from '../../utils/stream-objects';
 import type { DocDisplayConfig } from '../ai-chat-chips';
@@ -235,24 +235,7 @@ export class AIChatMessages extends WithDisposable(ShadowlessElement) {
   }
 
   private _renderAIOnboarding() {
-    return this.isHistoryLoading
-      ? nothing
-      : html`<div class="onboarding-wrapper" data-testid="ai-onboarding">
-          ${repeat(
-            AIPreloadConfig,
-            config => config.text,
-            config => {
-              return html`<div
-                data-testid=${config.testId}
-                @click=${() => config.handler()}
-                class="onboarding-item"
-              >
-                <div class="onboarding-item-icon">${config.icon}</div>
-                <div class="onboarding-item-text">${config.text}</div>
-              </div>`;
-            }
-          )}
-        </div>`;
+    return this.isHistoryLoading ? nothing : html`<div />`;
   }
 
   private readonly _onScroll = () => {
