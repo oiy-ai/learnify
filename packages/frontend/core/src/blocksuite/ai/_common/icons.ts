@@ -11,7 +11,7 @@ export const AIStarIconWithAnimation = html`<dotlottie-player
   autoplay
 ></dotlottie-player>`;
 
-export const AffineIcon = (color: string) =>
+export const AffineIcon = (_color: string) =>
   html`<svg
     width="63"
     height="63"
