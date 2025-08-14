@@ -20,7 +20,7 @@ import * as dialogStyles from './upload-dialog.css';
 interface UploadButtonProps {
   className?: string;
   style?: React.CSSProperties;
-   
+
   onUpload?: (files: FileList) => Promise<void> | void;
 }
 
@@ -43,6 +43,21 @@ export function UploadButton({
         if (files && files.length > 0) {
           // Store files in workspace blob storage
           for (const file of files) {
+            // Check file size (2MB limit)
+            const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+            if (file.size > MAX_FILE_SIZE) {
+              const errorMessage =
+                t['com.learnify.upload.file-too-large']?.() ||
+                'Large volume material support is still under development';
+              notify.error({
+                title:
+                  t['com.learnify.upload.file-size-error']?.() ||
+                  'File Size Error',
+                message: errorMessage,
+              });
+              continue; // Skip this file and continue with others
+            }
+
             // Generate unique blob ID
             const blobId = `learnify-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
@@ -89,7 +104,7 @@ export function UploadButton({
         setOpen(false);
       }
     },
-    [onUpload, workspace, materialsService]
+    [onUpload, workspace, materialsService, t]
   );
 
   return (

@@ -2306,5 +2306,7 @@
   "error.COMMENT_NOT_FOUND": "未找到评论。",
   "error.REPLY_NOT_FOUND": "未找到回复。",
   "error.COMMENT_ATTACHMENT_NOT_FOUND": "未找到评论附件。",
-  "error.COMMENT_ATTACHMENT_QUOTA_EXCEEDED": "您已超出评论附件的大小限制。"
+  "error.COMMENT_ATTACHMENT_QUOTA_EXCEEDED": "您已超出评论附件的大小限制。",
+  "com.learnify.upload.file-too-large": "大体积的材料的支持功能仍在开发中",
+  "com.learnify.upload.file-size-error": "文件大小错误"
 }
