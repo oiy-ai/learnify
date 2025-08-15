@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Containers
+name: Deploy to Cloudflare Pages
 
 on:
   workflow_call:
@@ -6,7 +6,7 @@ on:
       flavor:
         type: string
         required: true
-        description: 'The flavor to deploy (canary, beta)'
+        description: 'The flavor to deploy (canary, beta, stable)'
   workflow_dispatch:
     inputs:
       flavor:
@@ -16,63 +16,59 @@ on:
         options:
           - canary
           - beta
+          - stable
 
 permissions:
   contents: 'read'
   id-token: 'write'
+  packages: 'read'
 
 jobs:
   deploy:
-    name: Deploy to Cloudflare Containers
+    name: Deploy to Cloudflare Pages
     runs-on: ubuntu-latest
     steps:
-      - name: Set up environment variables
-        run: |
-          echo "RELEASE_FLAVOR=${{ inputs.flavor }}" >> "$GITHUB_ENV"
-          echo "CF_ACCOUNT_ID=${{ secrets.CF_ACCOUNT_ID }}" >> "$GITHUB_ENV"
-          echo "CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}" >> "$GITHUB_ENV"
-
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up environment variables
+        run: |
+          echo "RELEASE_FLAVOR=${{ inputs.flavor }}" >> "$GITHUB_ENV"
+          echo "CLOUDFLARE_PROJECT_NAME=learnify" >> "$GITHUB_ENV"
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          node-version-file: '.nvmrc'
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Wrangler
-        run: npm install -g wrangler@latest
+      - name: Download web build from latest workflow
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.flavor }}
+          name: web
+          path: ./dist
 
-      - name: Configure Wrangler
+      - name: Create _redirects file
         run: |
-          # 根据 flavor 设置不同的配置
-          if [ "${{ inputs.flavor }}" = "canary" ]; then
-            echo "Deploying canary version"
-            # 可以在这里添加 canary 特定的配置
-          else
-            echo "Deploying beta version"
-            # 可以在这里添加 beta 特定的配置
-          fi
+          cat > ./dist/_redirects << 'EOF'
+          # Cloudflare Pages redirect rules
+          # Proxy API requests to backend server
+          /api/* https://server1.oiy.ai/api/:splat 200
+          /graphql/* https://server1.oiy.ai/graphql/:splat 200
+          /socket.io/* https://server1.oiy.ai/socket.io/:splat 200
+          EOF
 
-      - name: Deploy to Cloudflare Containers
-        run: |
-          cd .cloudflare
-
-          # 设置 Cloudflare 认证
-          echo "CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}" > .env
-          echo "CF_ACCOUNT_ID=${{ secrets.CF_ACCOUNT_ID }}" >> .env
-
-          # 根据 flavor 选择配置文件
-          if [ "${{ inputs.flavor }}" = "canary" ]; then
-            echo "Deploying canary version using wrangler.canary.toml"
-            wrangler deploy --config wrangler.canary.toml
-          else
-            echo "Deploying beta version using wrangler.beta.toml"
-            wrangler deploy --config wrangler.beta.toml
-          fi
-
-      - name: Verify deployment
-        run: |
-          echo "Deployment completed! Checking service status..."
-          # 这里可以添加验证部署状态的命令
-          # 例如检查容器是否正常运行等
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ env.CLOUDFLARE_PROJECT_NAME }}
+          directory: ./dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ inputs.flavor }}
+          wranglerVersion: '3'
