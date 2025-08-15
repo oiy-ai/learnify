@@ -43,12 +43,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download web build from latest workflow
-        uses: dawidd6/action-download-artifact@v3
+      - name: Download web build artifact
+        uses: actions/download-artifact@v4
         with:
-          workflow: build.yml
-          workflow_conclusion: success
-          branch: ${{ inputs.flavor }}
           name: web
           path: ./dist
 
