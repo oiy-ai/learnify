@@ -57,6 +57,18 @@ jobs:
           name: web
           path: ./packages/frontend/apps/web/dist
           if-no-files-found: error
+
+  deploy-cloudflare-pages:
+    name: Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    needs: build-web
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download web artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web
+          path: ./packages/frontend/apps/web/dist
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
