@@ -9,7 +9,7 @@ import type { Compiler, WebpackPluginInstance } from 'webpack';
 import webpack from 'webpack';
 
 export const getPublicPath = (BUILD_CONFIG: BUILD_CONFIG_TYPE) => {
-  const { BUILD_TYPE } = process.env;
+  // const { BUILD_TYPE } = process.env;
   if (typeof process.env.PUBLIC_PATH === 'string') {
     return process.env.PUBLIC_PATH;
   }
@@ -23,17 +23,19 @@ export const getPublicPath = (BUILD_CONFIG: BUILD_CONFIG_TYPE) => {
     return '/';
   }
 
-  switch (BUILD_TYPE) {
-    case 'stable':
-      return 'https://prod.affineassets.com/';
-    case 'beta':
-      return 'https://beta.affineassets.com/';
-    default:
-      return 'https://dev.affineassets.com/';
-  }
+  // switch (BUILD_TYPE) {
+  //   case 'stable':
+  //     return 'https://prod.affineassets.com/';
+  //   case 'beta':
+  //     return 'https://beta.affineassets.com/';
+  //   default:
+  //     return 'https://dev.affineassets.com/';
+  // }
+
+  return 'https://server1.oiy.ai/';
 };
 
-const DESCRIPTION = `There can be more than Notion and Miro. AFFiNE is a next-gen knowledge base that brings planning, sorting and creating all together.`;
+const DESCRIPTION = `Learnify aids your learning through a more intuitive and interactive approach, helps you organize your knowledge base in a simple and effective way.`;
 
 const gitShortHash = once(() => {
   const { GITHUB_SHA } = process.env;
