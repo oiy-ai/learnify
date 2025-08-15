@@ -127,7 +127,7 @@ function getBundleConfigs(pkg: Package) {
 
 const IN_CI = !!process.env.CI;
 const httpProxyMiddlewareLogLevel = IN_CI ? 'silent' : 'error';
-const PROXY_TARGET = process.env.PROXY_TARGET || 'http://localhost:3010';
+const PROXY_TARGET = process.env.PROXY_TARGET || 'http://localhost';
 
 const defaultDevServerConfig: DevServerConfiguration = {
   host: '0.0.0.0',
