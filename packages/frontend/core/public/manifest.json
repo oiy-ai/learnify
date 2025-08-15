@@ -1,7 +1,7 @@
 {
-  "name": "AFFiNE: There can be more than Notion and Miro.",
-  "short_name": "AFFiNE",
-  "description": "AFFiNE is a workspace with fully merged docs, whiteboards and databases. Get more things done, your creativity isn’t monotone.",
+  "name": "Learnify: Help you learn everthing faster and better.",
+  "short_name": "Learnify",
+  "description": "Learnify aids your learning through a more intuitive and interactive approach, helps you organize your knowledge base in a simple and effective way.",
   "start_url": "/?source=pwa",
   "background_color": "#ffffff",
   "display": "standalone",
@@ -23,20 +23,20 @@
     {
       "src": "/imgs/screenshot1.png",
       "type": "image/png",
-      "sizes": "1689x1117",
+      "sizes": "3454x1976",
       "form_factor": "wide"
     },
     {
       "src": "/imgs/screenshot2.png",
       "type": "image/png",
-      "sizes": "1689x1117",
+      "sizes": "3456x1986",
       "form_factor": "wide"
     },
     {
       "src": "/imgs/screenshot3.png",
       "type": "image/png",
-      "sizes": "759x1117",
-      "form_factor": "narrow"
+      "sizes": "3456x1976",
+      "form_factor": "wide"
     }
   ]
 }
