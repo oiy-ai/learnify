@@ -57,6 +57,16 @@ jobs:
           name: web
           path: ./packages/frontend/apps/web/dist
           if-no-files-found: error
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
+          directory: ./packages/frontend/apps/web/dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ inputs.build-type }}
+          wranglerVersion: '3'
 
   build-admin:
     name: Build @learnify/admin
