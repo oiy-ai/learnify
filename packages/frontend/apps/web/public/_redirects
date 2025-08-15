@@ -1,0 +1,5 @@
+# Cloudflare Pages redirect rules
+# Proxy API requests to backend server
+/api/* https://server1.oiy.ai/api/:splat 200
+/graphql/* https://server1.oiy.ai/graphql/:splat 200
+/socket.io/* https://server1.oiy.ai/socket.io/:splat 200
