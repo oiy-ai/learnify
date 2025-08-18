@@ -47,6 +47,50 @@ export const MaterialCreationDialog = ({
   close,
 }: DialogComponentProps<WORKSPACE_DIALOG_SCHEMA['material-creation']>) => {
   const t = useI18n();
+  const currentLanguage = t.language;
+
+  // Helper to get language name for AI prompts
+  const getLanguageName = useCallback((langCode: string) => {
+    const languageMap: Record<string, string> = {
+      en: 'English',
+      'zh-Hans': 'Chinese (Simplified)',
+      'zh-Hant': 'Chinese (Traditional)',
+      ja: 'Japanese',
+      ko: 'Korean',
+      fr: 'French',
+      de: 'German',
+      es: 'Spanish',
+      'pt-BR': 'Portuguese (Brazilian)',
+      ru: 'Russian',
+      it: 'Italian',
+      ar: 'Arabic',
+      hi: 'Hindi',
+      th: 'Thai',
+      vi: 'Vietnamese',
+      id: 'Indonesian',
+      tr: 'Turkish',
+      pl: 'Polish',
+      uk: 'Ukrainian',
+      cs: 'Czech',
+      da: 'Danish',
+      el: 'Greek',
+      fi: 'Finnish',
+      he: 'Hebrew',
+      hu: 'Hungarian',
+      nl: 'Dutch',
+      no: 'Norwegian',
+      ro: 'Romanian',
+      sv: 'Swedish',
+      sk: 'Slovak',
+      sl: 'Slovenian',
+      ur: 'Urdu',
+      ca: 'Catalan',
+    };
+    return languageMap[langCode] || 'English';
+  }, []);
+
+  const languageName = getLanguageName(currentLanguage);
+
   const materialsService = useService(MaterialsDocService);
   const workspaceService = useService(WorkspaceService);
   const workbenchService = useService(WorkbenchService);
@@ -233,7 +277,7 @@ export const MaterialCreationDialog = ({
       materials: MaterialItem[]
     ): Promise<{ prompt: string; attachments: Blob[] }> => {
       const promptParts: string[] = [
-        'Please summarize the following materials into comprehensive notes:\n',
+        `Please summarize the following materials into comprehensive notes in ${languageName} language:\n`,
       ];
       const attachments: Blob[] = [];
 
@@ -267,18 +311,23 @@ export const MaterialCreationDialog = ({
         }
       }
 
-      promptParts.push('\nPlease create well-structured notes with:');
-      promptParts.push('- A clear title');
+      promptParts.push(
+        `\nPlease create well-structured notes in ${languageName} with:`
+      );
+      promptParts.push(`- A clear title in ${languageName}`);
       promptParts.push('- Main concepts and key points');
       promptParts.push('- Important details from each material');
       promptParts.push('- A summary section');
+      promptParts.push(
+        `\nIMPORTANT: All content must be written in ${languageName}.`
+      );
 
       return {
         prompt: promptParts.join('\n'),
         attachments,
       };
     },
-    [getMaterialContent]
+    [getMaterialContent, languageName]
   );
 
   // Process AI response for mindmap
@@ -461,10 +510,13 @@ export const MaterialCreationDialog = ({
 
 Create a comprehensive mind map structure.
 
+IMPORTANT: Generate ALL content in ${languageName} language.
+
 MANDATORY REQUIREMENTS:
 - Minimum 30 nodes (non-negotiable)
 - At least 4 hierarchy levels deep
 - Concise node text (3-6 words each)
+- ALL node text must be in ${languageName}
 
 JSON format:
 {
@@ -481,7 +533,7 @@ JSON format:
   ]
 }
 
-Output ONLY valid JSON.`;
+Output ONLY valid JSON. All text content must be in ${languageName}.`;
 
         // Log the prompt being sent
         console.log('[Mindmap Generation] Sending prompt to AI:', {
@@ -644,6 +696,7 @@ Output ONLY valid JSON.`;
       docsService,
       updateProgress,
       t,
+      languageName,
     ]
   );
 
@@ -653,7 +706,7 @@ Output ONLY valid JSON.`;
       materials: MaterialItem[]
     ): Promise<{ prompt: string; attachments: Blob[] }> => {
       const promptParts: string[] = [
-        'Please create EXACTLY 10 flashcards from the following materials. Return them as a JSON array where each item has this structure:\n',
+        `Please create EXACTLY 10 flashcards from the following materials in ${languageName} language. Return them as a JSON array where each item has this structure:\n`,
       ];
       const attachments: Blob[] = [];
 
@@ -726,7 +779,10 @@ Output ONLY valid JSON.`;
       promptParts.push('6. Make questions clear and answers comprehensive');
       promptParts.push('7. Cover different aspects of the material');
       promptParts.push(
-        '\nReturn ONLY the JSON array, no other text or formatting.'
+        `8. ALL questions, answers, and options must be in ${languageName}`
+      );
+      promptParts.push(
+        `\nReturn ONLY the JSON array in ${languageName}, no other text or formatting.`
       );
 
       return {
@@ -734,7 +790,7 @@ Output ONLY valid JSON.`;
         attachments,
       };
     },
-    [getMaterialContent]
+    [getMaterialContent, languageName]
   );
 
   // Process AI streaming response
