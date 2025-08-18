@@ -25,7 +25,7 @@ export const TemplateDocSetting = () => {
 
   const enablePageTemplate = useLiveData(setting.enablePageTemplate$);
   const pageTemplateDocId = useLiveData(setting.pageTemplateDocId$);
-  const journalTemplateDocId = useLiveData(setting.journalTemplateDocId$);
+  // const journalTemplateDocId = useLiveData(setting.journalTemplateDocId$);
 
   const togglePageTemplate = useCallback(
     (enable: boolean) => {
@@ -41,25 +41,15 @@ export const TemplateDocSetting = () => {
     [setting]
   );
 
-  const updateJournalTemplate = useCallback(
-    (id?: string) => {
-      setting.updateJournalTemplateDocId(id);
-    },
-    [setting]
-  );
+  // const updateJournalTemplate = useCallback(
+  //   (id?: string) => {
+  //     setting.updateJournalTemplateDocId(id);
+  //   },
+  //   [setting]
+  // );
 
   return (
     <SettingWrapper title={t['com.affine.settings.workspace.template.title']()}>
-      <SettingRow
-        name={t['com.affine.settings.workspace.template.journal']()}
-        desc={t['com.affine.settings.workspace.template.journal-desc']()}
-      >
-        <TemplateSelector
-          testId="journal-template-selector"
-          current={journalTemplateDocId}
-          onChange={updateJournalTemplate}
-        />
-      </SettingRow>
       <SettingRow
         name={t['com.affine.settings.workspace.template.page']()}
         desc={t['com.affine.settings.workspace.template.page-desc']()}
