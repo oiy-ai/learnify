@@ -2,12 +2,10 @@
 
 [![Image](https://github.com/user-attachments/assets/b240fa63-dc21-4850-a207-494b4ea31552)](https://learnify.oiy.ai/)
 
-## Getting started & Join our community
+## Getting started
 
-🌐 Try it online: [learnify.oiy.ai](https://learnify.oiy.ai)
-💻 Self-host it: [Self-hosting Guide](https://github.com/oiy-ai/learnify/self-hosting)
-
-[![Discord](https://img.shields.io/badge/Discord-Join%20our%20community-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/VT9cZspW)
+🌐 Try Learnify online: [learnify.oiy.ai](https://learnify.oiy.ai)
+💻 Self-host Learnify: [Self-hosting Guide](https://github.com/oiy-ai/learnify/self-hosting)
 
 ## 📚 What is Learnify
 
@@ -25,45 +23,52 @@ Not like those AI cheating tools, **Learnify** fully disagrees with the idea of 
 
 **Learnify** is fully open-sourced, with powerful self-hosting capabilities.
 
-## ✨ Key Features
-
-材料管理（上传、预览、下载）
-
-AI生成
-
-思维导图
-
-笔记
-
-闪回卡
-
-AI导师
-
-📕 Material Management
-
-📗 Upload, Preview, Download study materials
-
-📘 Supports various file types for flexible learning
-
 ![Image](https://github.com/user-attachments/assets/4dfba16c-5148-4feb-b009-3cb40c58d717)
 
-### 🤖 AI-Powered Learning
+## ✨ Key Features
 
-- AI-Generated Notes from your materials
+### 📕 Material Management
 
-- Mind Maps for visualizing key concepts
+- Supports multiple file formats: PDF, DOCX, images, TXT (more coming)
+- Upload, preview, and download in one place
+- Seamless handoff to Mind Map, Notes, and Flashcards
 
-- Flashcards for quick recall and spaced repetition
+### 📘 Mind Map
 
-- AI Chat for interactive Q&A, study assistance, and explanations
+- AI-generated structured mind maps
+- Editable nodes with freeform canvas controls
+- Great for clarifying key concepts and building learning paths
 
-- AI Study Mode with RAG (Retrieval-Augmented Generation) and embeddings for context-aware responses
+### 📓 Notes
 
-![Image](https://github.com/user-attachments/assets/ffac75c5-d324-4681-a3bf-dc3c870229eb)
+- Auto-generate concise notes from your materials
+- Edit, refine, and regenerate when needed
+- Linked with Mind Maps and Flashcards
 
-## Self Hosting
+### 📙 Flashcards
+
+- Optimized for quick recall and spaced repetition
+- Supported: single choice, short answer; more types (e.g., multiple choice) coming soon
+
+### 🎙️ Podcast
+
+- Coming soon: one-click join for real-time conversation
+- Configurable host persona, number of speakers, speaking speed, and duration
+
+### 📖 AI Tutor
+
+- Interactive Q&A, explanations, and study assistance
+- Study Mode for step-by-step learning guidance
+
+### Self Hosting
+
+- Deploy Learnify with simple Docker commands
+- Run fully locally
+- Keep your personal data safe and private
 
 ## Roadmap
+
+![Image](https://github.com/user-attachments/assets/ffac75c5-d324-4681-a3bf-dc3c870229eb)
 
 ### 🎙️ Podcast Mode (In Development)
 
