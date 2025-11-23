@@ -20,9 +20,14 @@ services:
       MAILER_PASSWORD: ${MAILER_PASSWORD}
       MAILER_SENDER: ${MAILER_SENDER}
       MAILER_IGNORE_TLS: ${MAILER_IGNORE_TLS}
+      NODE_OPTIONS: --dns-result-order=ipv6first
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
 
   redis:
     image: redis
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
 
   indexer:
     image: manticoresearch/manticore:${MANTICORE_VERSION:-10.1.0}
@@ -36,8 +41,14 @@ services:
         hard: -1
     volumes:
       - manticoresearch_data:/var/lib/manticore
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
 
 volumes:
   manticoresearch_data:
   # 新增的 node_modules volume，用于存储容器独立的 node_modules
   node_modules_data:
+
+networks:
+  default:
+    enable_ipv6: true
