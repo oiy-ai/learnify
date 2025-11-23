@@ -3,18 +3,14 @@ networks:
   default:
     enable_ipv6: true
 services:
-  learnify:
+  learnify_migration:
     image: ghcr.io/oiy-ai/learnify
-    container_name: learnify
-    ports:
-      - '3010:80'
-    depends_on:
-      redis:
-        condition: service_healthy
+    container_name: learnify_migration_job
     volumes:
       # Custom configurations - paths loaded from .env
       - ${UPLOAD_LOCATION}:/root/.learnify/storage
       - ${CONFIG_LOCATION}:/root/.learnify/config
+    command: ['sh', '-c', 'node ./scripts/self-host-predeploy.js']
     environment:
       # Application configuration
       - AFFINE_REVISION=${AFFINE_REVISION}
@@ -44,7 +40,9 @@ services:
       # Node.js configuration (IPv6 for Supabase)
       - NODE_OPTIONS=${NODE_OPTIONS}
       - UV_THREADPOOL_SIZE=${UV_THREADPOOL_SIZE}
-    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=0
 
