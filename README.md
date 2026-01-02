@@ -2,6 +2,8 @@
 
 [English](https://github.com/oiy-ai/learnify) | [简体中文](https://github.com/oiy-ai/learnify/blob/main/README-zh_CN.md)
 
+> 📢 **Notice: Apologies to everyone. Due to the author's schedule, the development of Learnify is currently in a semi-stagnant state, and the restart date is to be determined.**
+
 [![Image](https://github.com/user-attachments/assets/b240fa63-dc21-4850-a207-494b4ea31552)](https://learnify.oiy.ai/)
 
 ## Getting started

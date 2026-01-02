@@ -2,6 +2,8 @@
 
 [English](https://github.com/oiy-ai/learnify) | [简体中文](https://github.com/oiy-ai/learnify/blob/main/README-zh_CN.md)
 
+> 📢 **公告：跟各位说声抱歉了，由于作者的时间安排原因，Learnify 的开发工作暂时处于半停滞状态，重启日期待定。**
+
 [![图片](https://github.com/user-attachments/assets/b240fa63-dc21-4850-a207-494b4ea31552)](https://learnify.oiy.ai/)
 
 ## 快速开始
