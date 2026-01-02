@@ -6,12 +6,14 @@ import { track } from '@affine/track';
 import {
   AccountIcon,
   AdminIcon,
+  DeleteIcon,
   NotificationIcon,
   SignOutIcon,
 } from '@blocksuite/icons/rc';
-import { useLiveData, useService } from '@toeverything/infra';
+import { useLiveData, useService, useServices } from '@toeverything/infra';
 import { useCallback, useEffect, useState } from 'react';
 
+import { WorkbenchService } from '../../../modules/workbench';
 import { useSignOut } from '../../hooks/affine/use-sign-out';
 import { NotificationList } from '../../notification/list';
 
@@ -20,6 +22,7 @@ export const AccountMenu = () => {
   const openSignOutModal = useSignOut();
   const serverService = useService(ServerService);
   const userFeatureService = useService(UserFeatureService);
+  const { workbenchService } = useServices({ WorkbenchService });
   const isAFFiNEAdmin = useLiveData(userFeatureService.userFeature.isAdmin$);
   const [notificationListOpen, setNotificationListOpen] = useState(false);
 
@@ -42,6 +45,10 @@ export const AccountMenu = () => {
   const onOpenAdminPanel = useCallback(() => {
     window.open(`${serverService.server.baseUrl}/admin`, '_blank');
   }, [serverService.server.baseUrl]);
+
+  const onOpenTrash = useCallback(() => {
+    workbenchService.workbench.openTrash();
+  }, [workbenchService]);
 
   const t = useI18n();
 
@@ -87,6 +94,13 @@ export const AccountMenu = () => {
           {t['com.affine.workspace.cloud.account.admin']()}
         </MenuItem>
       ) : null}
+      <MenuItem
+        prefixIcon={<DeleteIcon />}
+        data-testid="workspace-modal-trash-option"
+        onClick={onOpenTrash}
+      >
+        {t['com.affine.workspaceSubPath.trash']()}
+      </MenuItem>
       <MenuItem
         prefixIcon={<SignOutIcon />}
         data-testid="workspace-modal-sign-out-option"
