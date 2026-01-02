@@ -4,30 +4,32 @@ import {
   // AppDownloadButton,
   AppSidebar,
   // MenuItem,
-  MenuLinkItem,
+  // MenuLinkItem,
   QuickSearchInput,
   SidebarContainer,
   SidebarScrollableContainer,
 } from '@affine/core/modules/app-sidebar/views';
 // import { ExternalMenuLinkItem } from '@affine/core/modules/app-sidebar/views/menu-item/external-menu-link-item';
-import { AuthService, ServerService } from '@affine/core/modules/cloud';
+import { AuthService /* ServerService */ } from '@affine/core/modules/cloud';
 // import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
-import { FeatureFlagService } from '@affine/core/modules/feature-flag';
+// import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { CMDKQuickSearchService } from '@affine/core/modules/quicksearch/services/cmdk';
 import type { Workspace } from '@affine/core/modules/workspace';
 // import { useI18n } from '@affine/i18n';
 // import { track } from '@affine/track';
 import type { Store } from '@blocksuite/affine/store';
+import {} from // AiOutlineIcon,
+// AllDocsIcon,
+// ImportIcon,
+// JournalIcon,
+// SettingsIcon,
+'@blocksuite/icons/rc';
 import {
-  AiOutlineIcon,
-  // AllDocsIcon,
-  // ImportIcon,
-  // JournalIcon,
-  // SettingsIcon,
-} from '@blocksuite/icons/rc';
-import { useLiveData, useService, useServices } from '@toeverything/infra';
+  useLiveData,
+  /* useService, */ useServices,
+} from '@toeverything/infra';
 import type { ReactElement } from 'react';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 // import {
 //   CollapsibleSection,
@@ -106,32 +108,32 @@ export type RootAppSidebarProps = {
 //   );
 // };
 
-// @ts-expect-error TS6133: AIChatButton is declared but its value is never read
-// eslint-disable-next-line no-unused-vars
-const AIChatButton = () => {
-  const featureFlagService = useService(FeatureFlagService);
-  const serverService = useService(ServerService);
-  const serverFeatures = useLiveData(serverService.server.features$);
-  const enableAI = useLiveData(featureFlagService.flags.enable_ai.$);
+// // @ts-expect-error TS6133: AIChatButton is declared but its value is never read
 
-  const { workbenchService } = useServices({
-    WorkbenchService,
-  });
-  const workbench = workbenchService.workbench;
-  const aiChatActive = useLiveData(
-    workbench.location$.selector(location => location.pathname === '/chat')
-  );
+// const AIChatButton = () => {
+//   const featureFlagService = useService(FeatureFlagService);
+//   const serverService = useService(ServerService);
+//   const serverFeatures = useLiveData(serverService.server.features$);
+//   const enableAI = useLiveData(featureFlagService.flags.enable_ai.$);
 
-  if (!enableAI || !serverFeatures?.copilot) {
-    return null;
-  }
+//   const { workbenchService } = useServices({
+//     WorkbenchService,
+//   });
+//   const workbench = workbenchService.workbench;
+//   const aiChatActive = useLiveData(
+//     workbench.location$.selector(location => location.pathname === '/chat')
+//   );
 
-  return (
-    <MenuLinkItem icon={<AiOutlineIcon />} active={aiChatActive} to={'/chat'}>
-      <span data-testid="ai-chat">Intelligence</span>
-    </MenuLinkItem>
-  );
-};
+//   if (!enableAI || !serverFeatures?.copilot) {
+//     return null;
+//   }
+
+//   return (
+//     <MenuLinkItem icon={<AiOutlineIcon />} active={aiChatActive} to={'/chat'}>
+//       <span data-testid="ai-chat">Intelligence</span>
+//     </MenuLinkItem>
+//   );
+// };
 
 /**
  * This is for the whole affine app sidebar.
@@ -145,6 +147,8 @@ export const RootAppSidebar = memo((): ReactElement => {
     CMDKQuickSearchService,
     AuthService,
   });
+
+  const [sidebarTab, setSidebarTab] = useState('mindmap');
 
   // const sessionStatus = useLiveData(authService.session.status$);
   // const t = useI18n();
@@ -228,12 +232,57 @@ export const RootAppSidebar = memo((): ReactElement => {
         </div>
         {/* <AIChatButton /> */}
         <div className={featurePanelWrapper}>
-          <Tabs.Root defaultValue="mindmap" className={tabsWrapper} triggerMode="hover">
+          <Tabs.Root
+            value={sidebarTab}
+            onValueChange={setSidebarTab}
+            className={tabsWrapper}
+            triggerMode="hover"
+          >
             <Tabs.List className={tabsListCustom}>
-              <Tabs.Trigger value="mindmap">MindMaps</Tabs.Trigger>
-              <Tabs.Trigger value="notes">Notes</Tabs.Trigger>
-              <Tabs.Trigger value="flashcards">Flashcards</Tabs.Trigger>
-              <Tabs.Trigger value="podcasts">Podcasts</Tabs.Trigger>
+              <Tabs.Trigger
+                value="mindmap"
+                onClick={() => {
+                  if (environment.isMobile) return;
+                  if (sidebarTab === 'mindmap') {
+                    workbench.openMindMaps();
+                  }
+                }}
+              >
+                MindMaps
+              </Tabs.Trigger>
+              <Tabs.Trigger
+                value="notes"
+                onClick={() => {
+                  if (environment.isMobile) return;
+                  if (sidebarTab === 'notes') {
+                    workbench.openNotes();
+                  }
+                }}
+              >
+                Notes
+              </Tabs.Trigger>
+              <Tabs.Trigger
+                value="flashcards"
+                onClick={() => {
+                  if (environment.isMobile) return;
+                  if (sidebarTab === 'flashcards') {
+                    workbench.openFlashcards();
+                  }
+                }}
+              >
+                Flashcards
+              </Tabs.Trigger>
+              <Tabs.Trigger
+                value="podcasts"
+                onClick={() => {
+                  if (environment.isMobile) return;
+                  if (sidebarTab === 'podcasts') {
+                    workbench.openPodcasts();
+                  }
+                }}
+              >
+                Podcasts
+              </Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="mindmap" className={tabsContentWrapper}>
               <MindMapsNavigator />

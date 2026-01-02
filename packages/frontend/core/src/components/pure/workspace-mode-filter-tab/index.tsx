@@ -19,8 +19,8 @@ export const WorkspaceModeFilterTab = ({
   const [filterMode, setFilterMode] = useAtom(allPageFilterSelectAtom);
   const workbenchService = useService(WorkbenchService);
   const handleValueChange = useCallback(
-    (value: AllPageFilterOption) => {
-      switch (value) {
+    (v: AllPageFilterOption) => {
+      switch (v) {
         case 'collections':
           workbenchService.workbench.openCollections();
           break;
@@ -34,7 +34,7 @@ export const WorkspaceModeFilterTab = ({
           workbenchService.workbench.openNotes();
           break;
         case 'mind-map':
-          workbenchService.workbench.openMindMap();
+          workbenchService.workbench.openMindMaps();
           break;
         case 'quiz-cards':
           workbenchService.workbench.openQACards();
@@ -48,6 +48,18 @@ export const WorkspaceModeFilterTab = ({
       }
     },
     [workbenchService.workbench]
+  );
+
+  const handleItemClick = useCallback(
+    (v: AllPageFilterOption) => {
+      if (environment.isMobile) {
+        return;
+      }
+      if (v === activeFilter) {
+        handleValueChange(v);
+      }
+    },
+    [activeFilter, handleValueChange]
   );
 
   useEffect(() => {
@@ -87,33 +99,48 @@ export const WorkspaceModeFilterTab = ({
             label: t['com.learnify.notes.header'](),
             testId: 'workspace-notes-button',
             className: styles.filterTab,
+            attrs: {
+              onClick: () => handleItemClick('notes'),
+            },
           },
           {
             value: 'mind-map',
             label: t['com.learnify.mind-map.header'](),
             testId: 'workspace-mind-map-button',
             className: styles.filterTab,
+            attrs: {
+              onClick: () => handleItemClick('mind-map'),
+            },
           },
           {
             value: 'quiz-cards',
             label: t['com.learnify.quiz-cards.header'](),
             testId: 'workspace-quiz-cards-button',
             className: styles.filterTab,
+            attrs: {
+              onClick: () => handleItemClick('quiz-cards'),
+            },
           },
           {
             value: 'flashcards',
             label: t['com.learnify.flashcards.header'](),
             testId: 'workspace-flashcards-button',
             className: styles.filterTab,
+            attrs: {
+              onClick: () => handleItemClick('flashcards'),
+            },
           },
           {
             value: 'podcasts',
             label: t['com.learnify.podcasts.header'](),
             testId: 'workspace-podcasts-button',
             className: styles.filterTab,
+            attrs: {
+              onClick: () => handleItemClick('podcasts'),
+            },
           },
         ],
-        [t]
+        [t, handleItemClick]
       )}
     />
   );
